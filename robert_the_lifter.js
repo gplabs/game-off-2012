@@ -33,7 +33,7 @@ robert_the_lifter.start = function() {
   game.factoryY = 0;
   
   var director = new lime.Director(document.body, game.width, game.height);
-  
+  director.setDisplayFPS(false);
   // This will probably be the only scene of the game (beside a menu ?)
   var gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
   
