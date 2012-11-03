@@ -29,8 +29,11 @@ robert_the_lifter.Robert = function(game) {
     setSpeed(this, ev.event.keyCode, 0);
   });
   
-  lime.scheduleManager.schedule(function(){ 
-    var pos = this.getPosition();
+  this.key_timing = 50;
+  lime.scheduleManager.schedule(function(number){ 
+    this.key_timing -= number;
+    if (this.key_timing <= 0) {
+      var pos = this.getPosition();
     
     if (pos.x + this.rightSpeed <= this.rightLimit) {
       pos.x += this.rightSpeed;
@@ -46,6 +49,9 @@ robert_the_lifter.Robert = function(game) {
     }
     
     this.setPosition(pos.x, pos.y);
+    this.key_timing = 50;
+    }
+    
   },this);
   
   function setSpeed(robert, keyCode, speed) {
@@ -69,7 +75,7 @@ robert_the_lifter.Robert = function(game) {
 // Robert is a Sprite !
 goog.inherits(robert_the_lifter.Robert, lime.Sprite);
 
-robert_the_lifter.Robert.prototype.DEFAULT_SPEED = 1;
+robert_the_lifter.Robert.prototype.DEFAULT_SPEED = 32;
 robert_the_lifter.Robert.prototype.STARTING_X = 100;
 robert_the_lifter.Robert.prototype.STARTING_Y = 100;
 
