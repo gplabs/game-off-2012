@@ -123,7 +123,7 @@ robert_the_lifter.Piece = function(factory, game) {
       createSquare(startingX, startingY),
       createSquare(startingX + game.tileWidth, startingY),
       createSquare(startingX + game.tileWidth*2, startingY),
-      createSquare(startingX + game.tileWidth, startingY + game.tileHeight),
+      createSquare(startingX + game.tileWidth, startingY + game.tileHeight)
     ];
   }
   
