@@ -12,7 +12,7 @@ goog.require('lime.animation.Spawn');
 goog.require('lime.animation.FadeTo');
 goog.require('lime.animation.ScaleTo');
 goog.require('lime.animation.MoveTo');
-goog.require('robert_the_lifter.robert');
+goog.require('robert_the_lifter.Robert');
 
 
 robert_the_lifter.start = function() {
