@@ -6,15 +6,32 @@ robert_the_lifter.Piece = function(factory, game) {
   var startingX = game.factoryX + game.tileWidth*6;
   var startingY = game.factoryY + 0;
   
-  this.squares = [
-    createSquare(startingX, startingY),
-    createSquare(startingX, startingY + game.tileHeight),
-    createSquare(startingX, startingY + game.tileHeight*2),
-    createSquare(startingX, startingY + game.tileHeight*3)
-  ];
-
+  var pieceType = Math.floor((Math.random()*7)+1);
   
-
+  switch(pieceType) {
+    case 1:
+      this.squares = createPieceInvertedL();
+      break;
+    case 2:
+      this.squares = createPieceL();
+      break;
+    case 3:
+      this.squares = createPieceBar();
+      break;
+    case 4:
+      this.squares = createPieceSquare();
+      break;
+    case 5:
+      this.squares = createPieceT();
+      break;
+    case 6:
+      this.squares = createPieceS();
+      break;
+    case 7:
+      this.squares = createPieceInvertedS();
+      break;
+  }
+  
   for (var i in this.squares) {
     factory.appendChild(this.squares[i]);
   }
@@ -29,6 +46,115 @@ robert_the_lifter.Piece = function(factory, game) {
       .setFill(0,0,0)
       .setStroke(1, '#F55')
       .setPosition(x, y);
+  }
+  
+  /**
+   * The bar piece
+   * 
+   *  x
+   *  x
+   *  x
+   *  x
+   */
+  function createPieceBar() {
+    return [
+      createSquare(startingX, startingY),
+      createSquare(startingX, startingY + game.tileHeight),
+      createSquare(startingX, startingY + game.tileHeight*2),
+      createSquare(startingX, startingY + game.tileHeight*3)
+    ];
+  }
+  
+  /**
+   * The L piece
+   * 
+   *  x
+   *  x
+   *  xx
+   */
+  function createPieceL() {
+    return [
+      createSquare(startingX, startingY),
+      createSquare(startingX, startingY + game.tileHeight),
+      createSquare(startingX, startingY + game.tileHeight*2),
+      createSquare(startingX + game.tileWidth, startingY + game.tileHeight*2)
+    ];
+  }
+  
+  /**
+   * The inverted L piece
+   * 
+   *   x
+   *   x
+   *  xx
+   */
+  function createPieceInvertedL() {
+    return [
+      createSquare(startingX, startingY),
+      createSquare(startingX, startingY + game.tileHeight),
+      createSquare(startingX, startingY + game.tileHeight*2),
+      createSquare(startingX - game.tileWidth, startingY + game.tileHeight*2)
+    ];
+  }
+  
+  /**
+   * The square piece
+   * 
+   *  xx
+   *  xx
+   */
+  function createPieceSquare() {
+    return [
+      createSquare(startingX, startingY),
+      createSquare(startingX + game.tileWidth, startingY),
+      createSquare(startingX, startingY + game.tileHeight),
+      createSquare(startingX + game.tileWidth, startingY + game.tileHeight)
+    ];
+  }
+  
+  /**
+   * The T piece
+   * 
+   *  xxx
+   *   x
+   */
+  function createPieceT() {
+    return [
+      createSquare(startingX, startingY),
+      createSquare(startingX + game.tileWidth, startingY),
+      createSquare(startingX + game.tileWidth*2, startingY),
+      createSquare(startingX + game.tileWidth, startingY + game.tileHeight),
+    ];
+  }
+  
+  /**
+   * The S piece
+   * 
+   *   xx
+   *  xx
+   */
+  function createPieceS() {
+    return [
+      createSquare(startingX, startingY),
+      createSquare(startingX + game.tileWidth, startingY),
+      createSquare(startingX, startingY + game.tileHeight),
+      createSquare(startingX - game.tileWidth, startingY + game.tileHeight)
+    ];
+  }
+  
+  /**
+   * The inverted S piece
+   * 
+   *  xx
+   *   xx
+   */
+  function createPieceInvertedS() {
+    return [
+      createSquare(startingX, startingY),
+      createSquare(startingX - game.tileWidth, startingY),
+      createSquare(startingX, startingY + game.tileHeight),
+      createSquare(startingX + game.tileWidth, startingY + game.tileHeight)
+    ];
   }
 }
 
@@ -51,6 +177,3 @@ robert_the_lifter.Piece.prototype.goDown = function (){
   
   return canContinue;
 }
-
-// The starting speed is the time between each tile drop (in ms)
-robert_the_lifter.Piece.prototype.STARTING_SPEED = 1000;
