@@ -29,7 +29,7 @@ robert_the_lifter.Robert = function(game) {
     setSpeed(this, ev.event.keyCode, 0);
   });
   
-  this.key_timing = 50;
+  this.key_timing = 65;
   lime.scheduleManager.schedule(function(number){ 
     this.key_timing -= number;
     if (this.key_timing <= 0) {
@@ -49,7 +49,7 @@ robert_the_lifter.Robert = function(game) {
     }
     
     this.setPosition(pos.x, pos.y);
-    this.key_timing = 50;
+    this.key_timing = 65;
     }
     
   },this);
@@ -76,6 +76,6 @@ robert_the_lifter.Robert = function(game) {
 goog.inherits(robert_the_lifter.Robert, lime.Sprite);
 
 robert_the_lifter.Robert.prototype.DEFAULT_SPEED = 32;
-robert_the_lifter.Robert.prototype.STARTING_X = 100;
-robert_the_lifter.Robert.prototype.STARTING_Y = 100;
+robert_the_lifter.Robert.prototype.STARTING_X = 32;
+robert_the_lifter.Robert.prototype.STARTING_Y = 32;
 
