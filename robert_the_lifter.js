@@ -39,7 +39,7 @@ robert_the_lifter.start = function() {
   
   // The left parking layer
   var leftParkingLayer = new lime.Layer()
-    .setAnchorPoint(0, 0)
+    .setAnchorPoint(0, 0);
   // Left parking area
   var leftParkingArea = new lime.Sprite()
     .setAnchorPoint(0,0)
@@ -70,12 +70,17 @@ robert_the_lifter.start = function() {
     if (this.timeToNextGoingDown <= 0) {
       this.timeToNextGoingDown += game.startingSpeed;
       if (createNewPiece) {
-        var i = this.pieces.push(new robert_the_lifter.Piece(factoryLayer, game));
-        currentPiece = this.pieces[i - 1];
+        if (currentPiece != null) {
+          this.pieces.push(currentPiece);
+        }
+        currentPiece = new robert_the_lifter.Piece(factoryLayer, game);
         createNewPiece = false;
       }
       else {
         createNewPiece = !currentPiece.goDown();
+        for (var j = 0; j < this.pieces.length && !createNewPiece; j++) {
+          createNewPiece = currentPiece.willOverlap(this.pieces[j]);
+        }
       }
     }
   }

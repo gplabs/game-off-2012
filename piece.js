@@ -177,3 +177,19 @@ robert_the_lifter.Piece.prototype.goDown = function (){
   
   return canContinue;
 }
+
+/**
+ * Check if the current piece will overlap the other piece if it continues down.
+ */
+robert_the_lifter.Piece.prototype.willOverlap = function (otherPiece) {
+  for (var i in this.squares) {
+    var pos = this.squares[i].getPosition();
+    for (var j in otherPiece.squares) {
+      var otherPos = otherPiece.squares[j].getPosition();
+      if (pos.x == otherPos.x && pos.y + this.game.tileHeight >= otherPos.y) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
