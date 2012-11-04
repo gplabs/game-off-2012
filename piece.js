@@ -43,8 +43,7 @@ robert_the_lifter.Piece = function(factory, game) {
     return new lime.Sprite()
       .setSize(game.tileWidth, game.tileHeight)
       .setAnchorPoint(0,0)
-      .setFill(0,0,0)
-      .setStroke(1, '#F55')
+      .setFill('images/box.png')
       .setPosition(x, y);
   }
   
