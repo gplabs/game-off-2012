@@ -4,7 +4,8 @@ goog.require('lime.Sprite');
 
 robert_the_lifter.Robert = function(game) {
   goog.base(this);
-
+  this.game = game;
+  this.pointing = this.POINTING_DOWN;
   // Don't move by default !
   this.leftSpeed = 0;
   this.rightSpeed = 0;
@@ -58,15 +59,19 @@ robert_the_lifter.Robert = function(game) {
     switch (keyCode) {
       case 40: // Down
         robert.downSpeed = speed;
+        this.pointing = this.POINTING_DOWN;
         break;
       case 39: // Right
         robert.rightSpeed = speed;
+        this.pointing = this.POINTING_RIGHT;
         break;
       case 38: // Up
         robert.upSpeed = speed;
+        this.pointing = this.POINTING_UP;
         break;
       case 37: // Left
         robert.leftSpeed = speed;
+        this.pointing = this.POINTING_LEFT;
         break;
     }
   }
@@ -75,7 +80,42 @@ robert_the_lifter.Robert = function(game) {
 // Robert is a Sprite !
 goog.inherits(robert_the_lifter.Robert, lime.Sprite);
 
+robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
+  var pos = this.getPosition();
+  var x = pos.x,
+      y = pos.y;
+
+  switch(this.pointing) {
+    case this.POINTING_DOWN:
+      y += this.game.tileHeight;
+      break;
+    case this.POINTING_UP:
+      y -= this.game.tileHeight;
+      break;
+    case this.POINTING_LEFT:
+      x -= this.game.tileHeight;
+      break;
+    case this.POINTING_RIGHT:
+      x += this.game.tileHeight;
+      break;
+  }
+
+  var foundSquare = false;
+  for(var i = 0; i < piece.squares.lenght && !foundSquare; i++) {
+    var piecePos = piece.squares[i].getPosition();
+    foundSquare = (piecePos.X == x && piecePos.Y == y);
+  }
+
+  return foundSquare;
+}
+
 robert_the_lifter.Robert.prototype.DEFAULT_SPEED = 32;
 robert_the_lifter.Robert.prototype.STARTING_X = 32;
 robert_the_lifter.Robert.prototype.STARTING_Y = 32;
+
+robert_the_lifter.Robert.prototype.POINTING_DOWN = 1;
+robert_the_lifter.Robert.prototype.POINTING_UP = 2;
+robert_the_lifter.Robert.prototype.POINTING_LEFT = 3;
+robert_the_lifter.Robert.prototype.POINTING_RIGHT = 4;
+
 
