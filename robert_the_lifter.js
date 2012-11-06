@@ -16,22 +16,27 @@ goog.require('robert_the_lifter.Piece');
 
 robert_the_lifter.start = function() {
   var game = {
-    width: 960,
-    height: 640,
-    tileWidth: 32,
-    tileHeight: 32,
+    tileWidth: 64,
+    tileHeight: 64,
     spawningSpeed: 8000,
     pieces: []
   };
-  game.leftParkingHeight = game.tileWidth*20;
-  game.leftParkingWidth = game.tileHeight*10;
-  game.leftParkingX = 0;
-  game.leftParkingY = 0;
   
-  game.factoryHeight = game.tileWidth*20;
-  game.factoryWidth = game.tileHeight*10;
-  game.factoryX = game.leftParkingWidth;
-  game.factoryY = 0;
+  game.truckParkingHeight = game.tileHeight*2;
+  game.truckParkingWidth = game.tileWidth*20;
+  game.truckParkingX = 0;
+  game.truckParkingY = 0;
+  
+  game.factoryHeight = game.tileWidth*10;
+  game.factoryWidth = game.tileHeight*20;
+  game.factoryX = 0;
+  game.factoryY = game.truckParkingHeight;
+  
+  game.officeAreaHeight = game.tileHeight*2;
+  game.officeAreaWidth = game.tileWidth*20;
+  
+  game.height = game.truckParkingHeight + game.factoryHeight + game.officeAreaHeight;
+  game.width = game.tileWidth * 24;
   
   var director = new lime.Director(document.getElementById('game'), game.width, game.height);
   director.setDisplayFPS(false);
@@ -39,16 +44,16 @@ robert_the_lifter.start = function() {
   var gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
   
   // The left parking layer
-  var leftParkingLayer = new lime.Layer()
+  var truckParkingLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
   // Left parking area
-  var leftParkingArea = new lime.Sprite()
+  var truckParkingArea = new lime.Sprite()
     .setAnchorPoint(0,0)
     .setPosition(0, 0)
-    .setSize(game.leftParkingWidth, game.leftParkingHeight)
+    .setSize(game.truckParkingWidth, game.truckParkingHeight)
     .setFill('#000');
-  leftParkingLayer.appendChild(leftParkingArea);
-  gameScene.appendChild(leftParkingLayer);  
+  truckParkingLayer.appendChild(truckParkingArea);
+  gameScene.appendChild(truckParkingLayer);  
   
   // The factory layer.
   var factoryLayer = new lime.Layer()

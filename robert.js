@@ -13,7 +13,7 @@ robert_the_lifter.Robert = function(game) {
   this.downSpeed = 0;
   
   this.setAnchorPoint(0, 0);
-  this.setPosition(this.STARTING_X + game.factoryX, this.STARTING_Y + game.factoryY);
+  this.setPosition(game.tileWidth + game.factoryX, game.tileHeight + game.factoryY);
   this.setSize(game.tileWidth, game.tileHeight).setFill(255,150,0);
   
   // Set moving limits.
@@ -24,7 +24,7 @@ robert_the_lifter.Robert = function(game) {
   
   // Register Keyup and Keydown events.
   goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
-    setSpeed(this, ev.event.keyCode, this.DEFAULT_SPEED);
+    setSpeed(this, ev.event.keyCode, game.tileWidth);
   });
   goog.events.listen(this, goog.events.EventType.KEYUP, function (ev) {
     setSpeed(this, ev.event.keyCode, 0);
@@ -73,19 +73,19 @@ robert_the_lifter.Robert = function(game) {
     switch (keyCode) {
       case 40: // Down
         robert.downSpeed = speed;
-        this.pointing = this.POINTING_DOWN;
+        robert.pointing = robert_the_lifter.Robert.POINTING_DOWN;
         break;
       case 39: // Right
         robert.rightSpeed = speed;
-        this.pointing = this.POINTING_RIGHT;
+        robert.pointing = robert_the_lifter.Robert.POINTING_RIGHT;
         break;
       case 38: // Up
         robert.upSpeed = speed;
-        this.pointing = this.POINTING_UP;
+        robert.pointing = robert_the_lifter.Robert.POINTING_UP;
         break;
       case 37: // Left
         robert.leftSpeed = speed;
-        this.pointing = this.POINTING_LEFT;
+        robert.pointing = robert_the_lifter.Robert.POINTING_LEFT;
         break;
     }
   }
@@ -146,10 +146,6 @@ robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
 
   return foundSquare;
 }
-
-robert_the_lifter.Robert.prototype.DEFAULT_SPEED = 32;
-robert_the_lifter.Robert.prototype.STARTING_X = 32;
-robert_the_lifter.Robert.prototype.STARTING_Y = 32;
 
 robert_the_lifter.Robert.prototype.POINTING_DOWN = 1;
 robert_the_lifter.Robert.prototype.POINTING_UP = 2;

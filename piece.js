@@ -7,8 +7,8 @@ robert_the_lifter.Piece = function(factory, game) {
   this.isGrabbed = false; // Will be true when the lift has grabbed the piece.
 
   // Initialise the piece with squares.
-  var startingX = game.factoryX + game.tileWidth*6;
-  var startingY = game.factoryY + 0;
+  var startingX = game.factoryX + game.factoryWidth;
+  var startingY = game.factoryY + game.tileHeight*3;
 
   var pieceType = Math.floor((Math.random()*7)+1);
 
@@ -44,11 +44,11 @@ robert_the_lifter.Piece = function(factory, game) {
   lime.scheduleManager.schedule(dropLoop, this);
   this.timeToNextGoingDown = this.DEFAULT_SPEED;
   function dropLoop(number) {
-    if (this.canGoDown(this.game.pieces)) {
+    if (this.canGoLeft(this.game.pieces)) {
       this.timeToNextGoingDown -= number;
       if (this.timeToNextGoingDown <= 0) {
         this.timeToNextGoingDown += this.DEFAULT_SPEED;
-        this.goDown();
+        this.goLeft();
       }
     }
   }
@@ -178,7 +178,7 @@ robert_the_lifter.Piece = function(factory, game) {
 /**
  * Check if the next drop is a legal one !
  */
-robert_the_lifter.Piece.prototype.canGoDown = function (otherPieces) {
+robert_the_lifter.Piece.prototype.canGoLeft = function (otherPieces) {
   var canContinue = true;
   
   if (this.isGrabbed) {
@@ -188,12 +188,11 @@ robert_the_lifter.Piece.prototype.canGoDown = function (otherPieces) {
   {
     for (var i in this.squares) {
       var pos = this.squares[i].getPosition();
-      var y = pos.y + this.game.tileHeight;
-      var x = pos.x;
+      var y = pos.y;
+      var x = pos.x - this.game.tileWidth;
 
       // If the next drop of this square would go too deep, we stop the entire drop.
-      var size = this.squares[i].getSize();
-      if (y > this.game.factoryHeight - size.height) {
+      if (x < 0) {
         canContinue = false;
       }
 
@@ -217,10 +216,10 @@ robert_the_lifter.Piece.prototype.canGoDown = function (otherPieces) {
 /**
  * Makes the entire piece go down one tile, no matter what !
  */
-robert_the_lifter.Piece.prototype.goDown = function (){
+robert_the_lifter.Piece.prototype.goLeft = function (){
   for (var i in this.squares) {
     var pos = this.squares[i].getPosition();
-    this.squares[i].setPosition(pos.x, pos.y + this.game.tileHeight);
+    this.squares[i].setPosition(pos.x - this.game.tileWidth, pos.y);
   }
 }
 
