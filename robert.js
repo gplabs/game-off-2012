@@ -43,28 +43,37 @@ robert_the_lifter.Robert = function(game) {
     if (this.key_timing <= 0) {
       var pos = this.getPosition();
     
+      // for each direction, we check if we can move and do it if possible.
       if (this.rightSpeed !== 0 && pos.x + this.rightSpeed <= this.rightLimit) {
-        pos.x += this.rightSpeed;
-        if (hasPiece) {
+        if (!hasPiece) {
+          pos.x += this.rightSpeed;
+        } else if (hasPiece /*&& canMove()*/) {
           moveGrabbedPieceRight(this);
+          pos.x += this.rightSpeed;
         }
       }
       if (this.leftSpeed !== 0 && pos.x - this.leftSpeed >= this.leftLimit) {
-        pos.x -= this.leftSpeed;
-        if (hasPiece) {
+        if (!hasPiece) {
+          pos.x -= this.leftSpeed;
+        } else if (hasPiece /*&& canMove()*/) {
           moveGrabbedPieceLeft(this);
+          pos.x -= this.leftSpeed;
         }
       }
       if (this.upSpeed !== 0 && pos.y - this.upSpeed >= this.upLimit) {
-        pos.y -= this.upSpeed;
-        if (hasPiece) {
+        if (!hasPiece) {
+          pos.y -= this.upSpeed;
+        } else if (hasPiece /*&& canMove()*/) {
           moveGrabbedPieceUp(this);
+          pos.y -= this.upSpeed;
         }
       }
       if (this.downSpeed !== 0 && pos.y + this.downSpeed <= this.downLimit) {
-        pos.y += this.downSpeed;
-        if (hasPiece) {
+        if (!hasPiece) {
+          pos.y += this.downSpeed;
+        } else if (hasPiece /*&& canMove()*/) {
           moveGrabbedPieceDown(this);
+          pos.y += this.downSpeed;
         }
       }
 
@@ -78,22 +87,22 @@ robert_the_lifter.Robert = function(game) {
     switch (keyCode) {
       case 40: // Down
         robert.downSpeed = speed;
-        robert.pointing = robert_the_lifter.Robert.POINTING_DOWN;
+        robert.pointing = robert.POINTING_DOWN;
         robert.setRotation(180);
         break;
       case 39: // Right
         robert.rightSpeed = speed;
-        robert.pointing = robert_the_lifter.Robert.POINTING_RIGHT;
+        robert.pointing = robert.POINTING_RIGHT;
         robert.setRotation(270);
         break;
       case 38: // Up
         robert.upSpeed = speed;
-        robert.pointing = robert_the_lifter.Robert.POINTING_UP;
+        robert.pointing = robert.POINTING_UP;
         robert.setRotation(0);
         break;
       case 37: // Left
         robert.leftSpeed = speed;
-        robert.pointing = robert_the_lifter.Robert.POINTING_LEFT;
+        robert.pointing = robert.POINTING_LEFT;
         robert.setRotation(90);
         break;
     }

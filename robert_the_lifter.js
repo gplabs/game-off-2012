@@ -11,32 +11,12 @@ goog.require('lime.animation.Spawn');
 goog.require('lime.animation.FadeTo');
 goog.require('lime.animation.ScaleTo');
 goog.require('lime.animation.MoveTo');
+goog.require('robert_the_lifter.Game');
 goog.require('robert_the_lifter.Robert');
 goog.require('robert_the_lifter.Piece');
 
 robert_the_lifter.start = function() {
-  var game = {
-    tileWidth: 64,
-    tileHeight: 64,
-    spawningSpeed: 8000,
-    pieces: []
-  };
-  
-  game.truckParkingHeight = game.tileHeight*2;
-  game.truckParkingWidth = game.tileWidth*20;
-  game.truckParkingX = 0;
-  game.truckParkingY = 0;
-  
-  game.factoryHeight = game.tileWidth*10;
-  game.factoryWidth = game.tileHeight*20;
-  game.factoryX = 0;
-  game.factoryY = game.truckParkingHeight;
-  
-  game.officeAreaHeight = game.tileHeight*2;
-  game.officeAreaWidth = game.tileWidth*20;
-  
-  game.height = game.truckParkingHeight + game.factoryHeight + game.officeAreaHeight;
-  game.width = game.tileWidth * 24;
+  var game = new robert_the_lifter.Game();
   
   var director = new lime.Director(document.getElementById('game'), game.width, game.height);
   director.setDisplayFPS(false);
@@ -61,8 +41,8 @@ robert_the_lifter.start = function() {
   gameScene.appendChild(factoryLayer);
   
   // Init Robert :P
-  var robert = new robert_the_lifter.Robert(game);
-  factoryLayer.appendChild(robert);
+  game.robert = new robert_the_lifter.Robert(game);
+  factoryLayer.appendChild(game.robert);
 
   // This is the game main loop (For dropping down pieces.) Currently not working
   this.timeToNextSpawning = 0;
@@ -79,15 +59,15 @@ robert_the_lifter.start = function() {
   }
 
   // Register to keyboard event for Robert to grab a piece.
-  goog.events.listen(robert, goog.events.EventType.KEYDOWN, function (ev) {
+  goog.events.listen(game.robert, goog.events.EventType.KEYDOWN, function (ev) {
     if (ev.event.keyCode == 32) { // 32 = spacebar.
       var foundPiece = false;
       for (var i = 0; i < game.pieces.length && !foundPiece; i++) {
-        foundPiece = robert.isThisPieceInFrontOfMe(game.pieces[i]);
+        foundPiece = game.robert.isThisPieceInFrontOfMe(game.pieces[i]);
       }
       if (foundPiece) {
         game.pieces[i - 1].isGrabbed = true;
-        robert.grabbedPiece = game.pieces[i - 1];
+        game.robert.grabbedPiece = game.pieces[i - 1];
       }
     }
   });
