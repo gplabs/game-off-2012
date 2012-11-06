@@ -12,9 +12,14 @@ robert_the_lifter.Robert = function(game) {
   this.upSpeed = 0;
   this.downSpeed = 0;
   
-  this.setAnchorPoint(0, 0);
+  //this.setAnchorPoint(32, 32);
+  this.forks_x = 0;
+  this.forks_y = 64;
   this.setPosition(game.tileWidth + game.factoryX, game.tileHeight + game.factoryY);
-  this.setSize(game.tileWidth, game.tileHeight).setFill(255,150,0);
+
+  this.img = new lime.fill.Frame('images/forklift.png', 0, 0, game.tileWidth + this.forks_x, game.tileHeight + this.forks_y);
+  this.setSize(game.tileWidth + this.forks_x, game.tileHeight + this.forks_y).setFill(this.img);
+  this.setRotation(0);
   
   // Set moving limits.
   this.rightLimit = game.factoryX + game.factoryWidth - this.getSize().width;
@@ -74,18 +79,22 @@ robert_the_lifter.Robert = function(game) {
       case 40: // Down
         robert.downSpeed = speed;
         robert.pointing = robert_the_lifter.Robert.POINTING_DOWN;
+        robert.setRotation(180);
         break;
       case 39: // Right
         robert.rightSpeed = speed;
         robert.pointing = robert_the_lifter.Robert.POINTING_RIGHT;
+        robert.setRotation(270);
         break;
       case 38: // Up
         robert.upSpeed = speed;
         robert.pointing = robert_the_lifter.Robert.POINTING_UP;
+        robert.setRotation(0);
         break;
       case 37: // Left
         robert.leftSpeed = speed;
         robert.pointing = robert_the_lifter.Robert.POINTING_LEFT;
+        robert.setRotation(90);
         break;
     }
   }
