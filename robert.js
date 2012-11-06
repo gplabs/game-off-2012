@@ -31,26 +31,40 @@ robert_the_lifter.Robert = function(game) {
   });
   
   this.key_timing = 65;
-  lime.scheduleManager.schedule(function(number){ 
+  lime.scheduleManager.schedule(function(number) { 
     this.key_timing -= number;
+    var hasPiece = typeof this.grabbedPiece !== 'undefined';
+    
     if (this.key_timing <= 0) {
       var pos = this.getPosition();
     
-    if (pos.x + this.rightSpeed <= this.rightLimit) {
-      pos.x += this.rightSpeed;
-    }
-    if (pos.x - this.leftSpeed >= this.leftLimit) {
-      pos.x -= this.leftSpeed;
-    }
-    if (pos.y - this.upSpeed >= this.upLimit) {
-      pos.y -= this.upSpeed;
-    }
-    if (pos.y + this.downSpeed <= this.downLimit) {
-      pos.y += this.downSpeed;
-    }
-    
-    this.setPosition(pos.x, pos.y);
-    this.key_timing = 65;
+      if (this.rightSpeed !== 0 && pos.x + this.rightSpeed <= this.rightLimit) {
+        pos.x += this.rightSpeed;
+        if (hasPiece) {
+          moveGrabbedPieceRight(this);
+        }
+      }
+      if (this.leftSpeed !== 0 && pos.x - this.leftSpeed >= this.leftLimit) {
+        pos.x -= this.leftSpeed;
+        if (hasPiece) {
+          moveGrabbedPieceLeft(this);
+        }
+      }
+      if (this.upSpeed !== 0 && pos.y - this.upSpeed >= this.upLimit) {
+        pos.y -= this.upSpeed;
+        if (hasPiece) {
+          moveGrabbedPieceUp(this);
+        }
+      }
+      if (this.downSpeed !== 0 && pos.y + this.downSpeed <= this.downLimit) {
+        pos.y += this.downSpeed;
+        if (hasPiece) {
+          moveGrabbedPieceDown(this);
+        }
+      }
+
+      this.setPosition(pos.x, pos.y);
+      this.key_timing = 65;
     }
     
   },this);
@@ -73,6 +87,30 @@ robert_the_lifter.Robert = function(game) {
         robert.leftSpeed = speed;
         this.pointing = this.POINTING_LEFT;
         break;
+    }
+  }
+  
+  function moveGrabbedPieceUp(robert) {
+    for (var i in robert.grabbedPiece.squares) {
+      robert.grabbedPiece.squares[i].getPosition().y -= robert.upSpeed;
+    }
+  }
+  
+  function moveGrabbedPieceDown(robert) {
+    for (var i in robert.grabbedPiece.squares) {
+      robert.grabbedPiece.squares[i].getPosition().y += robert.downSpeed;
+    }
+  }
+  
+  function moveGrabbedPieceLeft(robert) {
+    for (var i in robert.grabbedPiece.squares) {
+      robert.grabbedPiece.squares[i].getPosition().x -= robert.leftSpeed;
+    }
+  }
+  
+  function moveGrabbedPieceRight(robert) {
+    for (var i in robert.grabbedPiece.squares) {
+      robert.grabbedPiece.squares[i].getPosition().x += robert.rightSpeed;
     }
   }
 }
@@ -101,9 +139,9 @@ robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
   }
 
   var foundSquare = false;
-  for(var i = 0; i < piece.squares.lenght && !foundSquare; i++) {
+  for(var i = 0; i < piece.squares.length && !foundSquare; i++) {
     var piecePos = piece.squares[i].getPosition();
-    foundSquare = (piecePos.X == x && piecePos.Y == y);
+    foundSquare = (piecePos.x == x && piecePos.y == y);
   }
 
   return foundSquare;

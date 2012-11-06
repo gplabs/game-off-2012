@@ -81,8 +81,8 @@ robert_the_lifter.start = function() {
         foundPiece = robert.isThisPieceInFrontOfMe(game.pieces[i]);
       }
       if (foundPiece) {
-        game.pieces[i].isGrabbed = true;
-        robert.grabbedPiece = game.pieces[i];
+        game.pieces[i - 1].isGrabbed = true;
+        robert.grabbedPiece = game.pieces[i - 1];
       }
     }
   });
