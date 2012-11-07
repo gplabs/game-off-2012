@@ -14,6 +14,7 @@ goog.require('lime.animation.MoveTo');
 goog.require('robert_the_lifter.Game');
 goog.require('robert_the_lifter.Robert');
 goog.require('robert_the_lifter.Piece');
+goog.require('robert_the_lifter.Movement');
 
 robert_the_lifter.start = function() {
   var game = new robert_the_lifter.Game();

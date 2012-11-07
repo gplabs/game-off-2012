@@ -29,6 +29,38 @@ robert_the_lifter.Robert = function(game) {
   
   // Register Keyup and Keydown events.
   goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
+    
+    
+//    switch(ev.event.keyCode) {
+//      case 40: // Down
+//        
+//        break;
+//      case 39: // Right
+//        this.setRotation(actual_rotation-15);
+//        break;
+//      case 38: // Up
+//        
+//        break;
+//      case 37: // Left
+//        this.setRotation(actual_rotation+15);
+//        break;
+//    }
+
+//    Ancienne façon de bouger le lift
+//    switch(ev.event.keyCode) {
+//      case 40: // Down
+//        this.setRotation(180);
+//        break;
+//      case 39: // Right
+//        this.setRotation(270);
+//        break;
+//      case 38: // Up
+//        this.setRotation(0);
+//        break;
+//      case 37: // Left
+//        this.setRotation(90);
+//        break;
+//    }
     setSpeed(this, ev.event.keyCode, game.tileWidth);
   });
   goog.events.listen(this, goog.events.EventType.KEYUP, function (ev) {
@@ -83,30 +115,7 @@ robert_the_lifter.Robert = function(game) {
     
   },this);
   
-  function setSpeed(robert, keyCode, speed) {
-    switch (keyCode) {
-      case 40: // Down
-        robert.downSpeed = speed;
-        robert.pointing = robert.POINTING_DOWN;
-        robert.setRotation(180);
-        break;
-      case 39: // Right
-        robert.rightSpeed = speed;
-        robert.pointing = robert.POINTING_RIGHT;
-        robert.setRotation(270);
-        break;
-      case 38: // Up
-        robert.upSpeed = speed;
-        robert.pointing = robert.POINTING_UP;
-        robert.setRotation(0);
-        break;
-      case 37: // Left
-        robert.leftSpeed = speed;
-        robert.pointing = robert.POINTING_LEFT;
-        robert.setRotation(90);
-        break;
-    }
-  }
+  
   
   function moveGrabbedPieceUp(robert) {
     for (var i in robert.grabbedPiece.squares) {
@@ -165,9 +174,9 @@ robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
   return foundSquare;
 }
 
-robert_the_lifter.Robert.prototype.POINTING_DOWN = 1;
-robert_the_lifter.Robert.prototype.POINTING_UP = 2;
-robert_the_lifter.Robert.prototype.POINTING_LEFT = 3;
-robert_the_lifter.Robert.prototype.POINTING_RIGHT = 4;
+//robert_the_lifter.Robert.prototype.POINTING_DOWN = 1;
+//robert_the_lifter.Robert.prototype.POINTING_UP = 2;
+//robert_the_lifter.Robert.prototype.POINTING_LEFT = 3;
+//robert_the_lifter.Robert.prototype.POINTING_RIGHT = 4;
 
 
