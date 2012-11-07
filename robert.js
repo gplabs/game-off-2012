@@ -16,6 +16,7 @@ robert_the_lifter.Robert = function(game) {
   this.forks_x = 0;
   this.forks_y = 64;
   this.setPosition(game.tileWidth + game.factoryX, game.tileHeight + game.factoryY);
+  this.setAnchorPoint(0.5, 0.75);
 
   this.img = new lime.fill.Frame('images/forklift.png', 0, 0, game.tileWidth + this.forks_x, game.tileHeight + this.forks_y);
   this.setSize(game.tileWidth + this.forks_x, game.tileHeight + this.forks_y).setFill(this.img);
