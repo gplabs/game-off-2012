@@ -1,13 +1,17 @@
 goog.provide('robert_the_lifter.Piece');
 
+goog.require('lime.fill.Frame');
 robert_the_lifter.Piece = function(factory, game) {
   this.game = game;
+
+  this.isGrabbed = false; // Will be true when the lift has grabbed the piece.
+
   // Initialise the piece with squares.
-  var startingX = game.factoryX + game.tileWidth*6;
-  var startingY = game.factoryY + 0;
-  
+  var startingX = game.factoryX + game.factoryWidth - game.tileWidth*2;
+  var startingY = game.factoryY + game.tileHeight*3;
+
   var pieceType = Math.floor((Math.random()*7)+1);
-  
+
   switch(pieceType) {
     case 1:
       this.squares = createPieceInvertedL();
@@ -31,19 +35,33 @@ robert_the_lifter.Piece = function(factory, game) {
       this.squares = createPieceInvertedS();
       break;
   }
-  
+
   for (var i in this.squares) {
     factory.appendChild(this.squares[i]);
   }
-  
+
+  // The loop for dropping the piece.
+  lime.scheduleManager.schedule(dropLoop, this);
+  this.timeToNextGoingDown = this.DEFAULT_SPEED;
+  function dropLoop(number) {
+    if (!this.isGrabbed && this.canGoLeft()) {
+      this.timeToNextGoingDown -= number;
+      if (this.timeToNextGoingDown <= 0) {
+        this.timeToNextGoingDown += this.DEFAULT_SPEED;
+        this.goLeft();
+      }
+    }
+  }
+
   /**
    * Create one of the piece squares
    */
   function createSquare(x, y) {
+    var frame = new lime.fill.Frame('images/boxes.png', 0, 0, game.tileWidth, game.tileHeight);
     return new lime.Sprite()
       .setSize(game.tileWidth, game.tileHeight)
       .setAnchorPoint(0,0)
-      .setFill('images/box.png')
+      .setFill(frame)
       .setPosition(x, y);
   }
   
@@ -158,37 +176,38 @@ robert_the_lifter.Piece = function(factory, game) {
 }
 
 /**
- * Makes the entire piece go down one tile.
- * Return true if it can continue down.
+ * Checks if the piece can move in the direction given.
+ * params coords are current coords modifiers.
  */
-robert_the_lifter.Piece.prototype.goDown = function (){
-  var canContinue = true;
-  for (var i in this.squares) {
-    var pos = this.squares[i].getPosition();
-    this.squares[i].setPosition(pos.x, pos.y + this.game.tileHeight);
-
-    // If the next drop of this square would go too deep, we stop the entire drop.
-    var size = this.squares[i].getSize();
-    if (pos.y + this.game.tileHeight >= this.game.factoryHeight - size.height) {
-      canContinue = false;
+robert_the_lifter.Piece.prototype.canMove = function (x, y, considerRobert) {
+  var canMove = true;
+  
+  for (var i = 0; i < this.squares.length && canMove; i ++) {
+    var squarePos = this.squares[i].getPosition();
+    
+    if (!this.game.canBePlace(squarePos.x + x, squarePos.y + y, this.key, considerRobert)) {
+      canMove = false;
     }
   }
   
-  return canContinue;
+  return canMove;
 }
 
 /**
- * Check if the current piece will overlap the other piece if it continues down.
+ * Check if the next drop is a legal one !
  */
-robert_the_lifter.Piece.prototype.willOverlap = function (otherPiece) {
+robert_the_lifter.Piece.prototype.canGoLeft = function () {
+  return this.canMove(-this.game.tileWidth, 0, true);
+}
+
+/**
+ * Makes the entire piece go down one tile, no matter what !
+ */
+robert_the_lifter.Piece.prototype.goLeft = function (){
   for (var i in this.squares) {
     var pos = this.squares[i].getPosition();
-    for (var j in otherPiece.squares) {
-      var otherPos = otherPiece.squares[j].getPosition();
-      if (pos.x == otherPos.x && pos.y + this.game.tileHeight >= otherPos.y) {
-        return true;
-      }
-    }
+    this.squares[i].setPosition(pos.x - this.game.tileWidth, pos.y);
   }
-  return false;
 }
+
+robert_the_lifter.Piece.prototype.DEFAULT_SPEED = 1000;

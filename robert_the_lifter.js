@@ -11,26 +11,12 @@ goog.require('lime.animation.Spawn');
 goog.require('lime.animation.FadeTo');
 goog.require('lime.animation.ScaleTo');
 goog.require('lime.animation.MoveTo');
+goog.require('robert_the_lifter.Game');
 goog.require('robert_the_lifter.Robert');
 goog.require('robert_the_lifter.Piece');
 
 robert_the_lifter.start = function() {
-  var game = {
-    width: 960,
-    height: 640,
-    tileWidth: 32,
-    tileHeight: 32,
-    startingSpeed: 1000
-  };
-  game.leftParkingHeight = game.tileWidth*20;
-  game.leftParkingWidth = game.tileHeight*10;
-  game.leftParkingX = 0;
-  game.leftParkingY = 0;
-  
-  game.factoryHeight = game.tileWidth*20;
-  game.factoryWidth = game.tileHeight*10;
-  game.factoryX = game.leftParkingWidth;
-  game.factoryY = 0;
+  var game = new robert_the_lifter.Game();
   
   var director = new lime.Director(document.getElementById('game'), game.width, game.height);
   director.setDisplayFPS(false);
@@ -38,16 +24,16 @@ robert_the_lifter.start = function() {
   var gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
   
   // The left parking layer
-  var leftParkingLayer = new lime.Layer()
+  var truckParkingLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
   // Left parking area
-  var leftParkingArea = new lime.Sprite()
+  var truckParkingArea = new lime.Sprite()
     .setAnchorPoint(0,0)
     .setPosition(0, 0)
-    .setSize(game.leftParkingWidth, game.leftParkingHeight)
+    .setSize(game.truckParkingWidth, game.truckParkingHeight)
     .setFill('#000');
-  leftParkingLayer.appendChild(leftParkingArea);
-  gameScene.appendChild(leftParkingLayer);  
+  truckParkingLayer.appendChild(truckParkingArea);
+  gameScene.appendChild(truckParkingLayer);  
   
   // The factory layer.
   var factoryLayer = new lime.Layer()
@@ -55,35 +41,37 @@ robert_the_lifter.start = function() {
   gameScene.appendChild(factoryLayer);
   
   // Init Robert :P
-  var robert = new robert_the_lifter.Robert(game);
-  factoryLayer.appendChild(robert);
+  game.robert = new robert_the_lifter.Robert(game);
+  factoryLayer.appendChild(game.robert);
 
-  // This is the game main loop (For dropping down pieces.)
-  this.timeToNextGoingDown = game.startingSpeed;
-  this.pieces = [];
-  var currentPiece;
-  var createNewPiece = true;
-  lime.scheduleManager.schedule(piecesLoop, this);
+  // This is the game main loop (For dropping down pieces.) Currently not working
+  this.timeToNextSpawning = 0;
+  game.pieces = [];
+  lime.scheduleManager.schedule(spawningPieceLoop, this);
 
-  function piecesLoop(number) {
-    this.timeToNextGoingDown -= number;
-    if (this.timeToNextGoingDown <= 0) {
-      this.timeToNextGoingDown += game.startingSpeed;
-      if (createNewPiece) {
-        if (currentPiece != null) {
-          this.pieces.push(currentPiece);
-        }
-        currentPiece = new robert_the_lifter.Piece(factoryLayer, game);
-        createNewPiece = false;
-      }
-      else {
-        createNewPiece = !currentPiece.goDown();
-        for (var j = 0; j < this.pieces.length && !createNewPiece; j++) {
-          createNewPiece = currentPiece.willOverlap(this.pieces[j]);
-        }
-      }
+  function spawningPieceLoop(number) {
+    this.timeToNextSpawning -= number;
+    if (this.timeToNextSpawning <= 0) {
+      this.timeToNextSpawning += game.spawningSpeed;
+      var i = game.pieces.push(new robert_the_lifter.Piece(factoryLayer, game)) - 1;
+      game.pieces[i].key = i;
     }
   }
+
+  // Register to keyboard event for Robert to grab a piece.
+  goog.events.listen(game.robert, goog.events.EventType.KEYDOWN, function (ev) {
+    if (ev.event.keyCode == 32) { // 32 = spacebar.
+      var foundPiece = false;
+      for (var i = 0; i < game.pieces.length && !foundPiece; i++) {
+        foundPiece = game.robert.isThisPieceInFrontOfMe(game.pieces[i]);
+      }
+      if (foundPiece) {
+        game.pieces[i - 1].isGrabbed = true;
+        game.robert.grabbedPiece = game.pieces[i - 1];
+        game.robert.hasPiece = true;
+      }
+    }
+  });
 
   // set current scene active
   director.replaceScene(gameScene);
