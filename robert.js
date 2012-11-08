@@ -5,7 +5,8 @@ goog.require('lime.Sprite');
 robert_the_lifter.Robert = function(game) {
   goog.base(this);
   this.game = game;
-  this.pointing = this.POINTING_DOWN;
+  this.pointing = 4;
+  
   // Don't move by default !
   this.leftSpeed = 0;
   this.rightSpeed = 0;
@@ -30,40 +31,9 @@ robert_the_lifter.Robert = function(game) {
   
   // Register Keyup and Keydown events.
   goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
-    
-    
-//    switch(ev.event.keyCode) {
-//      case 40: // Down
-//        
-//        break;
-//      case 39: // Right
-//        this.setRotation(actual_rotation-15);
-//        break;
-//      case 38: // Up
-//        
-//        break;
-//      case 37: // Left
-//        this.setRotation(actual_rotation+15);
-//        break;
-//    }
-
-//    Ancienne façon de bouger le lift
-//    switch(ev.event.keyCode) {
-//      case 40: // Down
-//        this.setRotation(180);
-//        break;
-//      case 39: // Right
-//        this.setRotation(270);
-//        break;
-//      case 38: // Up
-//        this.setRotation(0);
-//        break;
-//      case 37: // Left
-//        this.setRotation(90);
-//        break;
-//    }
     setSpeed(this, ev.event.keyCode, game.tileWidth);
   });
+  
   goog.events.listen(this, goog.events.EventType.KEYUP, function (ev) {
     setSpeed(this, ev.event.keyCode, 0);
   });
@@ -150,7 +120,6 @@ robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
   var pos = this.getPosition();
   var x = pos.x,
       y = pos.y;
-
   switch(this.pointing) {
     case this.POINTING_DOWN:
       y += this.game.tileHeight;
@@ -174,10 +143,3 @@ robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
 
   return foundSquare;
 }
-
-//robert_the_lifter.Robert.prototype.POINTING_DOWN = 1;
-//robert_the_lifter.Robert.prototype.POINTING_UP = 2;
-//robert_the_lifter.Robert.prototype.POINTING_LEFT = 3;
-//robert_the_lifter.Robert.prototype.POINTING_RIGHT = 4;
-
-
