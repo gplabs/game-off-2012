@@ -35,7 +35,7 @@ robert_the_lifter.Game = function() {
  * 
  * The key is used in case of a crate, so that it doesn't compare to itself.
  */
-robert_the_lifter.Game.prototype.canBePlace = function(x ,y, key) {
+robert_the_lifter.Game.prototype.canBePlace = function(x ,y, key, considerRobert) {
   var canPlace = true;
   
   // check if the location is out of the factory.
@@ -57,11 +57,11 @@ robert_the_lifter.Game.prototype.canBePlace = function(x ,y, key) {
   }
   
   // Check if robert is there !
-  if (canPlace) {
+  if (canPlace && considerRobert) {
     var robertPos = this.robert.getPosition();
     
     // Because robert's anchorpoint is not (0,0), we must compare with his up right corner.
-    if (x == (robertPos.x - (this.tileWidth/2)) && y == (robertPos.y - (this.tileHeight/2))) {
+    if (x == (robertPos.x - (this.robert.xAdjustment)) && y == (robertPos.y - this.robert.yAdjustment)) {
       canPlace = false;
     }
   }

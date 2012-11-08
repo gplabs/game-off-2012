@@ -176,20 +176,28 @@ robert_the_lifter.Piece = function(factory, game) {
 }
 
 /**
+ * Checks if the piece can move in the direction given.
+ * params coords are current coords modifiers.
+ */
+robert_the_lifter.Piece.prototype.canMove = function (x, y, considerRobert) {
+  var canMove = true;
+  
+  for (var i = 0; i < this.squares.length && canMove; i ++) {
+    var squarePos = this.squares[i].getPosition();
+    
+    if (!this.game.canBePlace(squarePos.x + x, squarePos.y + y, this.key, considerRobert)) {
+      canMove = false;
+    }
+  }
+  
+  return canMove;
+}
+
+/**
  * Check if the next drop is a legal one !
  */
 robert_the_lifter.Piece.prototype.canGoLeft = function () {
-  var canContinue = true;
-  
-  for (var i = 0; i < this.squares.length && canContinue; i ++) {
-    var pos = this.squares[i].getPosition();
-    var y = pos.y;
-    var x = pos.x - this.game.tileWidth;
-    
-    canContinue = this.game.canBePlace(x, y, this.key);
-  }
-  
-  return canContinue;
+  return this.canMove(-this.game.tileWidth, 0, true);
 }
 
 /**

@@ -14,7 +14,6 @@ goog.require('lime.animation.MoveTo');
 goog.require('robert_the_lifter.Game');
 goog.require('robert_the_lifter.Robert');
 goog.require('robert_the_lifter.Piece');
-goog.require('robert_the_lifter.Movement');
 
 robert_the_lifter.start = function() {
   var game = new robert_the_lifter.Game();
@@ -69,6 +68,7 @@ robert_the_lifter.start = function() {
       if (foundPiece) {
         game.pieces[i - 1].isGrabbed = true;
         game.robert.grabbedPiece = game.pieces[i - 1];
+        game.robert.hasPiece = true;
       }
     }
   });

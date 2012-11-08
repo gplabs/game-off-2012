@@ -5,7 +5,11 @@ goog.require('lime.Sprite');
 robert_the_lifter.Robert = function(game) {
   goog.base(this);
   this.game = game;
-  this.pointing = 4;
+
+  // Must use those variables to obtaine upper left corner position.
+  // Thats because the anchor point is in center of the lift (w/o forks.)
+  this.xAdjustment = this.game.tileWidth / 2;
+  this.yAdjustment = this.game.tileHeight / 2;
   
   // Don't move by default !
   this.leftSpeed = 0;
@@ -28,100 +32,134 @@ robert_the_lifter.Robert = function(game) {
   this.leftLimit = game.factoryX;
   this.downLimit = game.factoryY + game.factoryHeight - this.getSize().height;
   
-  // Register Keyup and Keydown events.
+  this.hasPiece = false;
+  
+  // Register Keydown events and move or rotate.
   goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
-    setSpeed(this, ev.event.keyCode, game.tileWidth);
-  });
-  
-  lime.scheduleManager.schedule(function() { 
-    var hasPiece = typeof this.grabbedPiece !== 'undefined';
-    
-      var pos = this.getPosition();
-    
-      // for each direction, we check if we can move and do it if possible.
-      if (this.rightSpeed !== 0 && pos.x + this.rightSpeed <= this.rightLimit) {
-        if (!hasPiece) {
-          pos.x += this.rightSpeed;
-        } else if (hasPiece /*&& canMove()*/) {
-          moveGrabbedPieceRight(this);
-          pos.x += this.rightSpeed;
-        }
-      }
-      if (this.leftSpeed !== 0 && pos.x - this.leftSpeed >= this.leftLimit) {
-        if (!hasPiece) {
-          pos.x -= this.leftSpeed;
-        } else if (hasPiece /*&& canMove()*/) {
-          moveGrabbedPieceLeft(this);
-          pos.x -= this.leftSpeed;
-        }
-      }
-      if (this.upSpeed !== 0 && pos.y - this.upSpeed >= this.upLimit) {
-        if (!hasPiece) {
-          pos.y -= this.upSpeed;
-        } else if (hasPiece /*&& canMove()*/) {
-          moveGrabbedPieceUp(this);
-          pos.y -= this.upSpeed;
-        }
-      }
-      if (this.downSpeed !== 0 && pos.y + this.downSpeed <= this.downLimit) {
-        if (!hasPiece) {
-          pos.y += this.downSpeed;
-        } else if (hasPiece /*&& canMove()*/) {
-          moveGrabbedPieceDown(this);
-          pos.y += this.downSpeed;
-        }
+    var actual_rotation = this.getRotation();
+    if (actual_rotation <= 0) {
+      actual_rotation = 360;
+    }
 
-      this.setPosition(pos.x, pos.y);
+    switch (ev.event.keyCode) {
+      case 40: // Down
+        this.moveTo(actual_rotation/90, ev.event.keyCode);
+        break;
+      case 39: // Right
+        this.setRotation(actual_rotation-90);
+        break;
+      case 38: // Up
+        this.moveTo(actual_rotation/90, ev.event.keyCode);
+        break;
+      case 37: // Left
+        this.setRotation(actual_rotation+90);
+        break;
     }
     
-  },this);
-  
-  
-  
-  function moveGrabbedPieceUp(robert) {
-    for (var i in robert.grabbedPiece.squares) {
-      robert.grabbedPiece.squares[i].getPosition().y -= robert.upSpeed;
-    }
-  }
-  
-  function moveGrabbedPieceDown(robert) {
-    for (var i in robert.grabbedPiece.squares) {
-      robert.grabbedPiece.squares[i].getPosition().y += robert.downSpeed;
-    }
-  }
-  
-  function moveGrabbedPieceLeft(robert) {
-    for (var i in robert.grabbedPiece.squares) {
-      robert.grabbedPiece.squares[i].getPosition().x -= robert.leftSpeed;
-    }
-  }
-  
-  function moveGrabbedPieceRight(robert) {
-    for (var i in robert.grabbedPiece.squares) {
-      robert.grabbedPiece.squares[i].getPosition().x += robert.rightSpeed;
-    }
-  }
+  });
 }
 
 // Robert is a Sprite !
 goog.inherits(robert_the_lifter.Robert, lime.Sprite);
 
+robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
+  var movement_value = this.game.tileWidth;
+
+  switch(rotation) {  
+    case 1: // left.
+      if (keyCode == 38) { // Moving forward
+        this.moveLeft(movement_value);
+      }
+      else { // Moving backward
+        this.moveRight(movement_value);
+      }
+      break;
+
+    case 2: // down.
+      if (keyCode == 38) { // Moving forward
+        this.moveDown(movement_value);
+      }
+      else { // Moving backward
+        this.moveUp(movement_value);
+      }
+      break;
+
+    case 3: // right.
+      if (keyCode == 38) { // Moving forward
+        this.moveRight(movement_value);
+      }
+      else { // Moving backward
+        this.moveLeft(movement_value);
+      }
+      break;   
+
+    case 4: // Up.
+      if (keyCode == 38) { // Moving forward
+        this.moveUp(movement_value);
+      }
+      else { // Moving backward
+        this.moveDown(movement_value);
+      }
+      break;  
+  }
+}
+
+robert_the_lifter.Robert.prototype.moveUp = function(movement) {
+  this.move(0, - movement);
+}
+
+robert_the_lifter.Robert.prototype.moveDown = function(movement) {
+  this.move(0, movement);
+}
+
+robert_the_lifter.Robert.prototype.moveLeft = function(movement) {
+  this.move(-movement, 0);
+}
+
+robert_the_lifter.Robert.prototype.moveRight = function(movement) {
+  this.move(movement, 0);
+}
+
+robert_the_lifter.Robert.prototype.move = function(x, y) {
+  var actual_position = this.getPosition();
+  var grabbedPieceKey = this.hasPiece ? this.grabbedPiece.key : null;
+  if (this.game.canBePlace(actual_position.x - this.xAdjustment + x, actual_position.y - this.yAdjustment + y, grabbedPieceKey) && 
+      (!this.hasPiece || (this.hasPiece && this.grabbedPiece.canMove(x, y, false)))
+     ) {
+    
+    // Move robert.
+    this.setPosition(actual_position.x + x, actual_position.y + y);
+    
+    // Move the grabbed piece.
+    if (this.hasPiece) {
+      for (var i in this.grabbedPiece.squares) {
+        this.grabbedPiece.squares[i].getPosition().x += x;
+        this.grabbedPiece.squares[i].getPosition().y += y;
+      }
+    }
+  }
+}
+
+
+
+
 robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
-  var pos = this.getPosition();
-  var x = pos.x,
-      y = pos.y;
-  switch(this.pointing) {
-    case this.POINTING_DOWN:
+  var pos = this.getPosition(),
+      x = pos.x - this.xAdjustment,
+      y = pos.y - this.yAdjustment,
+      rotation = this.getRotation();
+  switch(rotation) {
+    case 180: //Pointing down !
       y += this.game.tileHeight;
       break;
-    case this.POINTING_UP:
+    case 0: // Pointing up !
       y -= this.game.tileHeight;
       break;
-    case this.POINTING_LEFT:
-      x -= this.game.tileHeight;
+    case 90: // Pointing left !
+      x -= this.game.tileWidth;
       break;
-    case this.POINTING_RIGHT:
-      x += this.game.tileHeight;
+    case 270: // Pointing right !
+      x += this.game.tileWidth;
       break;
   }
 
