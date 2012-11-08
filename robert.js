@@ -34,16 +34,9 @@ robert_the_lifter.Robert = function(game) {
     setSpeed(this, ev.event.keyCode, game.tileWidth);
   });
   
-  goog.events.listen(this, goog.events.EventType.KEYUP, function (ev) {
-    setSpeed(this, ev.event.keyCode, 0);
-  });
-  
-  this.key_timing = 65;
-  lime.scheduleManager.schedule(function(number) { 
-    this.key_timing -= number;
+  lime.scheduleManager.schedule(function() { 
     var hasPiece = typeof this.grabbedPiece !== 'undefined';
     
-    if (this.key_timing <= 0) {
       var pos = this.getPosition();
     
       // for each direction, we check if we can move and do it if possible.
@@ -78,10 +71,8 @@ robert_the_lifter.Robert = function(game) {
           moveGrabbedPieceDown(this);
           pos.y += this.downSpeed;
         }
-      }
 
       this.setPosition(pos.x, pos.y);
-      this.key_timing = 65;
     }
     
   },this);
