@@ -59,7 +59,9 @@ robert_the_lifter.Game.prototype.canBePlace = function(x ,y, key) {
   // Check if robert is there !
   if (canPlace) {
     var robertPos = this.robert.getPosition();
-    if (x == robertPos.x && y == robertPos.y) {
+    
+    // Because robert's anchorpoint is not (0,0), we must compare with his up right corner.
+    if (x == (robertPos.x - (this.tileWidth/2)) && y == (robertPos.y - (this.tileHeight/2))) {
       canPlace = false;
     }
   }
