@@ -42,24 +42,23 @@ robert_the_lifter.Robert = function(game) {
     if (actual_rotation <= 0) {
       actual_rotation = 360;
     }
-    
+
     if (this.canUseKey) {
       switch (ev.event.keyCode) {
         case 40: // Down
-          this.moveTo(actual_rotation/90, ev.event.keyCode, this);
+          this.moveTo(actual_rotation/90, ev.event.keyCode);
           break;
         case 39: // Right
-          this.setRotation(actual_rotation-90);
+          this.rotate(actual_rotation, -90);
           break;
         case 38: // Up
-          this.moveTo(actual_rotation/90, ev.event.keyCode, this);
+          this.moveTo(actual_rotation/90, ev.event.keyCode);
           break;
         case 37: // Left
-          this.setRotation(actual_rotation+90);
+          this.rotate(actual_rotation, 90)
           break;
-      } 
+      }
     }
-        
     
   });
 }
@@ -67,9 +66,9 @@ robert_the_lifter.Robert = function(game) {
 // Robert is a Sprite !
 goog.inherits(robert_the_lifter.Robert, lime.Sprite);
 
-robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode, robert) {
+robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
   var movement_value = this.game.tileWidth;
-  robert.canUseKey = false;
+  this.canUseKey = false;
   switch(rotation) {  
     case 1: // left.
       if (keyCode == 38) { // Moving forward
@@ -175,4 +174,48 @@ robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
   }
 
   return foundSquare;
+}
+
+/**
+ * Rotate robert (and his grabbed piece) by the angle in param.
+ */
+robert_the_lifter.Robert.prototype.rotate = function (actual_rotation, rotation) {
+  var canRotate = true;
+  
+  if (this.hasPiece) {
+    // Rotation point. (origin)
+    var posO = this.getPosition();
+    var xO = posO.x,
+        yO = posO.y;
+
+    // Check each squares of the grabbed piece if they can rotate.
+    var newPiece = [];
+    for(var i = 0; i < this.grabbedPiece.squares.length && canRotate; i++) {
+      var pos1 = this.grabbedPiece.squares[i].getPosition();
+      var x1 = pos1.x,
+          y1 = pos1.y,
+          r = -rotation / 180 * Math.PI;
+          
+      
+      var x2 = Math.cos(r) * (x1-xO) - Math.sin(r) * (y1-yO) + xO,
+          y2 = Math.sin(r) * (x1-xO) + Math.cos(r) * (y1-yO) + yO;
+          
+      if (this.game.canBePlace(x2, y2, this.grabbedPiece.key, false)) {
+        newPiece[i] = new Array(x2, y2);
+      } else {
+        canRotate = false;
+      }
+    }
+  }
+  
+  // Make the rotation.
+  if (canRotate) {
+    this.setRotation(actual_rotation + rotation);
+    if (this.hasPiece) {
+      for(var j = 0; j < this.grabbedPiece.squares.length; j++) {
+        this.grabbedPiece.squares[j].setPosition(newPiece[j][0], newPiece[j][1]);
+        this.grabbedPiece.squares[j].setRotation(this.grabbedPiece.squares[j].getRotation() + rotation);
+      }
+    }
+  }
 }
