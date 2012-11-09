@@ -11,11 +11,8 @@ robert_the_lifter.Robert = function(game) {
   this.xAdjustment = this.game.tileWidth / 2;
   this.yAdjustment = this.game.tileHeight / 2;
   
-  // Don't move by default !
-  this.leftSpeed = 0;
-  this.rightSpeed = 0;
-  this.upSpeed = 0;
-  this.downSpeed = 0;
+  // Robert's speed
+  this.speed = 250;
   
   this.forks_x = 0;
   this.forks_y = 64;
@@ -33,6 +30,11 @@ robert_the_lifter.Robert = function(game) {
   this.downLimit = game.factoryY + game.factoryHeight - this.getSize().height;
   
   this.hasPiece = false;
+ 
+ lime.scheduleManager.scheduleWithDelay(function(){
+   this.canUseKey = true;
+ }, this, this.speed);
+  
   
   // Register Keydown events and move or rotate.
   goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
@@ -40,21 +42,24 @@ robert_the_lifter.Robert = function(game) {
     if (actual_rotation <= 0) {
       actual_rotation = 360;
     }
-
-    switch (ev.event.keyCode) {
-      case 40: // Down
-        this.moveTo(actual_rotation/90, ev.event.keyCode);
-        break;
-      case 39: // Right
-        this.setRotation(actual_rotation-90);
-        break;
-      case 38: // Up
-        this.moveTo(actual_rotation/90, ev.event.keyCode);
-        break;
-      case 37: // Left
-        this.setRotation(actual_rotation+90);
-        break;
+    
+    if (this.canUseKey) {
+      switch (ev.event.keyCode) {
+        case 40: // Down
+          this.moveTo(actual_rotation/90, ev.event.keyCode, this);
+          break;
+        case 39: // Right
+          this.setRotation(actual_rotation-90);
+          break;
+        case 38: // Up
+          this.moveTo(actual_rotation/90, ev.event.keyCode, this);
+          break;
+        case 37: // Left
+          this.setRotation(actual_rotation+90);
+          break;
+      } 
     }
+        
     
   });
 }
@@ -62,9 +67,9 @@ robert_the_lifter.Robert = function(game) {
 // Robert is a Sprite !
 goog.inherits(robert_the_lifter.Robert, lime.Sprite);
 
-robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
+robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode, robert) {
   var movement_value = this.game.tileWidth;
-
+  robert.canUseKey = false;
   switch(rotation) {  
     case 1: // left.
       if (keyCode == 38) { // Moving forward
