@@ -127,7 +127,7 @@ robert_the_lifter.Robert.prototype.moveRight = function(movement) {
 robert_the_lifter.Robert.prototype.move = function(x, y) {
   var actual_position = this.getPosition();
   var grabbedPieceKey = this.hasPiece ? this.grabbedPiece.key : null;
-  if (this.game.canBePlace(actual_position.x - this.xAdjustment + x, actual_position.y - this.yAdjustment + y, grabbedPieceKey) && 
+  if (this.game.canBePlace(actual_position.x + x, actual_position.y + y, grabbedPieceKey) && 
       (!this.hasPiece || (this.hasPiece && this.grabbedPiece.canMove(x, y, false)))
      ) {
     
