@@ -61,14 +61,20 @@ robert_the_lifter.start = function() {
   // Register to keyboard event for Robert to grab a piece.
   goog.events.listen(game.robert, goog.events.EventType.KEYDOWN, function (ev) {
     if (ev.event.keyCode == 32) { // 32 = spacebar.
-      var foundPiece = false;
-      for (var i = 0; i < game.pieces.length && !foundPiece; i++) {
-        foundPiece = game.robert.isThisPieceInFrontOfMe(game.pieces[i]);
-      }
-      if (foundPiece) {
-        game.pieces[i - 1].isGrabbed = true;
-        game.robert.grabbedPiece = game.pieces[i - 1];
-        game.robert.hasPiece = true;
+      if (! game.robert.hasPiece) {
+        var foundPiece = false;
+        for (var i = 0; i < game.pieces.length && !foundPiece; i++) {
+          foundPiece = game.robert.isThisPieceInFrontOfMe(game.pieces[i]);
+        }
+        if (foundPiece) {
+          game.pieces[i - 1].isGrabbed = true;
+          game.robert.grabbedPiece = game.pieces[i - 1];
+          game.robert.hasPiece = true;
+        }
+      } else {
+        game.robert.grabbedPiece.isGrabbed = false;
+        game.robert.grabbedPiece = null;
+        game.robert.hasPiece = false;
       }
     }
   });

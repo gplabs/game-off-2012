@@ -11,11 +11,8 @@ robert_the_lifter.Robert = function(game) {
   this.xAdjustment = this.game.tileWidth / 2;
   this.yAdjustment = this.game.tileHeight / 2;
   
-  // Don't move by default !
-  this.leftSpeed = 0;
-  this.rightSpeed = 0;
-  this.upSpeed = 0;
-  this.downSpeed = 0;
+  // Robert's speed
+  this.speed = 250;
   
   this.forks_x = 0;
   this.forks_y = 64;
@@ -33,6 +30,11 @@ robert_the_lifter.Robert = function(game) {
   this.downLimit = game.factoryY + game.factoryHeight - this.getSize().height;
   
   this.hasPiece = false;
+ 
+ lime.scheduleManager.scheduleWithDelay(function(){
+   this.canUseKey = true;
+ }, this, this.speed);
+  
   
   // Register Keydown events and move or rotate.
   goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
@@ -41,19 +43,21 @@ robert_the_lifter.Robert = function(game) {
       actual_rotation = 360;
     }
 
-    switch (ev.event.keyCode) {
-      case 40: // Down
-        this.moveTo(actual_rotation/90, ev.event.keyCode);
-        break;
-      case 39: // Right
-        this.setRotation(actual_rotation-90);
-        break;
-      case 38: // Up
-        this.moveTo(actual_rotation/90, ev.event.keyCode);
-        break;
-      case 37: // Left
-        this.setRotation(actual_rotation+90);
-        break;
+    if (this.canUseKey) {
+      switch (ev.event.keyCode) {
+        case 40: // Down
+          this.moveTo(actual_rotation/90, ev.event.keyCode);
+          break;
+        case 39: // Right
+          this.rotate(actual_rotation, -90);
+          break;
+        case 38: // Up
+          this.moveTo(actual_rotation/90, ev.event.keyCode);
+          break;
+        case 37: // Left
+          this.rotate(actual_rotation, 90)
+          break;
+      }
     }
     
   });
@@ -64,7 +68,7 @@ goog.inherits(robert_the_lifter.Robert, lime.Sprite);
 
 robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
   var movement_value = this.game.tileWidth;
-
+  this.canUseKey = false;
   switch(rotation) {  
     case 1: // left.
       if (keyCode == 38) { // Moving forward
@@ -123,30 +127,22 @@ robert_the_lifter.Robert.prototype.moveRight = function(movement) {
 robert_the_lifter.Robert.prototype.move = function(x, y) {
   var actual_position = this.getPosition();
   var grabbedPieceKey = this.hasPiece ? this.grabbedPiece.key : null;
-  if (this.game.canBePlace(actual_position.x - this.xAdjustment + x, actual_position.y - this.yAdjustment + y, grabbedPieceKey) && 
+  if (this.game.canBePlace(actual_position.x + x, actual_position.y + y, grabbedPieceKey) && 
       (!this.hasPiece || (this.hasPiece && this.grabbedPiece.canMove(x, y, false)))
      ) {
     
     // Move robert.
     this.setPosition(actual_position.x + x, actual_position.y + y);
-    
-    // Move the grabbed piece.
     if (this.hasPiece) {
-      for (var i in this.grabbedPiece.squares) {
-        this.grabbedPiece.squares[i].getPosition().x += x;
-        this.grabbedPiece.squares[i].getPosition().y += y;
-      }
+      this.grabbedPiece.move(x, y);
     }
   }
 }
 
-
-
-
 robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
   var pos = this.getPosition(),
-      x = pos.x - this.xAdjustment,
-      y = pos.y - this.yAdjustment,
+      x = pos.x,
+      y = pos.y,
       rotation = this.getRotation();
   switch(rotation) {
     case 180: //Pointing down !
@@ -170,4 +166,44 @@ robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
   }
 
   return foundSquare;
+}
+
+/**
+ * Rotate robert (and his grabbed piece) by the angle in param.
+ */
+robert_the_lifter.Robert.prototype.rotate = function (actual_rotation, rotation) {
+  var canRotate = true;
+  
+  if (this.hasPiece) {
+    // Rotation point. (origin)
+    var posO = this.getPosition();
+    var xO = posO.x,
+        yO = posO.y;
+
+    // Check each squares of the grabbed piece if they can rotate.
+    var newPiece = [];
+    for(var i = 0; i < this.grabbedPiece.squares.length && canRotate; i++) {
+      var pos1 = this.grabbedPiece.squares[i].getPosition();
+      var x1 = pos1.x,
+          y1 = pos1.y,
+          r = -rotation / 180 * Math.PI;
+      
+      var x2 = Math.cos(r) * (x1-xO) - Math.sin(r) * (y1-yO) + xO,
+          y2 = Math.sin(r) * (x1-xO) + Math.cos(r) * (y1-yO) + yO;
+          
+      if (this.game.canBePlace(x2, y2, this.grabbedPiece.key, false)) {
+        newPiece[i] = new Array(x2, y2);
+      } else {
+        canRotate = false;
+      }
+    }
+  }
+  
+  // Make the rotation.
+  if (canRotate) {
+    this.setRotation(actual_rotation + rotation);
+    if (this.hasPiece) {
+      this.grabbedPiece.moveAndRotate(newPiece, rotation);
+    }
+  }
 }

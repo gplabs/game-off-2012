@@ -39,8 +39,8 @@ robert_the_lifter.Game.prototype.canBePlace = function(x ,y, key, considerRobert
   var canPlace = true;
   
   // check if the location is out of the factory.
-  if (x < this.factoryX || x + this.tileWidth > this.factoryX + this.factoryWidth ||
-      y < this.factoryY || y + this.tileHeight > this.factoryY + this.factoryHeight) {
+  if (x < this.factoryX || x > this.factoryX + this.factoryWidth ||
+      y < this.factoryY || y > this.factoryY + this.factoryHeight) {
     canPlace = false;
   }
   
@@ -59,9 +59,7 @@ robert_the_lifter.Game.prototype.canBePlace = function(x ,y, key, considerRobert
   // Check if robert is there !
   if (canPlace && considerRobert) {
     var robertPos = this.robert.getPosition();
-    
-    // Because robert's anchorpoint is not (0,0), we must compare with his up right corner.
-    if (x == (robertPos.x - (this.robert.xAdjustment)) && y == (robertPos.y - this.robert.yAdjustment)) {
+    if (x == robertPos.x && y == robertPos.y) {
       canPlace = false;
     }
   }
