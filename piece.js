@@ -4,7 +4,7 @@ goog.require('lime.fill.Frame');
 robert_the_lifter.Piece = function(factory, game) {
   this.game = game;
   this.anchor = 0.5;
-
+  this.boxes = [];
   this.isGrabbed = false; // Will be true when the lift has grabbed the piece.
 
   // Initialise the piece with squares.
@@ -38,6 +38,7 @@ robert_the_lifter.Piece = function(factory, game) {
 
   for (var i in this.squares) {
     factory.appendChild(this.squares[i]);
+    factory.appendChild(this.boxes[i]);
   }
 
   // The loop for dropping the piece.
@@ -168,7 +169,15 @@ robert_the_lifter.Piece.prototype.createPieceInvertedS = function(startingX, sta
  * Create one of the piece squares
  */
 robert_the_lifter.Piece.prototype.createSquare = function (x, y) {
-  var frame = new lime.fill.Frame('images/boxes.png', 0, 0, this.game.tileWidth, this.game.tileHeight);
+  var boxesFrame = new lime.fill.Frame('images/boxes.png', 0, 0, this.game.tileWidth, this.game.tileHeight);
+  this.boxes.push(new lime.Sprite()
+    .setSize(this.game.tileWidth, this.game.tileHeight)
+    .setFill(boxesFrame)
+    .setPosition(x, y)
+    .setAnchorPoint(this.anchor, this.anchor));
+
+  var imageX = this.game.tileWidth * Math.floor((Math.random()*4));
+  var frame = new lime.fill.Frame('images/skids.png', imageX, 0, this.game.tileWidth, this.game.tileHeight);
   return new lime.Sprite()
     .setSize(this.game.tileWidth, this.game.tileHeight)
     .setFill(frame)
@@ -201,12 +210,42 @@ robert_the_lifter.Piece.prototype.canGoLeft = function () {
 }
 
 /**
+ * Move the piece (+x, +y)
+ */
+robert_the_lifter.Piece.prototype.move = function (x, y) {
+  // Move the grabbed piece.
+  for (var i in this.squares) {
+    var squarePos = this.squares[i].getPosition(),
+        boxPos = this.boxes[i].getPosition();
+    
+    squarePos.x += x;
+    squarePos.y += y;
+    boxPos.x += x;
+    boxPos.y += y;
+  }
+}
+
+/**
+ * Move the piece to the new locations + rotate.
+ */ 
+robert_the_lifter.Piece.prototype.moveAndRotate = function (newPos, newRotation) {
+  for(var j = 0; j < this.squares.length; j++) {
+    this.squares[j].setPosition(newPos[j][0], newPos[j][1]);
+    this.squares[j].setRotation(this.squares[j].getRotation() + newRotation);
+    
+    this.boxes[j].setPosition(newPos[j][0], newPos[j][1]);
+    this.boxes[j].setRotation(this.squares[j].getRotation() + newRotation);
+  }
+}
+
+/**
  * Makes the entire piece go down one tile, no matter what !
  */
-robert_the_lifter.Piece.prototype.goLeft = function (){
+robert_the_lifter.Piece.prototype.goLeft = function () {
   for (var i in this.squares) {
     var pos = this.squares[i].getPosition();
     this.squares[i].setPosition(pos.x - this.game.tileWidth, pos.y);
+    this.boxes[i].setPosition(pos.x - this.game.tileWidth, pos.y);
   }
 }
 

@@ -133,13 +133,8 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
     
     // Move robert.
     this.setPosition(actual_position.x + x, actual_position.y + y);
-    
-    // Move the grabbed piece.
     if (this.hasPiece) {
-      for (var i in this.grabbedPiece.squares) {
-        this.grabbedPiece.squares[i].getPosition().x += x;
-        this.grabbedPiece.squares[i].getPosition().y += y;
-      }
+      this.grabbedPiece.move(x, y);
     }
   }
 }
@@ -192,7 +187,6 @@ robert_the_lifter.Robert.prototype.rotate = function (actual_rotation, rotation)
       var x1 = pos1.x,
           y1 = pos1.y,
           r = -rotation / 180 * Math.PI;
-          
       
       var x2 = Math.cos(r) * (x1-xO) - Math.sin(r) * (y1-yO) + xO,
           y2 = Math.sin(r) * (x1-xO) + Math.cos(r) * (y1-yO) + yO;
@@ -209,10 +203,7 @@ robert_the_lifter.Robert.prototype.rotate = function (actual_rotation, rotation)
   if (canRotate) {
     this.setRotation(actual_rotation + rotation);
     if (this.hasPiece) {
-      for(var j = 0; j < this.grabbedPiece.squares.length; j++) {
-        this.grabbedPiece.squares[j].setPosition(newPiece[j][0], newPiece[j][1]);
-        this.grabbedPiece.squares[j].setRotation(this.grabbedPiece.squares[j].getRotation() + rotation);
-      }
+      this.grabbedPiece.moveAndRotate(newPiece, rotation);
     }
   }
 }
