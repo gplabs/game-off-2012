@@ -144,13 +144,10 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
   }
 }
 
-
-
-
 robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
   var pos = this.getPosition(),
-      x = pos.x - this.xAdjustment,
-      y = pos.y - this.yAdjustment,
+      x = pos.x,
+      y = pos.y,
       rotation = this.getRotation();
   switch(rotation) {
     case 180: //Pointing down !
