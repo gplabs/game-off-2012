@@ -38,6 +38,7 @@ robert_the_lifter.start = function() {
   // The factory layer.
   var factoryLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
+  game.factoryLayer = factoryLayer;
   gameScene.appendChild(factoryLayer);
   
   // Init Robert :P
@@ -67,12 +68,15 @@ robert_the_lifter.start = function() {
           foundPiece = game.robert.isThisPieceInFrontOfMe(game.pieces[i]);
         }
         if (foundPiece) {
-          game.pieces[i - 1].isGrabbed = true;
+          game.pieces[i - 1].isFreeFalling = false;
           game.robert.grabbedPiece = game.pieces[i - 1];
+          if (game.piecesBlock.pieces.indexOf(game.pieces[i - 1]) > -1) {
+            game.piecesBlock.removePiece(game.pieces[i - 1]);
+          }
           game.robert.hasPiece = true;
         }
       } else {
-        game.robert.grabbedPiece.isGrabbed = false;
+        game.robert.grabbedPiece.isFreeFalling = true;
         game.robert.grabbedPiece = null;
         game.robert.hasPiece = false;
       }

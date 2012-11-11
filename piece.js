@@ -6,7 +6,7 @@ robert_the_lifter.Piece = function(factory, game) {
   this.game = game;
   this.anchor = 0.5;
   this.boxes = [];
-  this.isGrabbed = false; // Will be true when the lift has grabbed the piece.
+  this.isFreeFalling = true; // Will be true when the lift has grabbed the piece.
 
   // Initialise the piece with squares.
   var startingX = (this.anchor*game.tileWidth) + game.factoryX + game.factoryWidth - game.tileWidth*2;
@@ -46,16 +46,17 @@ robert_the_lifter.Piece = function(factory, game) {
   lime.scheduleManager.schedule(dropLoop, this);
   this.timeToNextGoingDown = this.DEFAULT_SPEED;
   function dropLoop(number) {
-    if (!this.isGrabbed && this.canGoLeft()) {
-      this.timeToNextGoingDown -= number;
-      if (this.timeToNextGoingDown <= 0) {
-        this.timeToNextGoingDown += this.DEFAULT_SPEED;
-        this.goLeft();
-        
-        // Add the piece to the block if necessary.
-        if (this.game.piecesBlock.mustBeAdded(this)) {
-          this.game.piecesBlock.addPiece(this);
+    if (this.isFreeFalling) {
+      if (this.canGoLeft()) {
+        this.timeToNextGoingDown -= number;
+        if (this.timeToNextGoingDown <= 0) {
+          this.timeToNextGoingDown += this.DEFAULT_SPEED;
+          this.goLeft();
         }
+      } 
+      // Add the piece to the block if necessary.
+      else if (this.game.piecesBlock.mustBeAdded(this)) {
+        this.game.piecesBlock.addPiece(this);
       }
     }
   }
@@ -271,6 +272,13 @@ robert_the_lifter.Piece.prototype.reachedLeftLimit = function () {
   }
   
   return hasReached;
+}
+
+robert_the_lifter.Piece.prototype.removeSquare = function (index) {
+  this.game.factoryLayer.removeChild(this.squares[index]);
+  this.game.factoryLayer.removeChild(this.boxes[index]);
+  this.squares.splice(index, 1);
+  this.boxes.splice(index, 1);
 }
 
 robert_the_lifter.Piece.prototype.DEFAULT_SPEED = 1000;

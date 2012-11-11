@@ -11,13 +11,16 @@ robert_the_lifter.Game = function() {
   this.pieces = []
   this.piecesBlock = new robert_the_lifter.PiecesBlock(this);
   
-  this.truckParkingHeight = this.tileHeight*5;
+  this.truckParkingHeight = this.tileHeight*2 + 10; // 10 pixels for wall.
   this.truckParkingWidth = this.tileWidth*20;
   this.truckParkingX = 0;
   this.truckParkingY = 0;
   
-  this.factoryHeight = this.tileWidth*10;
-  this.factoryWidth = this.tileHeight*20;
+  this.factoryNbTileWidth = 20;
+  this.factoryNbTileHeight = 10;
+  
+  this.factoryHeight = this.tileHeight*this.factoryNbTileHeight;
+  this.factoryWidth = this.tileWidth*this.factoryNbTileWidth;
   this.factoryX = 0;
   this.factoryY = this.truckParkingHeight;
   
