@@ -1,6 +1,7 @@
 goog.provide('robert_the_lifter.Piece');
 
 goog.require('lime.fill.Frame');
+goog.require('robert_the_lifter.PiecesBlock');
 robert_the_lifter.Piece = function(factory, game) {
   this.game = game;
   this.anchor = 0.5;
@@ -50,6 +51,11 @@ robert_the_lifter.Piece = function(factory, game) {
       if (this.timeToNextGoingDown <= 0) {
         this.timeToNextGoingDown += this.DEFAULT_SPEED;
         this.goLeft();
+        
+        // Add the piece to the block if necessary.
+        if (this.game.piecesBlock.mustBeAdded(this)) {
+          this.game.piecesBlock.addPiece(this);
+        }
       }
     }
   }
@@ -248,6 +254,23 @@ robert_the_lifter.Piece.prototype.goLeft = function () {
     this.squares[i].setPosition(pos.x - this.game.tileWidth, pos.y);
     this.boxes[i].setPosition(pos.x - this.game.tileWidth, pos.y);
   }
+}
+
+/**
+ * Check if the piece has reached the left limit of the factory.
+ */
+robert_the_lifter.Piece.prototype.reachedLeftLimit = function () {
+  var hasReached = false;
+  
+  for (var i = 0; i < this.squares.length && !hasReached; i ++) {
+    var pos = this.squares[i].getPosition();
+    var size = this.squares[i].getSize();
+    if (pos.x - (size.width * this.anchor) <= this.game.factoryX) {
+      hasReached = true;
+    }
+  }
+  
+  return hasReached;
 }
 
 robert_the_lifter.Piece.prototype.DEFAULT_SPEED = 1000;

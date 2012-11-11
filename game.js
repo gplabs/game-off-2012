@@ -9,9 +9,9 @@ robert_the_lifter.Game = function() {
   this.tileHeight = 64,
   this.spawningSpeed = 8000,
   this.pieces = []
+  this.piecesBlock = new robert_the_lifter.PiecesBlock(this);
   
-  
-  this.truckParkingHeight = this.tileHeight*2;
+  this.truckParkingHeight = this.tileHeight*5;
   this.truckParkingWidth = this.tileWidth*20;
   this.truckParkingX = 0;
   this.truckParkingY = 0;

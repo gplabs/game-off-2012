@@ -44,7 +44,7 @@ robert_the_lifter.start = function() {
   game.robert = new robert_the_lifter.Robert(game);
   factoryLayer.appendChild(game.robert);
 
-  // This is the game main loop (For dropping down pieces.) Currently not working
+  // This is the loop for spawning pieces.
   this.timeToNextSpawning = 0;
   game.pieces = [];
   lime.scheduleManager.schedule(spawningPieceLoop, this);
