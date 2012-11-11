@@ -169,7 +169,8 @@ robert_the_lifter.Piece.prototype.createPieceInvertedS = function(startingX, sta
  * Create one of the piece squares
  */
 robert_the_lifter.Piece.prototype.createSquare = function (x, y) {
-  var boxesFrame = new lime.fill.Frame('images/boxes.png', 0, 0, this.game.tileWidth, this.game.tileHeight);
+  var boxX = this.game.tileWidth * Math.floor((Math.random()*3));
+  var boxesFrame = new lime.fill.Frame('images/boxes.png', boxX, 0, this.game.tileWidth, this.game.tileHeight);
   this.boxes.push(new lime.Sprite()
     .setSize(this.game.tileWidth, this.game.tileHeight)
     .setFill(boxesFrame)
