@@ -14,6 +14,7 @@ goog.require('lime.animation.MoveTo');
 goog.require('robert_the_lifter.Game');
 goog.require('robert_the_lifter.Robert');
 goog.require('robert_the_lifter.Piece');
+goog.require('robert_the_lifter.ParkingArea');
 
 robert_the_lifter.start = function() {
   var game = new robert_the_lifter.Game();
@@ -23,21 +24,23 @@ robert_the_lifter.start = function() {
   // This will probably be the only scene of the game (beside a menu ?)
   var gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
   
-  // The left parking layer
+  // The upper parking layer
   var truckParkingLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
-  // Left parking area
-  var truckParkingArea = new lime.Sprite()
-    .setAnchorPoint(0,0)
-    .setPosition(0, 0)
-    .setSize(game.truckParkingWidth, game.truckParkingHeight)
-    .setFill('#000');
+  var truckParkingArea = new robert_the_lifter.ParkingArea(game);
   truckParkingLayer.appendChild(truckParkingArea);
   gameScene.appendChild(truckParkingLayer);  
   
   // The factory layer.
+  var factoryTiles = new lime.fill.Frame('images/ground.png', game.factoryX, game.factoryY, game.factoryWidth, game.factoryHeight);
   var factoryLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
+  var factoryArea = new lime.Sprite()
+    .setAnchorPoint(0,0)
+    .setPosition(game.factoryX, game.factoryY)
+    .setSize(game.factoryWidth, game.factoryHeight)
+    .setFill(factoryTiles);
+  factoryLayer.appendChild(factoryArea);
   game.factoryLayer = factoryLayer;
   gameScene.appendChild(factoryLayer);
   

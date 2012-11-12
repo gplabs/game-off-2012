@@ -134,13 +134,15 @@ robert_the_lifter.PiecesBlock.prototype.mustBeAdded = function(piece) {
 }
 
 robert_the_lifter.PiecesBlock.prototype.printLines = function() {
-  var output = "";
-  for(var i in this.lines) {
-    for(var j in this.lines[i]) {
-      output += this.lines[i][j] + ", ";
+  if (document.getElementById('debug')) {
+    var output = "";
+    for(var i in this.lines) {
+      for(var j in this.lines[i]) {
+        output += this.lines[i][j] + ", ";
+      }
+      output += "<br />";
     }
-    output += "<br />";
+
+    document.getElementById('debug').innerHTML = output;
   }
-  
-  document.getElementById('debug').innerHTML = output;
 }
