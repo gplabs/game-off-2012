@@ -44,50 +44,50 @@ robert_the_lifter.start = function() {
   game.factoryLayer = factoryLayer;
   gameScene.appendChild(factoryLayer);
   
-  // Init Robert :P
-  game.robert = new robert_the_lifter.Robert(game);
-  factoryLayer.appendChild(game.robert);
-
-  // This is the loop for spawning pieces.
-  this.timeToNextSpawning = 0;
-  game.pieces = [];
-  lime.scheduleManager.schedule(spawningPieceLoop, this);
-
-  function spawningPieceLoop(number) {
-    this.timeToNextSpawning -= number;
-    if (this.timeToNextSpawning <= 0) {
-      this.timeToNextSpawning += game.spawningSpeed;
-      var i = game.pieces.push(new robert_the_lifter.Piece(factoryLayer, game)) - 1;
-      game.pieces[i].key = i;
-    }
-  }
-
-  // Register to keyboard event for Robert to grab a piece.
-  goog.events.listen(game.robert, goog.events.EventType.KEYDOWN, function (ev) {
-    if (ev.event.keyCode == 32) { // 32 = spacebar.
-      if (! game.robert.hasPiece) {
-        var foundPiece = false;
-        for (var i = 0; i < game.pieces.length && !foundPiece; i++) {
-          foundPiece = game.robert.isThisPieceInFrontOfMe(game.pieces[i]);
-        }
-        if (foundPiece) {
-          game.pieces[i - 1].isFreeFalling = false;
-          game.robert.grabbedPiece = game.pieces[i - 1];
-          if (game.piecesBlock.pieces.indexOf(game.pieces[i - 1]) > -1) {
-            game.piecesBlock.removePiece(game.pieces[i - 1]);
-          }
-          game.robert.hasPiece = true;
-        }
-      } else {
-        game.robert.grabbedPiece.isFreeFalling = true;
-        game.robert.grabbedPiece = null;
-        game.robert.hasPiece = false;
-      }
-    }
-  });
+  // start game loops.
+  game.start();
+  
 
   // set current scene active
   director.replaceScene(gameScene);
+
+  // This is the loop for spawning pieces.
+//  this.timeToNextSpawning = 0;
+//  game.pieces = [];
+//  lime.scheduleManager.schedule(spawningPieceLoop, this);
+//  function spawningPieceLoop(number) {
+//    this.timeToNextSpawning -= number;
+//    if (this.timeToNextSpawning <= 0) {
+//      this.timeToNextSpawning += game.spawningSpeed;
+      game.addPiece();
+//    }
+//  }
+
+//  // Register to keyboard event for Robert to grab a piece.
+//  goog.events.listen(game.robert, goog.events.EventType.KEYDOWN, function (ev) {
+//    if (ev.event.keyCode == 32) { // 32 = spacebar.
+//      if (! game.robert.hasPiece) {
+//        var foundPiece = false;
+//        for (var i = 0; i < game.pieces.length && !foundPiece; i++) {
+//          foundPiece = game.robert.isThisPieceInFrontOfMe(game.pieces[i]);
+//        }
+//        if (foundPiece) {
+//          game.pieces[i - 1].isFreeFalling = false;
+//          game.robert.grabbedPiece = game.pieces[i - 1];
+//          if (game.piecesBlock.pieces.indexOf(game.pieces[i - 1]) > -1) {
+//            game.piecesBlock.removePiece(game.pieces[i - 1]);
+//          }
+//          game.robert.hasPiece = true;
+//        }
+//      } else {
+//        game.robert.grabbedPiece.isFreeFalling = true;
+//        game.robert.grabbedPiece = null;
+//        game.robert.hasPiece = false;
+//      }
+//    }
+//  });
+
+  
 }
 
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode

@@ -4,19 +4,28 @@ goog.require('lime.Sprite');
 
 robert_the_lifter.Robert = function(game) {
   goog.base(this);
+  this.id = robert_the_lifter.Game.ROBERT;
   this.game = game;
 
   // Must use those variables to obtaine upper left corner position.
   // Thats because the anchor point is in center of the lift (w/o forks.)
-  this.xAdjustment = this.game.tileWidth / 2;
-  this.yAdjustment = this.game.tileHeight / 2;
+//  this.xAdjustment = this.game.tileWidth / 2;
+//  this.yAdjustment = this.game.tileHeight / 2;
+  
+  this.x = 0;
+  this.y = 0;
+  this.setPosition(
+    (this.x * game.tileWidth) + game.factoryX + (game.tileWidth/2), 
+    (this.y * game.tileHeight) + game.factoryY + (game.tileHeight/2)
+  );
+  this.game.switchState(this.x, this.y, this.id);
   
   // Robert's speed
   this.speed = 250;
   
   this.forks_x = 0;
   this.forks_y = 64;
-  this.setPosition(game.tileWidth + game.factoryX - (game.tileWidth/2), game.tileHeight + game.factoryY - (game.tileHeight/2));
+  
   this.setAnchorPoint(0.5, 0.75);
 
   this.img = new lime.fill.Frame('images/forklift.png', 0, 0, game.tileWidth + this.forks_x, game.tileHeight + this.forks_y);
@@ -108,35 +117,66 @@ robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
   }
 }
 
-robert_the_lifter.Robert.prototype.moveUp = function(movement) {
-  this.move(0, - movement);
+robert_the_lifter.Robert.prototype.moveUp = function() {
+  this.move(0, -1);
 }
 
-robert_the_lifter.Robert.prototype.moveDown = function(movement) {
-  this.move(0, movement);
+robert_the_lifter.Robert.prototype.moveDown = function() {
+  this.move(0, 1);
 }
 
-robert_the_lifter.Robert.prototype.moveLeft = function(movement) {
-  this.move(-movement, 0);
+robert_the_lifter.Robert.prototype.moveLeft = function() {
+  this.move(-1, 0);
 }
 
-robert_the_lifter.Robert.prototype.moveRight = function(movement) {
-  this.move(movement, 0);
+robert_the_lifter.Robert.prototype.moveRight = function() {
+  this.move(1, 0);
 }
 
 robert_the_lifter.Robert.prototype.move = function(x, y) {
+  var newX = this.x + x,
+      newY = this.y + y;
   var actual_position = this.getPosition();
-  var grabbedPieceKey = this.hasPiece ? this.grabbedPiece.key : null;
-  if (this.game.canBePlace(actual_position.x + x, actual_position.y + y, grabbedPieceKey) && 
-      (!this.hasPiece || (this.hasPiece && this.grabbedPiece.canMove(x, y, false)))
-     ) {
+  
+  // If robert has no piece, we move only him.
+  if (!this.hasPiece && !this.game.containsSomething(newX, newY)) {
+    this.x = newX;
+    this.y = newY;
+    this.game.switchState(newX, newY, this.id);
+    this.game.switchState(this.x, this.y, robert_the_lifter.Game.NO_PIECE);
+    this.setPosition(actual_position.x + (x*this.game.tileWidth), actual_position.y + (y*this.game.tileHeight));
+  }
+  // Move robert and his grabbed piece.
+  else if (this.hasPiece) {
+    var canMove = true;
+    for(var i = 0; i < this.grabbedPiece.blocks.length && canMove; i ++) {
+      canMove = !this.game.containsAnotherPiece(x, y, this.grabbedPiece.id);
+    }
     
-    // Move robert.
-    this.setPosition(actual_position.x + x, actual_position.y + y);
-    if (this.hasPiece) {
+    if (canMove && !this.game.containsAnotherPiece(newX, newY, this.grabbedPiece.id)) {
       this.grabbedPiece.move(x, y);
+      
+      this.x = newX;
+      this.y = newY;
+      this.game.switchState(newX, newY, this.id);
+      this.game.switchState(this.x, this.y, robert_the_lifter.Game.NO_PIECE);
+      
+      this.setPosition(actual_position.x + x, actual_position.y + y);
     }
   }
+  
+  
+//  var grabbedPieceKey = this.hasPiece ? this.grabbedPiece.key : null;
+//  if (this.game.canBePlace(actual_position.x + x, actual_position.y + y, grabbedPieceKey) && 
+//      (!this.hasPiece || (this.hasPiece && this.grabbedPiece.canMove(x, y, false)))
+//     ) {
+//    
+//    // Move robert.
+//    this.setPosition(actual_position.x + x, actual_position.y + y);
+//    if (this.hasPiece) {
+//      this.grabbedPiece.move(x, y);
+//    }
+//  }
 }
 
 robert_the_lifter.Robert.prototype.isThisPieceInFrontOfMe = function(piece) {
