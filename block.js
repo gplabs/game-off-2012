@@ -10,10 +10,6 @@ robert_the_lifter.Block = function(x, y, game) {
   this.y = y;
   this.game = game;
   
-  // Convert coords into pixels.
-  var posX = (this.x * game.tileWidth) + game.factoryX + (this.anchor*game.tileWidth);
-  var posY = (this.y * game.tileHeight) + game.factoryY + (this.anchor*game.tileHeight);
-  
   // getting a random image from the boxes image.
   var boxX = this.game.tileWidth * Math.floor((Math.random()*3));
   var boxesFrame = new lime.fill.Frame('images/boxes.png', boxX, 0, this.game.tileWidth, this.game.tileHeight);
@@ -21,7 +17,6 @@ robert_the_lifter.Block = function(x, y, game) {
   this.box = new lime.Sprite()
     .setSize(this.game.tileWidth, this.game.tileHeight)
     .setFill(boxesFrame)
-    .setPosition(posX, posY)
     .setAnchorPoint(this.anchor, this.anchor);
 
   // Getting a random image from the skids.
@@ -31,8 +26,10 @@ robert_the_lifter.Block = function(x, y, game) {
   this.skid = new lime.Sprite()
     .setSize(this.game.tileWidth, this.game.tileHeight)
     .setFill(frame)
-    .setPosition(posX, posY)
     .setAnchorPoint(this.anchor, this.anchor);
+    
+  // Place the block.
+  this.moveTo(x, y);
 }
 
 /**
@@ -56,19 +53,27 @@ robert_the_lifter.Block.prototype.remove = function () {
  * Move the block (+x, +y)
  */
 robert_the_lifter.Block.prototype.move = function (x, y) {
-  var skidPos = this.skid.getPosition(),
-      boxPos = this.box.getPosition(),
-      pixelX = x * this.game.tileWidth,
-      pixelY = y * this.game.tileHeight;
+  this.moveTo(this.x + x, this.y + y);
+}
+
+/**
+ * Move the block to given coords(x, y)
+ */
+robert_the_lifter.Block.prototype.moveTo = function (x, y) {
+  var newX = (x * this.game.tileWidth) + this.game.factoryX + (this.anchor*this.game.tileWidth),
+      newY = (y * this.game.tileHeight) + this.game.factoryY + (this.anchor*this.game.tileHeight);
+      
+  this.x = x;
+  this.y = y;
   
-  this.x += x;
-  this.y += y;
-  
-  skidPos.x += pixelX;
-  skidPos.y += pixelY;
-  boxPos.x += pixelX;
-  boxPos.y += pixelY;
-  
-  this.skid.setPosition(skidPos);
-  this.box.setPosition(boxPos);
+  this.skid.setPosition(newX, newY);
+  this.box.setPosition(newX, newY);
+}
+
+/**
+ * Rotate the block.
+ */
+robert_the_lifter.Block.prototype.rotate = function (rotation) {
+  this.skid.setRotation(this.skid.getRotation() + rotation);
+  this.box.setRotation(this.box.getRotation() + rotation);
 }

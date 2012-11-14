@@ -3,9 +3,9 @@ goog.provide('robert_the_lifter.Piece');
 goog.require('robert_the_lifter.Block');
 goog.require('lime.fill.Frame');
 
-robert_the_lifter.Piece = function(game) {
+robert_the_lifter.Piece = function(game, id) {
   this.isFreeFalling = true; // Will be true when the lift has grabbed the piece.
-  
+  this.id = id;
   this.game = game;
   
   this.blocks = [];
@@ -41,25 +41,7 @@ robert_the_lifter.Piece = function(game) {
       this.blocks = this.createPieceInvertedS(x, y);
       break;
   }
-
-//  // The loop for dropping the piece.
-//  lime.scheduleManager.schedule(dropLoop, this);
-//  this.timeToNextGoingDown = this.DEFAULT_SPEED;
-//  function dropLoop(number) {
-//    if (this.isFreeFalling) {
-//      if (this.canGoLeft()) {
-//        this.timeToNextGoingDown -= number;
-//        if (this.timeToNextGoingDown <= 0) {
-//          this.timeToNextGoingDown += this.DEFAULT_SPEED;
-//          this.goLeft();
-//        }
-//      } 
-//      // Add the piece to the block if necessary.
-//      else if (this.game.piecesBlock.mustBeAdded(this)) {
-//        this.game.piecesBlock.addPiece(this);
-//      }
-//    }
-//  }
+  this.game.switchPieceState(this, this.id);
 }
 
 /**
@@ -179,79 +161,40 @@ robert_the_lifter.Piece.prototype.createBlock = function (x, y) {
   return new robert_the_lifter.Block(x, y, this.game);
 }
 
-///**
-// * Checks if the piece can move in the direction given.
-// * params coords are current coords modifiers.
-// */
-//robert_the_lifter.Piece.prototype.canMove = function (x, y, considerRobert) {
-//  var canMove = true;
-//  
-//  for (var i = 0; i < this.blocks.length && canMove; i ++) {
-//    var squarePos = this.blocks[i].getPosition();
-//    if (!this.game.canBePlace(squarePos.x + x, squarePos.y + y, this.key, considerRobert)) {
-//      canMove = false;
-//    }
-//  }
-//  
-//  return canMove;
-//}
-//
-///**
-// * Check if the next drop is a legal one !
-// */
-//robert_the_lifter.Piece.prototype.canGoLeft = function () {
-//  return this.canMove(-this.game.tileWidth, 0, true);
-//}
-//
-///**
-// * Move the piece (+x, +y)
-// */
-//robert_the_lifter.Piece.prototype.move = function (x, y) {
-//  // Move the grabbed piece.
-//  for (var i in this.blocks) {
-//    var squarePos = this.blocks[i].getPosition(),
-//        boxPos = this.boxes[i].getPosition();
-//    
-//    squarePos.x += x;
-//    squarePos.y += y;
-//    boxPos.x += x;
-//    boxPos.y += y;
-//  }
-//}
-
 /**
  * Move the piece (+x, +y)
  */
 robert_the_lifter.Piece.prototype.move = function (x, y) {
+  this.game.switchPieceState(this, robert_the_lifter.Game.NO_PIECE);
+  this.game.switchPieceState(this, this.id, x, y);
+  
   // Move the grabbed piece.
   for (var i in this.blocks) {
     this.blocks[i].move(x, y);
   }
 }
 
-///**
-// * Move the piece to the new locations + rotate.
-// */ 
-//robert_the_lifter.Piece.prototype.moveAndRotate = function (newPos, newRotation) {
-//  for(var j = 0; j < this.blocks.length; j++) {
-//    this.blocks[j].setPosition(newPos[j][0], newPos[j][1]);
-//    this.blocks[j].setRotation(this.blocks[j].getRotation() + newRotation);
-//    
-//    this.boxes[j].setPosition(newPos[j][0], newPos[j][1]);
-//    this.boxes[j].setRotation(this.blocks[j].getRotation() + newRotation);
-//  }
-//}
-
-///**
-// * Makes the entire piece go down one tile, no matter what !
-// */
-//robert_the_lifter.Piece.prototype.goLeft = function () {
-//  for (var i in this.blocks) {
-//    var pos = this.blocks[i].getPosition();
-//    this.blocks[i].setPosition(pos.x - this.game.tileWidth, pos.y);
-//    this.boxes[i].setPosition(pos.x - this.game.tileWidth, pos.y);
-//  }
-//}
+/**
+ * Move the piece to the new locations + rotate.
+ */ 
+robert_the_lifter.Piece.prototype.moveAndRotate = function (newPos, newRotation) {
+  
+  // Reserve the new piece's position.
+  for(var i = 0; i < this.blocks.length; i++) {
+    this.game.switchState(newPos[i][0], newPos[i][1], this.id);
+  }
+  
+  for(var j = 0; j < this.blocks.length; j++) {
+    var oldX = this.blocks[j].x,
+        oldY = this.blocks[j].y;
+    
+    this.blocks[j].moveTo(newPos[j][0], newPos[j][1]);
+    this.blocks[j].rotate(newRotation);
+    
+    // Release the old position.
+    this.game.switchState(oldX, oldY, robert_the_lifter.Game.NO_PIECE);
+  }
+}
 
 /**
  * Check if the piece has reached the left limit of the factory.

@@ -7,6 +7,8 @@ goog.provide('robert_the_lifter.Game');
 goog.require('robert_the_lifter.Foreman');
 
 robert_the_lifter.Game = function() {
+  this.debug = true;
+  
   this.tileWidth = 64;
   this.tileHeight = 64;
   this.spawningSpeed = 8000;
@@ -72,15 +74,15 @@ robert_the_lifter.Game.prototype.start = function() {
         }
         var pieceId = this.game.field[y][x];
         if (pieceId != robert_the_lifter.Game.NO_PIECE) {
-          this.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
-          this.robert.grabbedPiece = this.pieces[pieceId];
-          this.robert.hasPiece = true;
+          this.game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
+          this.game.robert.grabbedPiece = this.game.pieces[pieceId];
+          this.game.robert.hasPiece = true;
         }
         
       } else {
-        this.robert.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
-        this.robert.grabbedPiece = null;
-        this.robert.hasPiece = false;
+        this.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
+        this.grabbedPiece = null;
+        this.hasPiece = false;
       }
     }
   });
@@ -90,11 +92,10 @@ robert_the_lifter.Game.prototype.start = function() {
  * Add a new piece in the game.
  */
 robert_the_lifter.Game.prototype.addPiece = function() {
-  var piece = new robert_the_lifter.Piece(this);
+  var id = this.pieces.length;
+  var piece = new robert_the_lifter.Piece(this, id);
   piece.appendTo(this.factoryLayer);
-  
-  piece.id = this.pieces.length;
-  this.pieces[piece.id] = piece;
+  this.pieces[id] = piece;
 }
 
 /**
@@ -106,15 +107,12 @@ robert_the_lifter.Game.prototype.addPiece = function() {
  * ROBERT'S GRABBED PIECE
  * GROUND
  */
-robert_the_lifter.Game.prototype.whatBlocksPiece = function(piece, blocking) {
-  if (typeof blocking == 'undefined') {
-    var blocking = robert_the_lifter.Game.NO_PIECE;
-  }
+robert_the_lifter.Game.prototype.whatBlocksPiece = function(piece) {
   // Recursively check what blocks the piece.
   // If robert if found, we keep it and continue.
   // If Robert's grabbed piece is found, we keep it and continu
   // As soon as the GROUND is found, we stop and return it.
-  
+  var blocking = robert_the_lifter.Game.NO_PIECE;
   for(var i = 0;i < piece.blocks.length && blocking !== robert_the_lifter.Game.GROUND;i ++) {
     var newX = piece.blocks[i].x - 1,
         newY = piece.blocks[i].y;
@@ -122,18 +120,29 @@ robert_the_lifter.Game.prototype.whatBlocksPiece = function(piece, blocking) {
     // Check if the block has reached the 'ground'
     if (newX < 0) {
       blocking = robert_the_lifter.Game.GROUND;
-    } else if  (state !== robert_the_lifter.Game.NO_PIECE) {
+    } else {
       var state = this.field[newY][newX];
-      
-      if (state === this.robert.id) {
-        blocking = robert_the_lifter.Game.ROBERT;
-      } else if (this.robert.hasPiece && state === this.robert.grabbedPiece.id) {
-        blocking = robert_the_lifter.Game.GRABBED_PIECE;
+      if  (typeof state != 'undefined' && state !== robert_the_lifter.Game.NO_PIECE) {
+        if (state === this.robert.id) {
+          blocking = robert_the_lifter.Game.ROBERT;
+        } else if (this.robert.hasPiece && state === this.robert.grabbedPiece.id) {
+          blocking = robert_the_lifter.Game.GRABBED_PIECE;
+        } else if (state != piece.id) {
+          blocking = this.whatBlocksPiece(this.pieces[state]);
+        }
       }
     }
   }
   
   return blocking;
+}
+
+/**
+ * Check if the coords are inside the field.
+ */
+robert_the_lifter.Game.prototype.isInside = function(x, y) {
+  return x >= 0 && x < this.factoryNbTileWidth &&
+         y >= 0 && y < this.factoryNbTileHeight;
 }
 
 /**
@@ -156,23 +165,28 @@ robert_the_lifter.Game.prototype.containsAnotherPiece = function(x, y, key) {
  * Push the piece to the left.
  */
 robert_the_lifter.Game.prototype.push = function(piece) {
-  this.switchPieceState(piece, robert_the_lifter.Game.NO_PIECE);
   piece.move(-1, 0); // move the piece left.
-  this.switchPieceState(piece, piece.id);
 }
 
 /**
  * Change the state of the location of the piece in the field to whatever we want.
  */
-robert_the_lifter.Game.prototype.switchPieceState = function(piece, newState) {
-  for(var i in piece.blocks) {
-    this.switchState(piece.blocks[i].x, piece.blocks[i].y, newState);
+robert_the_lifter.Game.prototype.switchPieceState = function(piece, newState, xMod, yMod) {
+  if (typeof xMod == 'undefined') {
+    xMod = 0;
+  }
+  if (typeof yMod == 'undefined') {
+    yMod = 0;
   }
   
-  this.printField();
+  for(var i in piece.blocks) {
+    this.switchState(piece.blocks[i].x + xMod, piece.blocks[i].y + yMod, newState);
+  }
 }
+
 robert_the_lifter.Game.prototype.switchState = function (x, y, newState) {
   this.field[y][x] = newState;
+  this.printField();
 }
 
 
@@ -226,7 +240,7 @@ robert_the_lifter.Game.GRABBED_PIECE = "GRABBED_PIECE";
 
 
 robert_the_lifter.Game.prototype.printField = function() {
-  if (document.getElementById('debug')) {
+  if (document.getElementById('debug') && this.debug) {
     var output = "";
     for(var i in this.field) {
       for(var j in this.field[i]) {

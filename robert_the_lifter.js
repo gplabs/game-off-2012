@@ -20,7 +20,7 @@ robert_the_lifter.start = function() {
   var game = new robert_the_lifter.Game();
   
   var director = new lime.Director(document.getElementById('game'), game.width, game.height);
-  director.setDisplayFPS(false);
+//  director.setDisplayFPS(false);
   // This will probably be the only scene of the game (beside a menu ?)
   var gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
   
@@ -52,16 +52,16 @@ robert_the_lifter.start = function() {
   director.replaceScene(gameScene);
 
   // This is the loop for spawning pieces.
-//  this.timeToNextSpawning = 0;
-//  game.pieces = [];
-//  lime.scheduleManager.schedule(spawningPieceLoop, this);
-//  function spawningPieceLoop(number) {
-//    this.timeToNextSpawning -= number;
-//    if (this.timeToNextSpawning <= 0) {
-//      this.timeToNextSpawning += game.spawningSpeed;
+  this.timeToNextSpawning = 0;
+  game.pieces = [];
+  lime.scheduleManager.schedule(spawningPieceLoop, this);
+  function spawningPieceLoop(number) {
+    this.timeToNextSpawning -= number;
+    if (this.timeToNextSpawning <= 0) {
+      this.timeToNextSpawning += game.spawningSpeed;
       game.addPiece();
-//    }
-//  }
+    }
+  }
 
 //  // Register to keyboard event for Robert to grab a piece.
 //  goog.events.listen(game.robert, goog.events.EventType.KEYDOWN, function (ev) {
