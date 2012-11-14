@@ -39,14 +39,13 @@ robert_the_lifter.Robert = function(game) {
    this.canUseKey = true;
  }, this, this.speed);
   
-  
   // Register Keydown events and move or rotate.
   goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
     var actual_rotation = this.getRotation();
     if (actual_rotation <= 0) {
       actual_rotation = 360;
     }
-
+       
     if (this.canUseKey) {
       switch (ev.event.keyCode) {
         case 40: // Down
