@@ -53,5 +53,7 @@ robert_the_lifter.Foreman = function(game) {
         }
       }
     }
+    
+    this.game.checkAndClearLine();
   }
 }

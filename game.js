@@ -189,45 +189,38 @@ robert_the_lifter.Game.prototype.switchState = function (x, y, newState) {
   this.printField();
 }
 
-
 /**
- * Check if something can be place at given coords.
- * 
- * Check wether it's ousite the factory or if there is anything else at given location.
- * 
- * The key is used in case of a crate, so that it doesn't compare to itself.
+ * Check each line and clear the full ones.
  */
-robert_the_lifter.Game.prototype.canBePlace = function(x ,y, key, considerRobert) {
-  var canPlace = true;
-  
-  // check if the location is out of the factory.
-  if (x < this.factoryX || x > this.factoryX + this.factoryWidth ||
-      y < this.factoryY || y > this.factoryY + this.factoryHeight) {
-    canPlace = false;
-  }
-  
-  // check if there is a square at location.
-  for (var i = 0; i < this.pieces.length && canPlace; i++) {
-    if (this.pieces[i].key != key) { // Must not compare to myself.
-      for (var j = 0; j < this.pieces[i].squares.length && canPlace; j++) {
-        var otherPos = this.pieces[i].squares[j].getPosition();
-        if (x == otherPos.x && y == otherPos.y) {
-          canPlace = false;
+robert_the_lifter.Game.prototype.checkAndClearLine = function() {
+  for(var x = 0; x < this.factoryNbTileWidth; x ++) {
+    var lineFull = true;
+    
+    // If we find something that is not a blocked piece, the line isn't full.
+    for(var y = 0; y < this.factoryNbTileHeight && lineFull; y ++) {
+      var id = this.field[y][x];
+      if (id == robert_the_lifter.Game.NO_PIECE || (id > robert_the_lifter.Game.NO_PIECE && this.pieces[id].state != robert_the_lifter.Piece.BLOCKED)) {
+        lineFull = false;
+      }
+    }
+    
+    if (lineFull) {
+      var squareRemaining = this.factoryNbTileHeight;
+      for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
+        for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
+          var block = this.pieces[i].blocks[j];
+          if (block.x == x) {
+            squareRemaining--;
+            this.switchState(block.x, block.y, robert_the_lifter.Game.NO_PIECE);
+            
+            // Remove the crate form the game.
+            this.pieces[i].removeBlock(j);
+          }
         }
       }
     }
   }
-  
-  // Check if robert is there !
-  if (canPlace && considerRobert) {
-    var robertPos = this.robert.getPosition();
-    if (x == robertPos.x && y == robertPos.y) {
-      canPlace = false;
-    }
-  }
-  return canPlace;
 }
-
 
 robert_the_lifter.Game.NO_PIECE = -1;
 robert_the_lifter.Game.ROBERT = -2;

@@ -156,8 +156,6 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
     if (canMove && !this.game.containsAnotherPiece(newX, newY, this.grabbedPiece.id)) {
       this.grabbedPiece.move(x, y);
       
-      
-      
       this.setPosition(actual_position.x + (x*this.game.tileWidth), actual_position.y + (y*this.game.tileHeight));
       this.game.switchState(newX, newY, this.id);
       
