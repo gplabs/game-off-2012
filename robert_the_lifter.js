@@ -14,73 +14,80 @@ goog.require('lime.animation.MoveTo');
 goog.require('robert_the_lifter.Game');
 goog.require('robert_the_lifter.Robert');
 goog.require('robert_the_lifter.Piece');
+goog.require('robert_the_lifter.ParkingArea');
 
 robert_the_lifter.start = function() {
   var game = new robert_the_lifter.Game();
   
   var director = new lime.Director(document.getElementById('game'), game.width, game.height);
-  director.setDisplayFPS(false);
+//  director.setDisplayFPS(false);
   // This will probably be the only scene of the game (beside a menu ?)
   var gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
   
-  // The left parking layer
+  // The upper parking layer
   var truckParkingLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
-  // Left parking area
-  var truckParkingArea = new lime.Sprite()
-    .setAnchorPoint(0,0)
-    .setPosition(0, 0)
-    .setSize(game.truckParkingWidth, game.truckParkingHeight)
-    .setFill('#000');
+  var truckParkingArea = new robert_the_lifter.ParkingArea(game);
   truckParkingLayer.appendChild(truckParkingArea);
   gameScene.appendChild(truckParkingLayer);  
   
   // The factory layer.
+  var factoryTiles = new lime.fill.Frame('images/ground.png', game.factoryX, game.factoryY, game.factoryWidth, game.factoryHeight);
   var factoryLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
+  var factoryArea = new lime.Sprite()
+    .setAnchorPoint(0,0)
+    .setPosition(game.factoryX, game.factoryY)
+    .setSize(game.factoryWidth, game.factoryHeight)
+    .setFill(factoryTiles);
+  factoryLayer.appendChild(factoryArea);
+  game.factoryLayer = factoryLayer;
   gameScene.appendChild(factoryLayer);
   
-  // Init Robert :P
-  game.robert = new robert_the_lifter.Robert(game);
-  factoryLayer.appendChild(game.robert);
+  // start game loops.
+  game.start();
+  
 
-  // This is the game main loop (For dropping down pieces.) Currently not working
+  // set current scene active
+  director.replaceScene(gameScene);
+
+  // This is the loop for spawning pieces.
   this.timeToNextSpawning = 0;
   game.pieces = [];
   lime.scheduleManager.schedule(spawningPieceLoop, this);
-
   function spawningPieceLoop(number) {
     this.timeToNextSpawning -= number;
     if (this.timeToNextSpawning <= 0) {
       this.timeToNextSpawning += game.spawningSpeed;
-      var i = game.pieces.push(new robert_the_lifter.Piece(factoryLayer, game)) - 1;
-      game.pieces[i].key = i;
+      game.addPiece();
     }
   }
 
-  // Register to keyboard event for Robert to grab a piece.
-  goog.events.listen(game.robert, goog.events.EventType.KEYDOWN, function (ev) {
-    if (ev.event.keyCode == 32) { // 32 = spacebar.
-      if (! game.robert.hasPiece) {
-        var foundPiece = false;
-        for (var i = 0; i < game.pieces.length && !foundPiece; i++) {
-          foundPiece = game.robert.isThisPieceInFrontOfMe(game.pieces[i]);
-        }
-        if (foundPiece) {
-          game.pieces[i - 1].isGrabbed = true;
-          game.robert.grabbedPiece = game.pieces[i - 1];
-          game.robert.hasPiece = true;
-        }
-      } else {
-        game.robert.grabbedPiece.isGrabbed = false;
-        game.robert.grabbedPiece = null;
-        game.robert.hasPiece = false;
-      }
-    }
-  });
+//  // Register to keyboard event for Robert to grab a piece.
+//  goog.events.listen(game.robert, goog.events.EventType.KEYDOWN, function (ev) {
+//    if (ev.event.keyCode == 32) { // 32 = spacebar.
+//      if (! game.robert.hasPiece) {
+//        var foundPiece = false;
+//        for (var i = 0; i < game.pieces.length && !foundPiece; i++) {
+//          foundPiece = game.robert.isThisPieceInFrontOfMe(game.pieces[i]);
+//        }
+//        if (foundPiece) {
+//          game.pieces[i - 1].isFreeFalling = false;
+//          game.robert.grabbedPiece = game.pieces[i - 1];
+//          if (game.piecesBlock.pieces.indexOf(game.pieces[i - 1]) > -1) {
+//            game.piecesBlock.removePiece(game.pieces[i - 1]);
+//          }
+//          game.robert.hasPiece = true;
+//        }
+//      } else {
+//        game.robert.grabbedPiece.isFreeFalling = true;
+//        game.robert.grabbedPiece = null;
+//        game.robert.hasPiece = false;
+//      }
+//    }
+//  });
 
-  // set current scene active
-  director.replaceScene(gameScene);
+  
 }
 
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
