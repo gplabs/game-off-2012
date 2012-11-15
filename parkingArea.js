@@ -34,7 +34,7 @@ robert_the_lifter.ParkingArea = function(game) {
       .setSize(this.truckWidth, this.truckHeight)
       .setPosition(i*game.tileWidth, game.truckParkingY)
       .setFill(truckTile[random_truck]);
-    
+      
     this.appendChild(truck);
   }
 }

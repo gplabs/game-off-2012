@@ -165,7 +165,10 @@ robert_the_lifter.Game.prototype.containsAnotherPiece = function(x, y, key) {
  * Push the piece to the left.
  */
 robert_the_lifter.Game.prototype.push = function(piece) {
-  piece.move(-1, 0); // move the piece left.
+  if (!robert_the_lifter.Director.isPaused){
+    piece.move(-1, 0); // move the piece left.
+  }
+  
 }
 
 /**
