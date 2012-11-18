@@ -160,7 +160,10 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
       
       this.x = newX;
       this.y = newY;
-      this.game.switchState(oldX, oldY, robert_the_lifter.Game.NO_PIECE);
+      // If the old position is still robert, we make it NO_PIECE.
+      if (this.game.field[oldY][oldX] == this.id) {
+        this.game.switchState(oldX, oldY, robert_the_lifter.Game.NO_PIECE);
+      }
     }
   }
 }
