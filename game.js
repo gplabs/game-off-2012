@@ -94,6 +94,7 @@ robert_the_lifter.Game.prototype.start = function() {
 robert_the_lifter.Game.prototype.addPiece = function() {
   var id = this.pieces.length;
   var piece = new robert_the_lifter.Piece(this, id);
+  piece.initSpawningPiece();
   piece.appendTo(this.factoryLayer);
   this.pieces[id] = piece;
 }
@@ -206,6 +207,7 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
     
     if (lineFull) {
       var squareRemaining = this.factoryNbTileHeight;
+      var piecesToSplit = [];
       for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
         for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
           var block = this.pieces[i].blocks[j];
@@ -215,9 +217,17 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
             
             // Remove the crate form the game.
             this.pieces[i].removeBlock(j);
+            if (piecesToSplit.indexOf(this.pieces[i]) === -1) {
+              piecesToSplit.push(this.pieces[i]);
+            }
           }
         }
       }
+      
+      for (var k in piecesToSplit) {
+        piecesToSplit[k].split();
+      }
+      
     }
   }
 }

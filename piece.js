@@ -10,11 +10,14 @@ robert_the_lifter.Piece = function(game, id) {
   
   this.blocks = [];
   this.state = robert_the_lifter.Piece.GETTING_PUSHED;
-  this.blockingPieces = []; // Pieces that blocks me.
-  this.beingBlocked = []; // Pieces I block.
   this.timeToNextPush = robert_the_lifter.Piece.DEFAULT_SPEED;
-  
-  var x = game.factoryNbTileWidth - 1;
+}
+
+/**
+ * Randomly choose a shape for the piece and place it at spawning point.
+ */
+robert_the_lifter.Piece.prototype.initSpawningPiece = function() {
+  var x = this.game.factoryNbTileWidth - 1;
   var y = 3;
 
   var pieceType = Math.floor((Math.random()*7)+1);
@@ -212,10 +215,42 @@ robert_the_lifter.Piece.prototype.reachedLeftLimit = function () {
  */
 robert_the_lifter.Piece.prototype.removeBlock = function (index) {
   var blockToDelete = this.blocks[index];
-  blockToDelete.remove();
   
+  // Remove the block.
+  blockToDelete.remove();
   this.blocks.splice(index, 1);
   delete blockToDelete;
+}
+
+/**
+ * Check if the piece must be split and do it if necessary.
+ */
+robert_the_lifter.Piece.prototype.split = function () {
+  var array1 = [this.blocks[0]], array2 = [];
+  
+  // as Soon as we find a block that is 2 blocks way from any block of the 
+  // first array, we put it in the 2nd array. That means there will be a split.
+  for(var i = 1; i < this.blocks.length; i++) {
+    for(var j in array1) {
+      if (this.blocks[i].x >= array1[j].x + 2 || this.blocks[i].x <= array1[j].x - 2) {
+        array2.push(this.blocks[i]);
+      } else {
+        array1.push(this.blocks[i]);
+      }
+    }
+  }
+  
+  // If there are block int array2, that means we split.
+  if (array2.length > 0) {
+    var newId = this.game.pieces.length;
+    var newPiece = new robert_the_lifter.Piece(this.game, newId);
+    newPiece.blocks = array2;
+    newPiece.state = this.state;
+    this.game.pieces[newId] = newPiece;
+    this.game.switchPieceState(newPiece, newPiece.id);
+    
+    this.blocks = array1;
+  }
 }
 
 /**
