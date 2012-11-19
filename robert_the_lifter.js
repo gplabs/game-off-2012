@@ -59,10 +59,12 @@ robert_the_lifter.start = function() {
   game.pieces = [];
   lime.scheduleManager.schedule(spawningPieceLoop, this);
   function spawningPieceLoop(number) {
-    this.timeToNextSpawning -= number;
-    if (this.timeToNextSpawning <= 0) {
-      this.timeToNextSpawning += game.spawningSpeed;
-      game.addPiece();
+    if (!robert_the_lifter.Director.isPaused) {
+      this.timeToNextSpawning -= number;
+      if (this.timeToNextSpawning <= 0) {
+        this.timeToNextSpawning += game.spawningSpeed;
+        game.addPiece();
+      }
     }
   }
 }

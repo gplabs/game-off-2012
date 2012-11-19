@@ -11,49 +11,51 @@ robert_the_lifter.Foreman = function(game) {
   // Constantly checking out pieces.
   lime.scheduleManager.schedule(checkPieces, this);
   function checkPieces(number) {
-    for (var i in game.pieces) {
-      if (game.pieces[i].state !== robert_the_lifter.Piece.GRABBED) {
+    if (!robert_the_lifter.Director.isPaused) {
+      for (var i in game.pieces) {
+        if (game.pieces[i].state !== robert_the_lifter.Piece.GRABBED) {
 
-        // If the piece is being blocked by another piece that is not the grabbed 
-        // piece, it must stop and it state is changed to 'BLOCKED'.
-        var blockingPiece = game.whatBlocksPiece(game.pieces[i]);
-        var canBePushed, isBlocked;
+          // If the piece is being blocked by another piece that is not the grabbed 
+          // piece, it must stop and it state is changed to 'BLOCKED'.
+          var blockingPiece = game.whatBlocksPiece(game.pieces[i]);
+          var canBePushed, isBlocked;
 
-        switch (blockingPiece) {
-          case robert_the_lifter.Game.NO_PIECE:
-            canBePushed = true;
-            isBlocked = false;
-            break;
-          case robert_the_lifter.Game.GROUND:
-            canBePushed = false;
-            isBlocked = true;
-            break;
-          case robert_the_lifter.Game.ROBERT:
-          case robert_the_lifter.Game.GRABBED_PIECE:
-            canBePushed = false;
-            isBlocked = false;
-            break;
-        }
-
-        // Adjust state of the piece and push it.
-        if (canBePushed) {
-          // pushing the piece at it's defined speed.
-          game.pieces[i].timeToNextPush -= number;
-          if (game.pieces[i].timeToNextPush <= 0) {
-            game.push(game.pieces[i]);
-            game.pieces[i].timeToNextPush += robert_the_lifter.Piece.DEFAULT_SPEED;
+          switch (blockingPiece) {
+            case robert_the_lifter.Game.NO_PIECE:
+              canBePushed = true;
+              isBlocked = false;
+              break;
+            case robert_the_lifter.Game.GROUND:
+              canBePushed = false;
+              isBlocked = true;
+              break;
+            case robert_the_lifter.Game.ROBERT:
+            case robert_the_lifter.Game.GRABBED_PIECE:
+              canBePushed = false;
+              isBlocked = false;
+              break;
           }
-        } else {
-          if (isBlocked) {
-            game.pieces[i].state = robert_the_lifter.Piece.BLOCKED;
-            game.pieces[i].timeToNextPush = robert_the_lifter.Piece.DEFAULT_SPEED;
+
+          // Adjust state of the piece and push it.
+          if (canBePushed) {
+            // pushing the piece at it's defined speed.
+            game.pieces[i].timeToNextPush -= number;
+            if (game.pieces[i].timeToNextPush <= 0) {
+              game.push(game.pieces[i]);
+              game.pieces[i].timeToNextPush += robert_the_lifter.Piece.DEFAULT_SPEED;
+            }
           } else {
-            game.pieces[i].state = robert_the_lifter.Piece.GETTING_PUSHED;
+            if (isBlocked) {
+              game.pieces[i].state = robert_the_lifter.Piece.BLOCKED;
+              game.pieces[i].timeToNextPush = robert_the_lifter.Piece.DEFAULT_SPEED;
+            } else {
+              game.pieces[i].state = robert_the_lifter.Piece.GETTING_PUSHED;
+            }
           }
         }
       }
+
+      this.game.checkAndClearLine();
     }
-    
-    this.game.checkAndClearLine();
   }
 }
