@@ -19,21 +19,15 @@ robert_the_lifter.ParkingArea = function(game) {
       .setPosition(game.truckParkingX, game.truckParkingY)
       .setFill(parkingTiles);
   
-  // each slot of the array is a truck of a different color
-  var truckTile = new Array();
-  truckTile[0] = new lime.fill.Frame('images/trucks.png', 0, 0, this.truckWidth, this.truckHeight);
-  truckTile[1] = new lime.fill.Frame('images/trucks.png', 60, 0, this.truckWidth, this.truckHeight);
-  truckTile[2] = new lime.fill.Frame('images/trucks.png', 120, 0, this.truckWidth, this.truckHeight);
-  truckTile[3] = new lime.fill.Frame('images/trucks.png', 185, 0, this.truckWidth, this.truckHeight);
-  
   var nbTrucks = game.truckParkingWidth / game.tileWidth;
   for(var i = 0; i < nbTrucks; i ++) {
-    var random_truck = Math.floor(Math.random()*4);
+    var truckNo = Math.floor(Math.random()*2);
+    var truckTile = new lime.fill.Frame('images/trucks.png', truckNo*this.truckWidth, 0, this.truckWidth, this.truckHeight);
     var truck = new lime.Sprite()
       .setAnchorPoint(0, 0)
       .setSize(this.truckWidth, this.truckHeight)
       .setPosition(i*game.tileWidth, game.truckParkingY)
-      .setFill(truckTile[random_truck]);
+      .setFill(truckTile);
       
     this.appendChild(truck);
   }
