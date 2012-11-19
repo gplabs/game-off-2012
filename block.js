@@ -11,7 +11,7 @@ robert_the_lifter.Block = function(x, y, game) {
   this.game = game;
   
   // getting a random image from the boxes image.
-  var boxX = this.game.tileWidth * Math.floor((Math.random()*3));
+  var boxX = this.game.tileWidth * Math.floor((Math.random()*4));
   var boxesFrame = new lime.fill.Frame('images/boxes.png', boxX, 0, this.game.tileWidth, this.game.tileHeight);
   
   this.box = new lime.Sprite()
