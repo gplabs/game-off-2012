@@ -49,12 +49,14 @@ robert_the_lifter.Robert = function(game) {
     if (this.canUseKey) {
       switch (ev.event.keyCode) {
         case 40: // Down
+          game.oil.dropOil(game);
           this.moveTo(actual_rotation/90, ev.event.keyCode);
           break;
         case 39: // Right
           this.rotate(actual_rotation, -90);
           break;
         case 38: // Up
+          game.oil.dropOil(game);
           this.moveTo(actual_rotation/90, ev.event.keyCode);
           break;
         case 37: // Left
