@@ -200,7 +200,7 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
     // If we find something that is not a blocked piece, the line isn't full.
     for(var y = 0; y < this.factoryNbTileHeight && lineFull; y ++) {
       var id = this.field[y][x];
-      if (id == robert_the_lifter.Game.NO_PIECE || (id > robert_the_lifter.Game.NO_PIECE && this.pieces[id].state != robert_the_lifter.Piece.BLOCKED)) {
+      if (id == robert_the_lifter.Game.ROBERT || id == robert_the_lifter.Game.NO_PIECE || (id > robert_the_lifter.Game.NO_PIECE && this.pieces[id].state != robert_the_lifter.Piece.BLOCKED)) {
         lineFull = false;
       }
     }
