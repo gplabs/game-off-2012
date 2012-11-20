@@ -45,6 +45,7 @@ robert_the_lifter.Game = function() {
 
 robert_the_lifter.Game.prototype.start = function() {
   this.robert = new robert_the_lifter.Robert(this);
+  this.score = new robert_the_lifter.Score(this.factoryLayer);
   this.factoryLayer.appendChild(this.robert);
   this.switchPieceState(this.robert, this.robert.id);
   
@@ -94,6 +95,12 @@ robert_the_lifter.Game.prototype.start = function() {
 robert_the_lifter.Game.prototype.addPiece = function() {
   var id = this.pieces.length;
   var piece = new robert_the_lifter.Piece(this, id);
+  
+  this.factoryLayer.removeChild(this.score.lbl);
+  var actual_score = this.score.getScore();
+  this.score.setScore(actual_score - 40);
+  this.factoryLayer.appendChild(this.score.lbl);
+  
   piece.initSpawningPiece();
   piece.appendTo(this.factoryLayer);
   this.pieces[id] = piece;
@@ -206,6 +213,12 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
     }
     
     if (lineFull) {
+      
+      this.factoryLayer.removeChild(this.score.lbl);
+      var actual_score = this.score.getScore();
+      this.score.setScore(actual_score + 300);
+      this.factoryLayer.appendChild(this.score.lbl);
+
       var squareRemaining = this.factoryNbTileHeight;
       var piecesToSplit = [];
       for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {

@@ -17,6 +17,7 @@ goog.require('robert_the_lifter.PauseMenu');
 goog.require('robert_the_lifter.Robert');
 goog.require('robert_the_lifter.Piece');
 goog.require('robert_the_lifter.ParkingArea');
+goog.require('robert_the_lifter.Score');
 
 robert_the_lifter.start = function() {
   var game = new robert_the_lifter.Game();
