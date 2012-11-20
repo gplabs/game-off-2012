@@ -54,12 +54,14 @@ robert_the_lifter.start = function() {
   // set current scene active
   robert_the_lifter.Director.replaceScene(gameScene);
 
+  var stopSpawning = false;
+
   // This is the loop for spawning pieces.
   this.timeToNextSpawning = 0;
   game.pieces = [];
   lime.scheduleManager.schedule(spawningPieceLoop, this);
   function spawningPieceLoop(number) {
-    if (!robert_the_lifter.Director.isPaused) {
+    if (!robert_the_lifter.Director.isPaused && !stopSpawning) {
       this.timeToNextSpawning -= number;
       if (this.timeToNextSpawning <= 0) {
         this.timeToNextSpawning += game.spawningSpeed;
@@ -67,6 +69,13 @@ robert_the_lifter.start = function() {
       }
     }
   }
+  
+  // Debug event to stop spwning pieces.
+  goog.events.listen(robert_the_lifter.Director, goog.events.EventType.KEYDOWN, function (ev) {
+    if (ev.event.keyCode == 81) {
+      stopSpawning = !stopSpawning;
+    }
+  });
 }
 
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode

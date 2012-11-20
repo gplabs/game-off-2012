@@ -181,6 +181,7 @@ robert_the_lifter.Piece.prototype.move = function (x, y) {
  * Move the piece to the new locations + rotate.
  */ 
 robert_the_lifter.Piece.prototype.moveAndRotate = function (newPos, newRotation) {
+  this.game.switchPieceState(this, robert_the_lifter.Game.NO_PIECE);
   for(var j = 0; j < this.blocks.length; j++) {
     var oldX = this.blocks[j].x,
         oldY = this.blocks[j].y;
@@ -191,6 +192,7 @@ robert_the_lifter.Piece.prototype.moveAndRotate = function (newPos, newRotation)
     this.blocks[j].moveTo(newPos[j][0], newPos[j][1]);
     this.blocks[j].rotate(newRotation);
   }
+  this.game.switchPieceState(this, this.id);
 }
 
 /**
