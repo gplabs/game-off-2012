@@ -140,7 +140,7 @@ robert_the_lifter.Piece.prototype.createPieceS = function(x, y) {
     this.createBlock(x - 1, y + 1)
   ];
 }
-  
+
 /**
  * The inverted S piece
  * 
