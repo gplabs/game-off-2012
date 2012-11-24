@@ -39,32 +39,50 @@ robert_the_lifter.Robert = function(game) {
     this.canUseKey = true;
   }, this, this.speed);
   
+  // Prevent the browser from scrolling on arrow key pressed.
+  window.addEventListener("keydown",
+      function(e){
+          switch(e.keyCode){
+              case 37: case 39: case 38:  case 40: // Arrow keys
+              case 32: e.preventDefault(); break; // Space
+              default: break; // do not block other keys
+          }
+      },
+  false);
+  
   // Register Keydown events and move or rotate.
-  this.movingListener = goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
-    var actual_rotation = this.getRotation();
+  function moveEvent(ev) {
+    ev.preventDefault();
+    var actual_rotation = game.robert.getRotation();
     if (actual_rotation <= 0) {
       actual_rotation = 360;
     }
        
-    if (this.canUseKey) {
-      switch (ev.event.keyCode) {
-        case 40: // Down
+    if (game.robert.canUseKey) {
+      switch (ev.keyIdentifier) {
+        case "Down": // Down
           game.oil.dropOil(game);
-          this.moveTo(actual_rotation/90, ev.event.keyCode);
+          game.robert.moveTo(actual_rotation/90, ev.keyIdentifier);
           break;
-        case 39: // Right
-          this.rotate(actual_rotation, -90);
+        case "Right": // Right
+          game.robert.rotate(actual_rotation, -90);
           break;
-        case 38: // Up
+        case "Up": // Up
           game.oil.dropOil(game);
-          this.moveTo(actual_rotation/90, ev.event.keyCode);
+          game.robert.moveTo(actual_rotation/90, ev.keyIdentifier);
           break;
-        case 37: // Left
-          this.rotate(actual_rotation, 90)
+        case "Left": // Left
+          game.robert.rotate(actual_rotation, 90)
           break;
       }
     }
-  });
+  }
+  
+  // Mapping them all in one call doesn't seem to work.
+  KeyboardJS.on("right", moveEvent);
+  KeyboardJS.on("down", moveEvent);
+  KeyboardJS.on("up", moveEvent);
+  KeyboardJS.on("left", moveEvent);
 }
 
 // Robert is a Sprite !
@@ -80,7 +98,7 @@ robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
   this.canUseKey = false;
   switch(rotation) {  
     case 1: // left.
-      if (keyCode == 38) { // Moving forward
+      if (keyCode == "Up") { // Moving forward
         this.moveLeft(movement_value);
       }
       else { // Moving backward
@@ -89,7 +107,7 @@ robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
       break;
 
     case 2: // down.
-      if (keyCode == 38) { // Moving forward
+      if (keyCode == "Up") { // Moving forward
         this.moveDown(movement_value);
       }
       else { // Moving backward
@@ -98,7 +116,7 @@ robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
       break;
 
     case 3: // right.
-      if (keyCode == 38) { // Moving forward
+      if (keyCode == "Up") { // Moving forward
         this.moveRight(movement_value);
       }
       else { // Moving backward
@@ -107,7 +125,7 @@ robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
       break;   
 
     case 4: // Up.
-      if (keyCode == 38) { // Moving forward
+      if (keyCode == "Up") { // Moving forward
         this.moveUp(movement_value);
       }
       else { // Moving backward

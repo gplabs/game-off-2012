@@ -55,6 +55,7 @@ robert_the_lifter.Game.prototype.start = function() {
   this.robert = new robert_the_lifter.Robert(this);
   this.score = new robert_the_lifter.Score(this.factoryLayer);
   this.oil = new robert_the_lifter.Oil(this);
+  this.pauseMenu = new robert_the_lifter.PauseMenu();
   this.factoryLayer.appendChild(this.robert);
   this.switchPieceState(this.robert, this.robert.id);
   
@@ -62,40 +63,39 @@ robert_the_lifter.Game.prototype.start = function() {
   this.foreman = new robert_the_lifter.Foreman(this);
   
   // Register to keyboard event for Robert to grab a piece.
-  this.robertGrabPieceListener = goog.events.listen(this.robert, goog.events.EventType.KEYDOWN, function (ev) {
-    if (ev.event.keyCode == 32) { // 32 = spacebar.
-      if (!this.hasPiece) {
-        var x = this.x,
-            y = this.y,
-            rotation = this.getRotation();
-        switch(rotation) {
-          case 180: //Pointing down !
-            y += 1;
-            break;
-          case 0: // Pointing up !
-            y -= 1;
-            break;
-          case 90: // Pointing left !
-            x -= 1;
-            break;
-          case 270: // Pointing right !
-            x += 1;
-            break;
-        }
-        var pieceId = this.game.field[y][x];
-        if (pieceId != robert_the_lifter.Game.NO_PIECE) {
-          this.game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
-          this.game.robert.grabbedPiece = this.game.pieces[pieceId];
-          this.game.robert.hasPiece = true;
-        }
-        
-      } else {
-        this.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
-        this.grabbedPiece = null;
-        this.hasPiece = false;
+  var game = this;
+  function grabPieceListener(ev) {
+    if (!game.robert.hasPiece) {
+      var x = game.robert.x,
+          y = game.robert.y,
+          rotation = game.robert.getRotation();
+      switch(rotation) {
+        case 180: //Pointing down !
+          y += 1;
+          break;
+        case 0: // Pointing up !
+          y -= 1;
+          break;
+        case 90: // Pointing left !
+          x -= 1;
+          break;
+        case 270: // Pointing right !
+          x += 1;
+          break;
       }
+      var pieceId = game.field[y][x];
+      if (pieceId != robert_the_lifter.Game.NO_PIECE) {
+        game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
+        game.robert.grabbedPiece = game.pieces[pieceId];
+        game.robert.hasPiece = true;
+      }
+    } else {
+      game.robert.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
+      game.robert.grabbedPiece = null;
+      game.robert.hasPiece = false;
     }
-  });
+  }
+  KeyboardJS.on("space", grabPieceListener);
   
   // Start spawning pieces.
   var stopSpawning = false;
@@ -113,11 +113,10 @@ robert_the_lifter.Game.prototype.start = function() {
   lime.scheduleManager.schedule(this.spawningPieceLoop, this);
   
   // Debug event to stop spawning pieces.
-  this.stopSpawningListener = goog.events.listen(robert_the_lifter.Director, goog.events.EventType.KEYDOWN, function (ev) {
-    if (ev.event.keyCode == 81) {
-      stopSpawning = !stopSpawning;
-    }
-  });
+  function stopSpawningEvent() {
+    stopSpawning = !stopSpawning;
+  }
+  KeyboardJS.on("q", stopSpawningEvent);
 }
 
 /**
