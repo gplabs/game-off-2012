@@ -9,6 +9,14 @@ goog.require('robert_the_lifter.Foreman');
 robert_the_lifter.Game = function() {
   this.debug = true;
   
+  // Initialize the pieces history with some default values.
+  this.piecesHistory = [
+    robert_the_lifter.Piece.S,
+    robert_the_lifter.Piece.Z,
+    robert_the_lifter.Piece.S,
+    robert_the_lifter.Piece.Z
+  ]
+  
   this.tileWidth = 64;
   this.tileHeight = 64;
   this.spawningSpeed = 8000;
@@ -136,7 +144,7 @@ robert_the_lifter.Game.prototype.addPiece = function() {
   this.score.setScore(actual_score - 40);
   this.factoryLayer.appendChild(this.score.lbl);
   
-  var newPieceCoords = piece.getNewPieceCoordinates();
+  var newPieceCoords = piece.getNewPieceCoordinates(this.piecesHistory, (id === 0));
   // If there is something where the new piece should be, the game ends.
   var gameStop = false;
   for(var i in newPieceCoords) {
@@ -155,6 +163,10 @@ robert_the_lifter.Game.prototype.addPiece = function() {
     this.switchPieceState(piece, id);
   }
   
+  this.piecesHistory.push(piece.type);
+  if (this.piecesHistory.length > 6) {
+    this.piecesHistory.splice(0, 1);
+  }
   piece.appendTo(this.factoryLayer);
   this.pieces[id] = piece;
 }

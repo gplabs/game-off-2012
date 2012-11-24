@@ -28,33 +28,48 @@ robert_the_lifter.Piece.prototype.initSpawningPiece = function(coords) {
 /**
  * Randomly choose a piece shape and return coordinates for a future piece.
  */
-robert_the_lifter.Piece.prototype.getNewPieceCoordinates = function () {
+robert_the_lifter.Piece.prototype.getNewPieceCoordinates = function (exceptions, first) {
 //  var x = this.game.factoryNbTileWidth - 1;
 //  var y = 3;
 
   var x = 20,
-      y = 4;
-  var pieceType = Math.floor((Math.random()*7)+1);
+      y = 4,
+      remainingTries = 6,
+      nbPieces = 7;
+      
+  // If it's the first piece, we never generate O S OR Z
+  if (first) {
+    nbPieces = 4;
+  }
+  
+  var pieceType;
+  do {
+    pieceType = Math.floor((Math.random()*nbPieces)+1);
+    remainingTries--;
+  } while(remainingTries > 0 && exceptions.indexOf(pieceType) > 0)
+  
+  this.type = pieceType;
+
   switch(pieceType) {
-    case 1:
+    case robert_the_lifter.Piece.J:
       return this.createJ(x, y);
       break;
-    case 2:
+    case robert_the_lifter.Piece.L:
       return this.createL(x, y);
       break;
-    case 3:
+    case robert_the_lifter.Piece.I:
       return this.createI(x, y);
       break;
-    case 4:
-      return this.createO(x, y);
-      break;
-    case 5:
+    case robert_the_lifter.Piece.T:
       return this.createT(x, y);
       break;
-    case 6:
+    case robert_the_lifter.Piece.O:
+      return this.createO(x, y);
+      break;
+    case robert_the_lifter.Piece.S:
       return this.createS(x, y);
       break;
-    case 7:
+    case robert_the_lifter.Piece.Z:
       return this.createZ(x, y);
       break;
   }
@@ -86,7 +101,7 @@ robert_the_lifter.Piece.prototype.createL = function(x, y) {
     {x:x,     y:y + 1},
     {x:x + 1, y:y + 1},
     {x:x + 2, y:y + 1},
-    {x:x + 1, y:y + 2}
+    {x:x    , y:y + 2}
   ];
 }
   
@@ -277,3 +292,11 @@ robert_the_lifter.Piece.DEFAULT_SPEED = 1000;
 robert_the_lifter.Piece.GETTING_PUSHED = 1;
 robert_the_lifter.Piece.GRABBED = 2;
 robert_the_lifter.Piece.BLOCKED = 3;
+
+robert_the_lifter.Piece.J = 1;
+robert_the_lifter.Piece.L = 2;
+robert_the_lifter.Piece.I = 3;
+robert_the_lifter.Piece.T = 4;
+robert_the_lifter.Piece.O = 5;
+robert_the_lifter.Piece.S = 6;
+robert_the_lifter.Piece.Z = 7;
