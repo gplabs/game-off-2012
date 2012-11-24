@@ -35,12 +35,12 @@ robert_the_lifter.Robert = function(game) {
   
   this.hasPiece = false;
  
- lime.scheduleManager.scheduleWithDelay(function(){
-   this.canUseKey = true;
- }, this, this.speed);
+  this.speedController = lime.scheduleManager.scheduleWithDelay(function(){
+    this.canUseKey = true;
+  }, this, this.speed);
   
   // Register Keydown events and move or rotate.
-  goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
+  this.movingListener = goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
     var actual_rotation = this.getRotation();
     if (actual_rotation <= 0) {
       actual_rotation = 360;
@@ -70,6 +70,11 @@ robert_the_lifter.Robert = function(game) {
 
 // Robert is a Sprite !
 goog.inherits(robert_the_lifter.Robert, lime.Sprite);
+
+robert_the_lifter.Robert.prototype.stop = function (){
+  goog.events.unlistenByKey(this.movingListener);
+  lime.scheduleManager.unschedule(this.speedController, this);
+}
 
 robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
   var movement_value = this.game.tileWidth;

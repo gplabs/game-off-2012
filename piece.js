@@ -16,143 +16,152 @@ robert_the_lifter.Piece = function(game, id) {
 /**
  * Randomly choose a shape for the piece and place it at spawning point.
  */
-robert_the_lifter.Piece.prototype.initSpawningPiece = function() {
-  var x = this.game.factoryNbTileWidth - 1;
-  var y = 3;
+robert_the_lifter.Piece.prototype.initSpawningPiece = function(coords) {
+  this.blocks = [
+    this.createBlock(coords[0].x, coords[0].y),
+    this.createBlock(coords[1].x, coords[1].y),
+    this.createBlock(coords[2].x, coords[2].y),
+    this.createBlock(coords[3].x, coords[3].y)
+  ];
+}
 
+/**
+ * Randomly choose a piece shape and return coordinates for a future piece.
+ */
+robert_the_lifter.Piece.prototype.getNewPieceCoordinates = function () {
+//  var x = this.game.factoryNbTileWidth - 1;
+//  var y = 3;
+
+  var x = 20,
+      y = 4;
   var pieceType = Math.floor((Math.random()*7)+1);
   switch(pieceType) {
     case 1:
-      this.blocks = this.createPieceInvertedL(x, y);
+      return this.createJ(x, y);
       break;
     case 2:
-      this.blocks = this.createPieceL(x, y);
+      return this.createL(x, y);
       break;
     case 3:
-      this.blocks = this.createPieceBar(x, y);
+      return this.createI(x, y);
       break;
     case 4:
-      this.blocks = this.createPieceSquare(x, y);
+      return this.createO(x, y);
       break;
     case 5:
-      this.blocks = this.createPieceT(x, y);
+      return this.createT(x, y);
       break;
     case 6:
-      this.blocks = this.createPieceS(x, y);
+      return this.createS(x, y);
       break;
     case 7:
-      this.blocks = this.createPieceInvertedS(x, y);
+      return this.createZ(x, y);
       break;
   }
-  this.game.switchPieceState(this, this.id);
 }
 
 /**
- * The bar piece
- * 
- *  x
- *  x
- *  x
- *  x
+ * The I
+ * ....
+ * xxxx
+ * ....
  */
-robert_the_lifter.Piece.prototype.createPieceBar = function(x, y) {
+robert_the_lifter.Piece.prototype.createI = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x, y + 2),
-    this.createBlock(x, y + 3)
+    {x:x,     y:y + 1},
+    {x:x + 1, y:y + 1},
+    {x:x + 2, y:y + 1},
+    {x:x + 3, y:y + 1}
   ];
 }
   
 /**
- * The L piece
- * 
- *  x
- *  x
- *  xx
+ * The L
+ * ....
+ * xxx.
+ * x...
  */
-robert_the_lifter.Piece.prototype.createPieceL = function(x, y) {
+robert_the_lifter.Piece.prototype.createL = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x, y + 2),
-    this.createBlock(x + 1, y + 2)
+    {x:x,     y:y + 1},
+    {x:x + 1, y:y + 1},
+    {x:x + 2, y:y + 1},
+    {x:x + 1, y:y + 2}
   ];
 }
   
 /**
- * The inverted L piece
- * 
- *   x
- *   x
- *  xx
+ * The J
+ * x...
+ * xxx.
+ * ....
  */
-robert_the_lifter.Piece.prototype.createPieceInvertedL = function(x, y) {
+robert_the_lifter.Piece.prototype.createJ = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x, y + 2),
-    this.createBlock(x - 1, y + 2)
+    {x:x,     y:y},
+    {x:x,     y:y + 1},
+    {x:x + 1, y:y + 1},
+    {x:x + 2, y:y + 1}
   ];
 }
   
 /**
- * The square piece
- * 
- *  xx
- *  xx
+ * The O
+ * ....
+ * .xx.
+ * .xx.
  */
-robert_the_lifter.Piece.prototype.createPieceSquare = function(x, y) {
+robert_the_lifter.Piece.prototype.createO = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x + 1, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x + 1, y + 1)
+    {x:x + 1, y:y + 1},
+    {x:x + 1, y:y + 2},
+    {x:x + 2, y:y + 1},
+    {x:x + 2, y:y + 2}
   ];
 }
   
 /**
  * The T piece
- * 
- *  xxx
- *   x
+ * .x..
+ * xxx.
+ * ....
  */
-robert_the_lifter.Piece.prototype.createPieceT = function(x, y) {
+robert_the_lifter.Piece.prototype.createT = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x + 1, y),
-    this.createBlock(x + 2, y),
-    this.createBlock(x + 1, y + 1)
+    {x:x + 1, y:y},
+    {x:x,     y:y + 1},
+    {x:x + 1, y:y + 1},
+    {x:x + 2, y:y + 1}
   ];
 }
   
 /**
  * The S piece
- * 
- *   xx
- *  xx
+ * .xx.
+ * xx..
+ * ....
  */
-robert_the_lifter.Piece.prototype.createPieceS = function(x, y) {
+robert_the_lifter.Piece.prototype.createS = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x + 1, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x - 1, y + 1)
+    {x:x + 1, y:y},
+    {x:x + 2, y:y},
+    {x:x,     y:y + 1},
+    {x:x + 1, y:y + 1}
   ];
 }
 
 /**
- * The inverted S piece
- * 
- *  xx
- *   xx
+ * The Z
+ * xx..
+ * .xx.
+ * ....
  */
-robert_the_lifter.Piece.prototype.createPieceInvertedS = function(x, y) {
+robert_the_lifter.Piece.prototype.createZ = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x - 1, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x + 1, y + 1)
+    {x:x,     y:y},
+    {x:x + 1, y:y},
+    {x:x + 1, y:y + 1},
+    {x:x + 2, y:y + 1}
   ];
 }
 

@@ -9,8 +9,7 @@ robert_the_lifter.Foreman = function(game) {
   this.game = game;
   
   // Constantly checking out pieces.
-  lime.scheduleManager.schedule(checkPieces, this);
-  function checkPieces(number) {
+  this.checkPieces = function(number) {
     if (!robert_the_lifter.Director.isPaused) {
       for (var i in game.pieces) {
         if (game.pieces[i].state !== robert_the_lifter.Piece.GRABBED) {
@@ -58,4 +57,9 @@ robert_the_lifter.Foreman = function(game) {
       this.game.checkAndClearLine();
     }
   }
+  lime.scheduleManager.schedule(this.checkPieces, this);
+}
+
+robert_the_lifter.Foreman.prototype.stop = function() {
+  lime.scheduleManager.unschedule(this.checkPieces, this);
 }

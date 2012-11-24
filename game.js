@@ -54,7 +54,7 @@ robert_the_lifter.Game.prototype.start = function() {
   this.foreman = new robert_the_lifter.Foreman(this);
   
   // Register to keyboard event for Robert to grab a piece.
-  goog.events.listen(this.robert, goog.events.EventType.KEYDOWN, function (ev) {
+  this.robertGrabPieceListener = goog.events.listen(this.robert, goog.events.EventType.KEYDOWN, function (ev) {
     if (ev.event.keyCode == 32) { // 32 = spacebar.
       if (!this.hasPiece) {
         var x = this.x,
@@ -88,6 +88,39 @@ robert_the_lifter.Game.prototype.start = function() {
       }
     }
   });
+  
+  // Start spawning pieces.
+  var stopSpawning = false;
+  this.timeToNextSpawning = 0;
+  this.pieces = [];
+  this.spawningPieceLoop = function(number) {
+    if (!robert_the_lifter.Director.isPaused && !stopSpawning) {
+      this.timeToNextSpawning -= number;
+      if (this.timeToNextSpawning <= 0) {
+        this.timeToNextSpawning += this.spawningSpeed;
+        this.addPiece();
+      }
+    }
+  }
+  lime.scheduleManager.schedule(this.spawningPieceLoop, this);
+  
+  // Debug event to stop spawning pieces.
+  goog.events.listen(robert_the_lifter.Director, goog.events.EventType.KEYDOWN, function (ev) {
+    if (ev.event.keyCode == 81) {
+      stopSpawning = !stopSpawning;
+    }
+  });
+}
+
+/**
+ * Stop the game.
+ */
+robert_the_lifter.Game.prototype.stop = function() {
+  lime.scheduleManager.unschedule(this.spawningPieceLoop, this);
+  goog.events.unlistenByKey(this.robertGrabPieceListener);
+  this.robert.stop();
+  this.foreman.stop();
+  robert_the_lifter.endGame();
 }
 
 /**
@@ -102,7 +135,25 @@ robert_the_lifter.Game.prototype.addPiece = function() {
   this.score.setScore(actual_score - 40);
   this.factoryLayer.appendChild(this.score.lbl);
   
-  piece.initSpawningPiece();
+  var newPieceCoords = piece.getNewPieceCoordinates();
+  // If there is something where the new piece should be, the game ends.
+  var gameStop = false;
+  for(var i in newPieceCoords) {
+    var fieldstate = this.field[newPieceCoords[i].y][newPieceCoords[i].x];
+    if (typeof fieldstate != 'undefined' && fieldstate != robert_the_lifter.Game.NO_PIECE) {
+      gameStop = true;
+    }
+  }
+  
+  piece.initSpawningPiece(newPieceCoords);
+  
+  // If the game is stopped, we must not change state.
+  if (gameStop) {
+    this.stop();
+  } else {
+    this.switchPieceState(piece, id);
+  }
+  
   piece.appendTo(this.factoryLayer);
   this.pieces[id] = piece;
 }

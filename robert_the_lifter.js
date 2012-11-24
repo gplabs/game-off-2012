@@ -27,14 +27,14 @@ robert_the_lifter.start = function() {
   robert_the_lifter.Director.isPaused = false;
   robert_the_lifter.Director.setDisplayFPS(false);
   // This will probably be the only scene of the game (beside a menu ?)
-    var gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
+  this.gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
   
   // The upper parking layer
   var truckParkingLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
   var truckParkingArea = new robert_the_lifter.ParkingArea(game);
   truckParkingLayer.appendChild(truckParkingArea);
-  gameScene.appendChild(truckParkingLayer);  
+  this.gameScene.appendChild(truckParkingLayer);
   
   // The factory layer.
   var factoryTiles = new lime.fill.Frame('images/ground.png', game.factoryX, game.factoryY, game.factoryWidth, game.factoryHeight);
@@ -47,37 +47,43 @@ robert_the_lifter.start = function() {
     .setFill(factoryTiles);
   factoryLayer.appendChild(factoryArea);
   game.factoryLayer = factoryLayer;
-  gameScene.appendChild(factoryLayer);
+  this.gameScene.appendChild(factoryLayer);
   
   // start game loops.
   game.start();
-  
-
   // set current scene active
-  robert_the_lifter.Director.replaceScene(gameScene);
-
-  var stopSpawning = false;
-
-  // This is the loop for spawning pieces.
-  this.timeToNextSpawning = 0;
-  game.pieces = [];
-  lime.scheduleManager.schedule(spawningPieceLoop, this);
-  function spawningPieceLoop(number) {
-    if (!robert_the_lifter.Director.isPaused && !stopSpawning) {
-      this.timeToNextSpawning -= number;
-      if (this.timeToNextSpawning <= 0) {
-        this.timeToNextSpawning += game.spawningSpeed;
-        game.addPiece();
-      }
-    }
-  }
+  robert_the_lifter.Director.replaceScene(this.gameScene);
   
-  // Debug event to stop spwning pieces.
-  goog.events.listen(robert_the_lifter.Director, goog.events.EventType.KEYDOWN, function (ev) {
-    if (ev.event.keyCode == 81) {
-      stopSpawning = !stopSpawning;
-    }
-  });
+  /**
+   * End game behavior.
+   */
+  this.endGame = function() {
+    var layer = new lime.Layer()
+      .setAnchorPoint(0, 0);
+
+    // blur
+    var area = new lime.Sprite()
+      .setAnchorPoint(0,0)
+      .setPosition(0, 0)
+      .setSize(game.width, game.height)
+      .setFill(255,255,255,.5);
+    layer.appendChild(area);
+    
+    // Game Over.
+    var gameOver = new lime.Label("Game Over")
+      .setPosition(game.factoryWidth / 2, 300)
+      .setFontSize(50);
+    layer.appendChild(gameOver);
+    
+    // Score.
+    var score = new lime.Label("Your Score: " + game.score.getScore() + "$")
+      .setPosition(game.factoryWidth / 2, 500)
+      .setFontSize(50);
+    layer.appendChild(score);
+    
+    
+    this.gameScene.appendChild(layer);
+  }
 }
 
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
