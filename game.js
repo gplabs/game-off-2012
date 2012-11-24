@@ -105,7 +105,7 @@ robert_the_lifter.Game.prototype.start = function() {
   lime.scheduleManager.schedule(this.spawningPieceLoop, this);
   
   // Debug event to stop spawning pieces.
-  goog.events.listen(robert_the_lifter.Director, goog.events.EventType.KEYDOWN, function (ev) {
+  this.stopSpawningListener = goog.events.listen(robert_the_lifter.Director, goog.events.EventType.KEYDOWN, function (ev) {
     if (ev.event.keyCode == 81) {
       stopSpawning = !stopSpawning;
     }
@@ -118,6 +118,7 @@ robert_the_lifter.Game.prototype.start = function() {
 robert_the_lifter.Game.prototype.stop = function() {
   lime.scheduleManager.unschedule(this.spawningPieceLoop, this);
   goog.events.unlistenByKey(this.robertGrabPieceListener);
+  goog.events.unlistenByKey(this.stopSpawningListener);
   this.robert.stop();
   this.foreman.stop();
   robert_the_lifter.endGame();

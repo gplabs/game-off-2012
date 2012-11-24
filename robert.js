@@ -64,7 +64,6 @@ robert_the_lifter.Robert = function(game) {
           break;
       }
     }
-    
   });
 }
 

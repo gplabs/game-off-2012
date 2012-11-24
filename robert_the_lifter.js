@@ -75,16 +75,77 @@ robert_the_lifter.start = function() {
       .setFontSize(50);
     layer.appendChild(gameOver);
     
-    // Score.
-    var score = new lime.Label("Your Score: " + game.score.getScore() + "$")
-      .setPosition(game.factoryWidth / 2, 500)
-      .setFontSize(50);
-    layer.appendChild(score);
+    // Let the player input his name.
+    var labelCurrentScore = new lime.Label("Your score : " + game.score.getScore())
+      .setPosition(game.factoryWidth / 2, 350)
+      .setFontSize(30);
+    layer.appendChild(labelCurrentScore);
+    var labelInstruction = new lime.Label("Type your name and press 'enter'")
+      .setPosition(game.factoryWidth / 2, 400)
+      .setFontSize(20);
+    layer.appendChild(labelInstruction);
     
+    var input = document.createElement('input');
+    input.type = "text";
+    input.id = "highscore-name";
+    input.onkeydown = function(event) {
+      var keyCode = ('which' in event) ? event.which : event.keyCode;
+      if (keyCode == 13) { //Enter
+        game.score.logNewScore(input.value);
+        showHighscores();
+      }
+      
+    }
+    document.getElementById('game').appendChild(input);
+    
+    function showHighscores() {
+      // remove input + labels.
+      layer.removeChild(labelInstruction);
+      layer.removeChild(labelCurrentScore);
+      input.parentNode.removeChild(input);
+      
+      var highscores = game.score.getHighscores();
+      if (!highscores) {
+        var label = new lime.Label("Your browser does not support HTML5 Local Storage.")
+            .setPosition(525, 375)
+            .setAnchorPoint(0,0)
+            .setFontSize(20);
+          layer.appendChild(label);
+      } else {
+        var nextScoreY = 375;
+        for (var i in highscores) {
+          var noLabel = new lime.Label(parseInt(i)+1)
+            .setPosition(525, nextScoreY)
+            .setAnchorPoint(0,0)
+            .setFontSize(20);
+          layer.appendChild(noLabel);
+
+          var nameLabel = new lime.Label(highscores[i].name)
+            .setPosition(555, nextScoreY)
+            .setAnchorPoint(0,0)
+            .setFontSize(20);
+          layer.appendChild(nameLabel);
+
+          // Make sure the score never overlap the name.
+          var scoreXPos = 725;
+          if (nameLabel.getPosition().x + nameLabel.measureText().width > scoreXPos) {
+            scoreXPos = nameLabel.getPosition().x + nameLabel.measureText().width +15;
+          }
+
+          var scoreLabel = new lime.Label(highscores[i].score)
+            .setPosition(scoreXPos, nextScoreY)
+            .setAnchorPoint(0,0)
+            .setFontSize(20);
+          layer.appendChild(scoreLabel);
+
+          nextScoreY += (scoreLabel.measureText().height * 1.1);
+        }
+      }
+    }
     
     this.gameScene.appendChild(layer);
   }
+//  game.stop();
 }
-
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
 goog.exportSymbol('robert_the_lifter.start', robert_the_lifter.start);
