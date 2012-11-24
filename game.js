@@ -9,6 +9,14 @@ goog.require('robert_the_lifter.Foreman');
 robert_the_lifter.Game = function() {
   this.debug = true;
   
+  // Initialize the pieces history with some default values.
+  this.piecesHistory = [
+    robert_the_lifter.Piece.S,
+    robert_the_lifter.Piece.Z,
+    robert_the_lifter.Piece.S,
+    robert_the_lifter.Piece.Z
+  ]
+  
   this.tileWidth = 64;
   this.tileHeight = 64;
   this.spawningSpeed = 8000;
@@ -45,6 +53,8 @@ robert_the_lifter.Game = function() {
 
 robert_the_lifter.Game.prototype.start = function() {
   this.robert = new robert_the_lifter.Robert(this);
+  this.score = new robert_the_lifter.Score(this.factoryLayer);
+  this.oil = new robert_the_lifter.Oil(this);
   this.factoryLayer.appendChild(this.robert);
   this.switchPieceState(this.robert, this.robert.id);
   
@@ -52,7 +62,7 @@ robert_the_lifter.Game.prototype.start = function() {
   this.foreman = new robert_the_lifter.Foreman(this);
   
   // Register to keyboard event for Robert to grab a piece.
-  goog.events.listen(this.robert, goog.events.EventType.KEYDOWN, function (ev) {
+  this.robertGrabPieceListener = goog.events.listen(this.robert, goog.events.EventType.KEYDOWN, function (ev) {
     if (ev.event.keyCode == 32) { // 32 = spacebar.
       if (!this.hasPiece) {
         var x = this.x,
@@ -86,6 +96,40 @@ robert_the_lifter.Game.prototype.start = function() {
       }
     }
   });
+  
+  // Start spawning pieces.
+  var stopSpawning = false;
+  this.timeToNextSpawning = 0;
+  this.pieces = [];
+  this.spawningPieceLoop = function(number) {
+    if (!robert_the_lifter.Director.isPaused && !stopSpawning) {
+      this.timeToNextSpawning -= number;
+      if (this.timeToNextSpawning <= 0) {
+        this.timeToNextSpawning += this.spawningSpeed;
+        this.addPiece();
+      }
+    }
+  }
+  lime.scheduleManager.schedule(this.spawningPieceLoop, this);
+  
+  // Debug event to stop spawning pieces.
+  this.stopSpawningListener = goog.events.listen(robert_the_lifter.Director, goog.events.EventType.KEYDOWN, function (ev) {
+    if (ev.event.keyCode == 81) {
+      stopSpawning = !stopSpawning;
+    }
+  });
+}
+
+/**
+ * Stop the game.
+ */
+robert_the_lifter.Game.prototype.stop = function() {
+  lime.scheduleManager.unschedule(this.spawningPieceLoop, this);
+  goog.events.unlistenByKey(this.robertGrabPieceListener);
+  goog.events.unlistenByKey(this.stopSpawningListener);
+  this.robert.stop();
+  this.foreman.stop();
+  robert_the_lifter.endGame();
 }
 
 /**
@@ -94,6 +138,35 @@ robert_the_lifter.Game.prototype.start = function() {
 robert_the_lifter.Game.prototype.addPiece = function() {
   var id = this.pieces.length;
   var piece = new robert_the_lifter.Piece(this, id);
+  
+  this.factoryLayer.removeChild(this.score.lbl);
+  var actual_score = this.score.getScore();
+  this.score.setScore(actual_score - 40);
+  this.factoryLayer.appendChild(this.score.lbl);
+  
+  var newPieceCoords = piece.getNewPieceCoordinates(this.piecesHistory, (id === 0));
+  // If there is something where the new piece should be, the game ends.
+  var gameStop = false;
+  for(var i in newPieceCoords) {
+    var fieldstate = this.field[newPieceCoords[i].y][newPieceCoords[i].x];
+    if (typeof fieldstate != 'undefined' && fieldstate != robert_the_lifter.Game.NO_PIECE) {
+      gameStop = true;
+    }
+  }
+  
+  piece.initSpawningPiece(newPieceCoords);
+  
+  // If the game is stopped, we must not change state.
+  if (gameStop) {
+    this.stop();
+  } else {
+    this.switchPieceState(piece, id);
+  }
+  
+  this.piecesHistory.push(piece.type);
+  if (this.piecesHistory.length > 6) {
+    this.piecesHistory.splice(0, 1);
+  }
   piece.appendTo(this.factoryLayer);
   this.pieces[id] = piece;
 }
@@ -189,45 +262,53 @@ robert_the_lifter.Game.prototype.switchState = function (x, y, newState) {
   this.printField();
 }
 
-
 /**
- * Check if something can be place at given coords.
- * 
- * Check wether it's ousite the factory or if there is anything else at given location.
- * 
- * The key is used in case of a crate, so that it doesn't compare to itself.
+ * Check each line and clear the full ones.
  */
-robert_the_lifter.Game.prototype.canBePlace = function(x ,y, key, considerRobert) {
-  var canPlace = true;
-  
-  // check if the location is out of the factory.
-  if (x < this.factoryX || x > this.factoryX + this.factoryWidth ||
-      y < this.factoryY || y > this.factoryY + this.factoryHeight) {
-    canPlace = false;
-  }
-  
-  // check if there is a square at location.
-  for (var i = 0; i < this.pieces.length && canPlace; i++) {
-    if (this.pieces[i].key != key) { // Must not compare to myself.
-      for (var j = 0; j < this.pieces[i].squares.length && canPlace; j++) {
-        var otherPos = this.pieces[i].squares[j].getPosition();
-        if (x == otherPos.x && y == otherPos.y) {
-          canPlace = false;
-        }
+robert_the_lifter.Game.prototype.checkAndClearLine = function() {
+  for(var x = 0; x < this.factoryNbTileWidth; x ++) {
+    var lineFull = true;
+    
+    // If we find something that is not a blocked piece, the line isn't full.
+    for(var y = 0; y < this.factoryNbTileHeight && lineFull; y ++) {
+      var id = this.field[y][x];
+      if (id == robert_the_lifter.Game.ROBERT || id == robert_the_lifter.Game.NO_PIECE || (id > robert_the_lifter.Game.NO_PIECE && this.pieces[id].state != robert_the_lifter.Piece.BLOCKED)) {
+        lineFull = false;
       }
     }
-  }
-  
-  // Check if robert is there !
-  if (canPlace && considerRobert) {
-    var robertPos = this.robert.getPosition();
-    if (x == robertPos.x && y == robertPos.y) {
-      canPlace = false;
+    
+    if (lineFull) {
+      
+      this.factoryLayer.removeChild(this.score.lbl);
+      var actual_score = this.score.getScore();
+      this.score.setScore(actual_score + 300);
+      this.factoryLayer.appendChild(this.score.lbl);
+
+      var squareRemaining = this.factoryNbTileHeight;
+      var piecesToSplit = [];
+      for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
+        for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
+          var block = this.pieces[i].blocks[j];
+          if (block.x == x) {
+            squareRemaining--;
+            this.switchState(block.x, block.y, robert_the_lifter.Game.NO_PIECE);
+            
+            // Remove the crate form the game.
+            this.pieces[i].removeBlock(j);
+            if (piecesToSplit.indexOf(this.pieces[i]) === -1) {
+              piecesToSplit.push(this.pieces[i]);
+            }
+          }
+        }
+      }
+      
+      for (var k in piecesToSplit) {
+        piecesToSplit[k].split();
+      }
+      
     }
   }
-  return canPlace;
 }
-
 
 robert_the_lifter.Game.NO_PIECE = -1;
 robert_the_lifter.Game.ROBERT = -2;

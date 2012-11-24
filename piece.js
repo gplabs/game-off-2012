@@ -10,146 +10,173 @@ robert_the_lifter.Piece = function(game, id) {
   
   this.blocks = [];
   this.state = robert_the_lifter.Piece.GETTING_PUSHED;
-  this.blockingPieces = []; // Pieces that blocks me.
-  this.beingBlocked = []; // Pieces I block.
   this.timeToNextPush = robert_the_lifter.Piece.DEFAULT_SPEED;
-  
-  var x = game.factoryNbTileWidth - 1;
-  var y = 3;
+}
 
-  var pieceType = Math.floor((Math.random()*7)+1);
+/**
+ * Randomly choose a shape for the piece and place it at spawning point.
+ */
+robert_the_lifter.Piece.prototype.initSpawningPiece = function(coords) {
+  this.blocks = [
+    this.createBlock(coords[0].x, coords[0].y),
+    this.createBlock(coords[1].x, coords[1].y),
+    this.createBlock(coords[2].x, coords[2].y),
+    this.createBlock(coords[3].x, coords[3].y)
+  ];
+}
+
+/**
+ * Randomly choose a piece shape and return coordinates for a future piece.
+ */
+robert_the_lifter.Piece.prototype.getNewPieceCoordinates = function (exceptions, first) {
+//  var x = this.game.factoryNbTileWidth - 1;
+//  var y = 3;
+
+  var x = 20,
+      y = 4,
+      remainingTries = 6,
+      nbPieces = 7;
+      
+  // If it's the first piece, we never generate O S OR Z
+  if (first) {
+    nbPieces = 4;
+  }
+  
+  var pieceType;
+  do {
+    pieceType = Math.floor((Math.random()*nbPieces)+1);
+    remainingTries--;
+  } while(remainingTries > 0 && exceptions.indexOf(pieceType) > 0)
+  
+  this.type = pieceType;
+
   switch(pieceType) {
-    case 1:
-      this.blocks = this.createPieceInvertedL(x, y);
+    case robert_the_lifter.Piece.J:
+      return this.createJ(x, y);
       break;
-    case 2:
-      this.blocks = this.createPieceL(x, y);
+    case robert_the_lifter.Piece.L:
+      return this.createL(x, y);
       break;
-    case 3:
-      this.blocks = this.createPieceBar(x, y);
+    case robert_the_lifter.Piece.I:
+      return this.createI(x, y);
       break;
-    case 4:
-      this.blocks = this.createPieceSquare(x, y);
+    case robert_the_lifter.Piece.T:
+      return this.createT(x, y);
       break;
-    case 5:
-      this.blocks = this.createPieceT(x, y);
+    case robert_the_lifter.Piece.O:
+      return this.createO(x, y);
       break;
-    case 6:
-      this.blocks = this.createPieceS(x, y);
+    case robert_the_lifter.Piece.S:
+      return this.createS(x, y);
       break;
-    case 7:
-      this.blocks = this.createPieceInvertedS(x, y);
+    case robert_the_lifter.Piece.Z:
+      return this.createZ(x, y);
       break;
   }
-  this.game.switchPieceState(this, this.id);
 }
 
 /**
- * The bar piece
- * 
- *  x
- *  x
- *  x
- *  x
+ * The I
+ * ....
+ * xxxx
+ * ....
  */
-robert_the_lifter.Piece.prototype.createPieceBar = function(x, y) {
+robert_the_lifter.Piece.prototype.createI = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x, y + 2),
-    this.createBlock(x, y + 3)
+    {x:x,     y:y + 1},
+    {x:x + 1, y:y + 1},
+    {x:x + 2, y:y + 1},
+    {x:x + 3, y:y + 1}
   ];
 }
   
 /**
- * The L piece
- * 
- *  x
- *  x
- *  xx
+ * The L
+ * ....
+ * xxx.
+ * x...
  */
-robert_the_lifter.Piece.prototype.createPieceL = function(x, y) {
+robert_the_lifter.Piece.prototype.createL = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x, y + 2),
-    this.createBlock(x + 1, y + 2)
+    {x:x,     y:y + 1},
+    {x:x + 1, y:y + 1},
+    {x:x + 2, y:y + 1},
+    {x:x    , y:y + 2}
   ];
 }
   
 /**
- * The inverted L piece
- * 
- *   x
- *   x
- *  xx
+ * The J
+ * x...
+ * xxx.
+ * ....
  */
-robert_the_lifter.Piece.prototype.createPieceInvertedL = function(x, y) {
+robert_the_lifter.Piece.prototype.createJ = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x, y + 2),
-    this.createBlock(x - 1, y + 2)
+    {x:x,     y:y},
+    {x:x,     y:y + 1},
+    {x:x + 1, y:y + 1},
+    {x:x + 2, y:y + 1}
   ];
 }
   
 /**
- * The square piece
- * 
- *  xx
- *  xx
+ * The O
+ * ....
+ * .xx.
+ * .xx.
  */
-robert_the_lifter.Piece.prototype.createPieceSquare = function(x, y) {
+robert_the_lifter.Piece.prototype.createO = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x + 1, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x + 1, y + 1)
+    {x:x + 1, y:y + 1},
+    {x:x + 1, y:y + 2},
+    {x:x + 2, y:y + 1},
+    {x:x + 2, y:y + 2}
   ];
 }
   
 /**
  * The T piece
- * 
- *  xxx
- *   x
+ * .x..
+ * xxx.
+ * ....
  */
-robert_the_lifter.Piece.prototype.createPieceT = function(x, y) {
+robert_the_lifter.Piece.prototype.createT = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x + 1, y),
-    this.createBlock(x + 2, y),
-    this.createBlock(x + 1, y + 1)
+    {x:x + 1, y:y},
+    {x:x,     y:y + 1},
+    {x:x + 1, y:y + 1},
+    {x:x + 2, y:y + 1}
   ];
 }
   
 /**
  * The S piece
- * 
- *   xx
- *  xx
+ * .xx.
+ * xx..
+ * ....
  */
-robert_the_lifter.Piece.prototype.createPieceS = function(x, y) {
+robert_the_lifter.Piece.prototype.createS = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x + 1, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x - 1, y + 1)
+    {x:x + 1, y:y},
+    {x:x + 2, y:y},
+    {x:x,     y:y + 1},
+    {x:x + 1, y:y + 1}
   ];
 }
-  
+
 /**
- * The inverted S piece
- * 
- *  xx
- *   xx
+ * The Z
+ * xx..
+ * .xx.
+ * ....
  */
-robert_the_lifter.Piece.prototype.createPieceInvertedS = function(x, y) {
+robert_the_lifter.Piece.prototype.createZ = function(x, y) {
   return [
-    this.createBlock(x, y),
-    this.createBlock(x - 1, y),
-    this.createBlock(x, y + 1),
-    this.createBlock(x + 1, y + 1)
+    {x:x,     y:y},
+    {x:x + 1, y:y},
+    {x:x + 1, y:y + 1},
+    {x:x + 2, y:y + 1}
   ];
 }
 
@@ -178,22 +205,18 @@ robert_the_lifter.Piece.prototype.move = function (x, y) {
  * Move the piece to the new locations + rotate.
  */ 
 robert_the_lifter.Piece.prototype.moveAndRotate = function (newPos, newRotation) {
-  
-  // Reserve the new piece's position.
-  for(var i = 0; i < this.blocks.length; i++) {
-    this.game.switchState(newPos[i][0], newPos[i][1], this.id);
-  }
-  
+  this.game.switchPieceState(this, robert_the_lifter.Game.NO_PIECE);
   for(var j = 0; j < this.blocks.length; j++) {
     var oldX = this.blocks[j].x,
         oldY = this.blocks[j].y;
     
+    this.game.switchState(oldX, oldY, robert_the_lifter.Game.NO_PIECE);
+    this.game.switchState(newPos[j][0], newPos[j][1], this.id);
+    
     this.blocks[j].moveTo(newPos[j][0], newPos[j][1]);
     this.blocks[j].rotate(newRotation);
-    
-    // Release the old position.
-    this.game.switchState(oldX, oldY, robert_the_lifter.Game.NO_PIECE);
   }
+  this.game.switchPieceState(this, this.id);
 }
 
 /**
@@ -218,10 +241,42 @@ robert_the_lifter.Piece.prototype.reachedLeftLimit = function () {
  */
 robert_the_lifter.Piece.prototype.removeBlock = function (index) {
   var blockToDelete = this.blocks[index];
-  blockToDelete.remove();
   
+  // Remove the block.
+  blockToDelete.remove();
   this.blocks.splice(index, 1);
   delete blockToDelete;
+}
+
+/**
+ * Check if the piece must be split and do it if necessary.
+ */
+robert_the_lifter.Piece.prototype.split = function () {
+  var array1 = [this.blocks[0]], array2 = [];
+  
+  // as Soon as we find a block that is 2 blocks way from any block of the 
+  // first array, we put it in the 2nd array. That means there will be a split.
+  for(var i = 1; i < this.blocks.length; i++) {
+    for(var j in array1) {
+      if (this.blocks[i].x >= array1[j].x + 2 || this.blocks[i].x <= array1[j].x - 2) {
+        array2.push(this.blocks[i]);
+      } else {
+        array1.push(this.blocks[i]);
+      }
+    }
+  }
+  
+  // If there are block int array2, that means we split.
+  if (array2.length > 0) {
+    var newId = this.game.pieces.length;
+    var newPiece = new robert_the_lifter.Piece(this.game, newId);
+    newPiece.blocks = array2;
+    newPiece.state = this.state;
+    this.game.pieces[newId] = newPiece;
+    this.game.switchPieceState(newPiece, newPiece.id);
+    
+    this.blocks = array1;
+  }
 }
 
 /**
@@ -237,3 +292,11 @@ robert_the_lifter.Piece.DEFAULT_SPEED = 1000;
 robert_the_lifter.Piece.GETTING_PUSHED = 1;
 robert_the_lifter.Piece.GRABBED = 2;
 robert_the_lifter.Piece.BLOCKED = 3;
+
+robert_the_lifter.Piece.J = 1;
+robert_the_lifter.Piece.L = 2;
+robert_the_lifter.Piece.I = 3;
+robert_the_lifter.Piece.T = 4;
+robert_the_lifter.Piece.O = 5;
+robert_the_lifter.Piece.S = 6;
+robert_the_lifter.Piece.Z = 7;

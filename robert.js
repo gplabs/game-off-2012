@@ -35,27 +35,28 @@ robert_the_lifter.Robert = function(game) {
   
   this.hasPiece = false;
  
- lime.scheduleManager.scheduleWithDelay(function(){
-   this.canUseKey = true;
- }, this, this.speed);
-  
+  this.speedController = lime.scheduleManager.scheduleWithDelay(function(){
+    this.canUseKey = true;
+  }, this, this.speed);
   
   // Register Keydown events and move or rotate.
-  goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
+  this.movingListener = goog.events.listen(this, goog.events.EventType.KEYDOWN, function (ev) {
     var actual_rotation = this.getRotation();
     if (actual_rotation <= 0) {
       actual_rotation = 360;
     }
-
+       
     if (this.canUseKey) {
       switch (ev.event.keyCode) {
         case 40: // Down
+          game.oil.dropOil(game);
           this.moveTo(actual_rotation/90, ev.event.keyCode);
           break;
         case 39: // Right
           this.rotate(actual_rotation, -90);
           break;
         case 38: // Up
+          game.oil.dropOil(game);
           this.moveTo(actual_rotation/90, ev.event.keyCode);
           break;
         case 37: // Left
@@ -63,12 +64,16 @@ robert_the_lifter.Robert = function(game) {
           break;
       }
     }
-    
   });
 }
 
 // Robert is a Sprite !
 goog.inherits(robert_the_lifter.Robert, lime.Sprite);
+
+robert_the_lifter.Robert.prototype.stop = function (){
+  goog.events.unlistenByKey(this.movingListener);
+  lime.scheduleManager.unschedule(this.speedController, this);
+}
 
 robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
   var movement_value = this.game.tileWidth;
@@ -156,14 +161,15 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
     if (canMove && !this.game.containsAnotherPiece(newX, newY, this.grabbedPiece.id)) {
       this.grabbedPiece.move(x, y);
       
-      
-      
       this.setPosition(actual_position.x + (x*this.game.tileWidth), actual_position.y + (y*this.game.tileHeight));
       this.game.switchState(newX, newY, this.id);
       
       this.x = newX;
       this.y = newY;
-      this.game.switchState(oldX, oldY, robert_the_lifter.Game.NO_PIECE);
+      // If the old position is still robert, we make it NO_PIECE.
+      if (this.game.field[oldY][oldX] == this.id) {
+        this.game.switchState(oldX, oldY, robert_the_lifter.Game.NO_PIECE);
+      }
     }
   }
 }
