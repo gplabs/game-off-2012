@@ -31,15 +31,6 @@ robert_the_lifter.Robert = function(game) {
   this.downLimit = game.factoryY + game.factoryHeight - this.getSize().height;
   
   this.hasPiece = false;
- 
-  this.timeToNextPossibleMove = 0;
-  this.speedController = lime.scheduleManager.schedule(function(number) {
-    if (this.timeToNextPossibleMove <= 0) {
-      this.canUseKey = true;
-      this.timeToNextPossibleMove += game.getRobertSpeed();
-    }
-    this.timeToNextPossibleMove -= number;
-  }, this);
   
   // Prevent the browser from scrolling on arrow key pressed.
   window.addEventListener("keydown",
@@ -51,40 +42,112 @@ robert_the_lifter.Robert = function(game) {
       }
     },
   false);
+ 
+  // If the keys are being hold down.
+  var upHold = false,
+      rightHold = false,
+      downHold = false,
+      leftHold = false,
+  // When the key is hold down, this is the time before the next movement.
+      nextUp = game.getRobertSpeed(),
+      nextRight = game.getRobertSpeed(),
+      nextDown = game.getRobertSpeed(),
+      nextLeft = game.getRobertSpeed();
   
-  // Register Keydown events and move or rotate.
-  function moveEvent(ev) {
-    ev.preventDefault();
+  /**
+   * Function for each arrow event, deydown AND keyup.
+   */
+  function arrowEvent(ev) {
+    var keyDown = (ev.type == "keydown");
     var actual_rotation = game.robert.getRotation();
     if (actual_rotation <= 0) {
       actual_rotation = 360;
     }
-       
-    if (game.robert.canUseKey) {
-      switch (ev.keyIdentifier) {
-        case "Down": // Down
+    
+    // To prevent repetitive movement, we check if the key was already hold.
+    // If it's the case, we don't move again, the moving loop will take care of that.
+    switch (ev.keyIdentifier) {
+      case "Down": // Down
+        if (keyDown && !downHold) {
           game.oil.dropOil(game);
-          game.robert.moveTo(actual_rotation/90, ev.keyIdentifier);
-          break;
-        case "Right": // Right
+          game.robert.moveTo(actual_rotation/90, "Down");
+          nextDown = game.getRobertSpeed();
+        }
+        downHold = keyDown;
+        break;
+      case "Right": // Right
+        if (keyDown && !rightHold) {
           game.robert.rotate(actual_rotation, -90);
-          break;
-        case "Up": // Up
+          nextRight = game.getRobertSpeed();
+        }
+        rightHold = keyDown;
+        break;
+      case "Up": // Up
+        if (keyDown && !upHold) {
           game.oil.dropOil(game);
-          game.robert.moveTo(actual_rotation/90, ev.keyIdentifier);
-          break;
-        case "Left": // Left
-          game.robert.rotate(actual_rotation, 90)
-          break;
-      }
+          game.robert.moveTo(actual_rotation/90, "Up");
+          nextUp = game.getRobertSpeed();
+        }
+        upHold = keyDown;
+        break;
+      case "Left": // Left
+        if (keyDown && !leftHold) {
+          game.robert.rotate(actual_rotation, 90);
+          nextLeft = game.getRobertSpeed();
+        }
+        leftHold = keyDown;
+        break;
     }
   }
   
-  // Mapping them all in one call doesn't seem to work.
-  KeyboardJS.on("right", moveEvent);
-  KeyboardJS.on("down", moveEvent);
-  KeyboardJS.on("up", moveEvent);
-  KeyboardJS.on("left", moveEvent);
+  KeyboardJS.on("right", arrowEvent, arrowEvent);
+  KeyboardJS.on("down", arrowEvent, arrowEvent);
+  KeyboardJS.on("up", arrowEvent, arrowEvent);
+  KeyboardJS.on("left", arrowEvent, arrowEvent);
+ 
+  
+  // Constant loop that is responsible for moving when holding keys.
+  this.speedController = lime.scheduleManager.schedule(moveEvent, this);
+  function moveEvent(number) {
+    var actual_rotation = game.robert.getRotation();
+    if (actual_rotation <= 0) {
+      actual_rotation = 360;
+    }
+
+    if (downHold) {
+      if (nextDown <= 0) {
+        game.oil.dropOil(game);
+        game.robert.moveTo(actual_rotation/90, "Down");
+        nextDown += game.getRobertSpeed();
+      }
+      nextDown -= number;
+    }
+
+    if (rightHold) {
+      if (nextRight <= 0) {
+        game.robert.rotate(actual_rotation, -90);
+        nextRight += game.getRobertSpeed();
+      }
+      nextRight -= number;
+    }
+
+    if (upHold) {
+      if (nextUp <= 0) {
+        game.oil.dropOil(game);
+        game.robert.moveTo(actual_rotation/90, "Up");
+        nextUp += game.getRobertSpeed();
+      }
+      nextUp -= number;
+    }
+
+    if (leftHold) {
+      if (nextLeft <= 0) {
+        game.robert.rotate(actual_rotation, 90);
+        nextLeft += game.getRobertSpeed();
+      }
+      nextLeft -= number;
+    }
+  }
 }
 
 // Robert is a Sprite !
