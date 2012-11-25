@@ -58,7 +58,7 @@ robert_the_lifter.Robert = function(game) {
    * Function for each arrow event, deydown AND keyup.
    */
   function arrowEvent(ev) {
-    var keyDown = (ev.type == "keydown");
+    var keyDown = (!game.isPaused) && (ev.type == "keydown");
     var actual_rotation = game.robert.getRotation();
     if (actual_rotation <= 0) {
       actual_rotation = 360;

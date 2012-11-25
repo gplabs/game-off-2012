@@ -5,6 +5,7 @@
 goog.provide('robert_the_lifter.Game');
 
 goog.require('robert_the_lifter.Foreman');
+goog.require('robert_the_lifter.PauseMenu');
 
 robert_the_lifter.Game = function() {
   this.debug = true;
@@ -56,7 +57,7 @@ robert_the_lifter.Game.prototype.start = function() {
   this.factoryLayer.appendChild(this.score.lbl);
   
   this.oil = new robert_the_lifter.Oil(this);
-  this.pauseMenu = new robert_the_lifter.PauseMenu();
+  this.pauseMenu = new robert_the_lifter.PauseMenu(this);
   this.factoryLayer.appendChild(this.robert);
   this.switchPieceState(this.robert, this.robert.id);
   
@@ -103,7 +104,7 @@ robert_the_lifter.Game.prototype.start = function() {
   this.timeToNextSpawning = 0;
   this.pieces = [];
   this.spawningPieceLoop = function(number) {
-    if (!robert_the_lifter.Director.isPaused && !stopSpawning) {
+    if (!this.isPaused && !stopSpawning) {
       this.timeToNextSpawning -= number;
       if (this.timeToNextSpawning <= 0) {
         this.timeToNextSpawning += this.getSpawningSpeed();

@@ -10,7 +10,7 @@ robert_the_lifter.Foreman = function(game) {
   
   // Constantly checking out pieces.
   this.checkPieces = function(number) {
-    if (!robert_the_lifter.Director.isPaused) {
+    if (!this.game.isPaused) {
       for (var i in game.pieces) {
         if (game.pieces[i].state !== robert_the_lifter.Piece.GRABBED) {
 
