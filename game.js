@@ -261,6 +261,7 @@ robert_the_lifter.Game.prototype.switchState = function (x, y, newState) {
  * Check each line and clear the full ones.
  */
 robert_the_lifter.Game.prototype.checkAndClearLine = function() {
+  var piecesToSplit = [];
   for(var x = 0; x < this.factoryNbTileWidth; x ++) {
     var lineFull = true;
     
@@ -273,14 +274,13 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
     }
     
     if (lineFull) {
-      
+//      console.log("Line " + x + "full.");
       this.factoryLayer.removeChild(this.score.lbl);
       var actual_score = this.score.getScore();
       this.score.setScore(actual_score + 300);
       this.factoryLayer.appendChild(this.score.lbl);
 
       var squareRemaining = this.factoryNbTileHeight;
-      var piecesToSplit = [];
       for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
         for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
           var block = this.pieces[i].blocks[j];
@@ -288,7 +288,8 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
             squareRemaining--;
             this.switchState(block.x, block.y, robert_the_lifter.Game.NO_PIECE);
             
-            // Remove the crate form the game.
+            // Remove the crate from the game.
+//            console.log("Line " + x + ": " + squareRemaining + " more to go.");
             this.pieces[i].removeBlock(j);
             if (piecesToSplit.indexOf(this.pieces[i]) === -1) {
               piecesToSplit.push(this.pieces[i]);
@@ -296,12 +297,10 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
           }
         }
       }
-      
-      for (var k in piecesToSplit) {
-        piecesToSplit[k].split();
-      }
-      
     }
+  }
+  for (var k in piecesToSplit) {
+    piecesToSplit[k].split();
   }
 }
 
