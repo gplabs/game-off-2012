@@ -15,9 +15,6 @@ robert_the_lifter.Robert = function(game) {
   );
   this.game.switchState(this.x, this.y, this.id);
   
-  // Robert's speed
-  this.speed = 250;
-  
   this.forks_x = 0;
   this.forks_y = 64;
   
@@ -35,19 +32,24 @@ robert_the_lifter.Robert = function(game) {
   
   this.hasPiece = false;
  
-  this.speedController = lime.scheduleManager.scheduleWithDelay(function(){
-    this.canUseKey = true;
-  }, this, this.speed);
+  this.timeToNextPossibleMove = 0;
+  this.speedController = lime.scheduleManager.schedule(function(number) {
+    if (this.timeToNextPossibleMove <= 0) {
+      this.canUseKey = true;
+      this.timeToNextPossibleMove += game.getRobertSpeed();
+    }
+    this.timeToNextPossibleMove -= number;
+  }, this);
   
   // Prevent the browser from scrolling on arrow key pressed.
   window.addEventListener("keydown",
-      function(e){
-          switch(e.keyCode){
-              case 37: case 39: case 38:  case 40: // Arrow keys
-              case 32: e.preventDefault(); break; // Space
-              default: break; // do not block other keys
-          }
-      },
+    function(e){
+      switch(e.keyCode){
+        case 37: case 39: case 38:  case 40: // Arrow keys
+        case 32: e.preventDefault(); break; // Space
+        default: break; // do not block other keys
+      }
+    },
   false);
   
   // Register Keydown events and move or rotate.
@@ -89,8 +91,8 @@ robert_the_lifter.Robert = function(game) {
 goog.inherits(robert_the_lifter.Robert, lime.Sprite);
 
 robert_the_lifter.Robert.prototype.stop = function (){
-  goog.events.unlistenByKey(this.movingListener);
-  lime.scheduleManager.unschedule(this.speedController, this);
+//  goog.events.unlistenByKey(this.movingListener);
+//  lime.scheduleManager.unschedule(this.speedController, this);
 }
 
 robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {

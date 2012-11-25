@@ -10,7 +10,7 @@ robert_the_lifter.Piece = function(game, id) {
   
   this.blocks = [];
   this.state = robert_the_lifter.Piece.GETTING_PUSHED;
-  this.timeToNextPush = robert_the_lifter.Piece.DEFAULT_SPEED;
+  this.timeToNextPush = game.getPieceSpeed();
 }
 
 /**
@@ -288,7 +288,6 @@ robert_the_lifter.Piece.prototype.appendTo = function (layer) {
   }
 }
 
-robert_the_lifter.Piece.DEFAULT_SPEED = 1000;
 robert_the_lifter.Piece.GETTING_PUSHED = 1;
 robert_the_lifter.Piece.GRABBED = 2;
 robert_the_lifter.Piece.BLOCKED = 3;

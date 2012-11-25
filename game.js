@@ -19,7 +19,6 @@ robert_the_lifter.Game = function() {
   
   this.tileWidth = 64;
   this.tileHeight = 64;
-  this.spawningSpeed = 8000;
   this.pieces = [];
   
   this.truckParkingHeight = this.tileHeight*2 + 10; // 10 pixels for wall.
@@ -105,7 +104,7 @@ robert_the_lifter.Game.prototype.start = function() {
     if (!robert_the_lifter.Director.isPaused && !stopSpawning) {
       this.timeToNextSpawning -= number;
       if (this.timeToNextSpawning <= 0) {
-        this.timeToNextSpawning += this.spawningSpeed;
+        this.timeToNextSpawning += this.getSpawningSpeed();
         this.addPiece();
       }
     }
@@ -117,6 +116,8 @@ robert_the_lifter.Game.prototype.start = function() {
     stopSpawning = !stopSpawning;
   }
   KeyboardJS.on("q", stopSpawningEvent);
+  
+  this.initDebugOptions();
 }
 
 /**
@@ -124,8 +125,6 @@ robert_the_lifter.Game.prototype.start = function() {
  */
 robert_the_lifter.Game.prototype.stop = function() {
   lime.scheduleManager.unschedule(this.spawningPieceLoop, this);
-  goog.events.unlistenByKey(this.robertGrabPieceListener);
-  goog.events.unlistenByKey(this.stopSpawningListener);
   this.robert.stop();
   this.foreman.stop();
   robert_the_lifter.endGame();
@@ -309,12 +308,46 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
   }
 }
 
+robert_the_lifter.Game.prototype.initDebugOptions = function() {
+  if (document.getElementById('debug_options')) {
+    document.getElementById('pieces_speed').value = robert_the_lifter.Game.DEFAULT_PIECE_SPEED;
+    document.getElementById('spawning_speed').value = robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED;
+    document.getElementById('lift_speed').value = robert_the_lifter.Game.DEFAULT_ROBERT_SPEED;
+  }
+}
+
+robert_the_lifter.Game.prototype.getRobertSpeed = function() {
+  if (document.getElementById('debug_options')) {
+    return parseInt(document.getElementById('lift_speed').value);
+  }else {
+    return robert_the_lifter.Game.DEFAULT_ROBERT_SPEED;
+  }
+}
+
+robert_the_lifter.Game.prototype.getPieceSpeed = function() {
+  if (document.getElementById('debug_options')) {
+    return parseInt(document.getElementById('pieces_speed').value);
+  }else {
+    return robert_the_lifter.Game.DEFAULT_PIECE_SPEED;
+  }
+}
+
+robert_the_lifter.Game.prototype.getSpawningSpeed = function() {
+  if (document.getElementById('debug_options')) {
+    return parseInt(document.getElementById('spawning_speed').value);
+  }else {
+    return robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED;
+  }
+}
+
 robert_the_lifter.Game.NO_PIECE = -1;
 robert_the_lifter.Game.ROBERT = -2;
 robert_the_lifter.Game.GROUND = "GROUND";
 robert_the_lifter.Game.GRABBED_PIECE = "GRABBED_PIECE";
 
-
+robert_the_lifter.Game.DEFAULT_PIECE_SPEED = 1000;
+robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED = 8000;
+robert_the_lifter.Game.DEFAULT_ROBERT_SPEED = 250;
 
 
 
