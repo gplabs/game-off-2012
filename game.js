@@ -53,6 +53,8 @@ robert_the_lifter.Game = function() {
 robert_the_lifter.Game.prototype.start = function() {
   this.robert = new robert_the_lifter.Robert(this);
   this.score = new robert_the_lifter.Score(this.factoryLayer);
+  this.factoryLayer.appendChild(this.score.lbl);
+  
   this.oil = new robert_the_lifter.Oil(this);
   this.pauseMenu = new robert_the_lifter.PauseMenu();
   this.factoryLayer.appendChild(this.robert);
@@ -136,12 +138,7 @@ robert_the_lifter.Game.prototype.stop = function() {
 robert_the_lifter.Game.prototype.addPiece = function() {
   var id = this.pieces.length;
   var piece = new robert_the_lifter.Piece(this, id);
-  
-  this.factoryLayer.removeChild(this.score.lbl);
-  var actual_score = this.score.getScore();
-  this.score.setScore(actual_score - 40);
-  this.factoryLayer.appendChild(this.score.lbl);
-  
+    
   var newPieceCoords = piece.getNewPieceCoordinates(this.piecesHistory, (id === 0));
   // If there is something where the new piece should be, the game ends.
   var gameStop = false;
