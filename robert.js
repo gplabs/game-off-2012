@@ -55,69 +55,52 @@ robert_the_lifter.Robert = function(game) {
       nextLeft = game.getRobertSpeed();
   
   /**
-   * Function for each arrow event, deydown AND keyup.
+   * Function for each arrow event, keydown AND keyup.
    */
-  function arrowEvent(ev) {
+  this.leftEvent = function(ev) {
     var keyDown = (!game.isPaused) && (ev.type == "keydown");
-    var actual_rotation = game.robert.getRotation();
-    if (actual_rotation <= 0) {
-      actual_rotation = 360;
+    if (keyDown && !leftHold) {
+      game.robert.rotate(90);
+      nextLeft = game.getRobertSpeed();
     }
-    
-    // To prevent repetitive movement, we check if the key was already hold.
-    // If it's the case, we don't move again, the moving loop will take care of that.
-    switch (ev.keyIdentifier) {
-      case "Down": // Down
-        if (keyDown && !downHold) {
-          game.oil.dropOil(game);
-          game.robert.moveTo(actual_rotation/90, "Down");
-          nextDown = game.getRobertSpeed();
-        }
-        downHold = keyDown;
-        break;
-      case "Right": // Right
-        if (keyDown && !rightHold) {
-          game.robert.rotate(actual_rotation, -90);
-          nextRight = game.getRobertSpeed();
-        }
-        rightHold = keyDown;
-        break;
-      case "Up": // Up
-        if (keyDown && !upHold) {
-          game.oil.dropOil(game);
-          game.robert.moveTo(actual_rotation/90, "Up");
-          nextUp = game.getRobertSpeed();
-        }
-        upHold = keyDown;
-        break;
-      case "Left": // Left
-        if (keyDown && !leftHold) {
-          game.robert.rotate(actual_rotation, 90);
-          nextLeft = game.getRobertSpeed();
-        }
-        leftHold = keyDown;
-        break;
-    }
+    leftHold = keyDown;
   }
   
-  KeyboardJS.on("right", arrowEvent, arrowEvent);
-  KeyboardJS.on("down", arrowEvent, arrowEvent);
-  KeyboardJS.on("up", arrowEvent, arrowEvent);
-  KeyboardJS.on("left", arrowEvent, arrowEvent);
- 
+  this.rightEvent = function (ev) {
+    var keyDown = (!game.isPaused) && (ev.type == "keydown");
+    if (keyDown && !rightHold) {
+      game.robert.rotate(-90);
+      nextRight = game.getRobertSpeed();
+    }
+    rightHold = keyDown;
+  }
   
+  this.forwardEvent = function(ev) {
+    var keyDown = (!game.isPaused) && (ev.type == "keydown");
+    if (keyDown && !upHold) {
+      game.oil.dropOil(game);
+      game.robert.moveTo(game.forwardKey);
+      nextUp = game.getRobertSpeed();
+    }
+    upHold = keyDown;
+  }
+  
+  this.backwardEvent = function(ev) {
+    var keyDown = (!game.isPaused) && (ev.type == "keydown");
+    if (keyDown && !downHold) {
+      game.oil.dropOil(game);
+      game.robert.moveTo(game.backwardKey);
+      nextDown = game.getRobertSpeed();
+    }
+    downHold = keyDown;
+  }
   // Constant loop that is responsible for moving when holding keys.
   this.speedController = lime.scheduleManager.schedule(moveEvent, this);
   function moveEvent(number) {
-    var actual_rotation = game.robert.getRotation();
-    if (actual_rotation <= 0) {
-      actual_rotation = 360;
-    }
-
     if (downHold) {
       if (nextDown <= 0) {
         game.oil.dropOil(game);
-        game.robert.moveTo(actual_rotation/90, "Down");
+        game.robert.moveTo(game.backwardKey);
         nextDown += game.getRobertSpeed();
       }
       nextDown -= number;
@@ -125,7 +108,7 @@ robert_the_lifter.Robert = function(game) {
 
     if (rightHold) {
       if (nextRight <= 0) {
-        game.robert.rotate(actual_rotation, -90);
+        game.robert.rotate(-90);
         nextRight += game.getRobertSpeed();
       }
       nextRight -= number;
@@ -134,7 +117,7 @@ robert_the_lifter.Robert = function(game) {
     if (upHold) {
       if (nextUp <= 0) {
         game.oil.dropOil(game);
-        game.robert.moveTo(actual_rotation/90, "Up");
+        game.robert.moveTo(game.forwardKey);
         nextUp += game.getRobertSpeed();
       }
       nextUp -= number;
@@ -142,7 +125,7 @@ robert_the_lifter.Robert = function(game) {
 
     if (leftHold) {
       if (nextLeft <= 0) {
-        game.robert.rotate(actual_rotation, 90);
+        game.robert.rotate(90);
         nextLeft += game.getRobertSpeed();
       }
       nextLeft -= number;
@@ -158,12 +141,18 @@ robert_the_lifter.Robert.prototype.stop = function (){
 //  lime.scheduleManager.unschedule(this.speedController, this);
 }
 
-robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
+robert_the_lifter.Robert.prototype.moveTo = function (keyCode) {
   var movement_value = this.game.tileWidth;
+  var rotation = this.getRotation();
+  if (rotation <= 0) {
+    rotation = 360;
+  }
+  rotation /= 90;
+  
   this.canUseKey = false;
   switch(rotation) {  
     case 1: // left.
-      if (keyCode == "Up") { // Moving forward
+      if (keyCode == this.game.forwardKey) { // Moving forward
         this.moveLeft(movement_value);
       }
       else { // Moving backward
@@ -172,7 +161,7 @@ robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
       break;
 
     case 2: // down.
-      if (keyCode == "Up") { // Moving forward
+      if (keyCode == this.game.forwardKey) { // Moving forward
         this.moveDown(movement_value);
       }
       else { // Moving backward
@@ -181,7 +170,7 @@ robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
       break;
 
     case 3: // right.
-      if (keyCode == "Up") { // Moving forward
+      if (keyCode == this.game.forwardKey) { // Moving forward
         this.moveRight(movement_value);
       }
       else { // Moving backward
@@ -190,7 +179,7 @@ robert_the_lifter.Robert.prototype.moveTo = function (rotation, keyCode) {
       break;   
 
     case 4: // Up.
-      if (keyCode == "Up") { // Moving forward
+      if (keyCode == this.game.forwardKey) { // Moving forward
         this.moveUp(movement_value);
       }
       else { // Moving backward
@@ -260,7 +249,11 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
 /**
  * Rotate robert (and his grabbed piece) by the angle in param.
  */
-robert_the_lifter.Robert.prototype.rotate = function (actual_rotation, rotation) {
+robert_the_lifter.Robert.prototype.rotate = function (rotation) {
+  var actual_rotation = this.getRotation();
+  if (actual_rotation <= 0) {
+    actual_rotation = 360;
+  }
   var canRotate = true;
   
   if (this.hasPiece) {

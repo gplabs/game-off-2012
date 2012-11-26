@@ -66,38 +66,39 @@ robert_the_lifter.Game.prototype.start = function() {
   
   // Register to keyboard event for Robert to grab a piece.
   var game = this;
-  function grabPieceListener(ev) {
-    if (!game.robert.hasPiece) {
-      var x = game.robert.x,
-          y = game.robert.y,
-          rotation = game.robert.getRotation();
-      switch(rotation) {
-        case 180: //Pointing down !
-          y += 1;
-          break;
-        case 0: // Pointing up !
-          y -= 1;
-          break;
-        case 90: // Pointing left !
-          x -= 1;
-          break;
-        case 270: // Pointing right !
-          x += 1;
-          break;
+  this.grabEvent = function (ev) {
+    if (!game.isPaused) {
+      if (!game.robert.hasPiece) {
+        var x = game.robert.x,
+            y = game.robert.y,
+            rotation = game.robert.getRotation();
+        switch(rotation) {
+          case 180: //Pointing down !
+            y += 1;
+            break;
+          case 0: // Pointing up !
+            y -= 1;
+            break;
+          case 90: // Pointing left !
+            x -= 1;
+            break;
+          case 270: // Pointing right !
+            x += 1;
+            break;
+        }
+        var pieceId = game.field[y][x];
+        if (pieceId != robert_the_lifter.Game.NO_PIECE) {
+          game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
+          game.robert.grabbedPiece = game.pieces[pieceId];
+          game.robert.hasPiece = true;
+        }
+      } else {
+        game.robert.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
+        game.robert.grabbedPiece = null;
+        game.robert.hasPiece = false;
       }
-      var pieceId = game.field[y][x];
-      if (pieceId != robert_the_lifter.Game.NO_PIECE) {
-        game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
-        game.robert.grabbedPiece = game.pieces[pieceId];
-        game.robert.hasPiece = true;
-      }
-    } else {
-      game.robert.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
-      game.robert.grabbedPiece = null;
-      game.robert.hasPiece = false;
     }
   }
-  KeyboardJS.on("space", grabPieceListener);
   
   // Start spawning pieces.
   var stopSpawning = false;
@@ -115,12 +116,37 @@ robert_the_lifter.Game.prototype.start = function() {
   lime.scheduleManager.schedule(this.spawningPieceLoop, this);
   
   // Debug event to stop spawning pieces.
-  function stopSpawningEvent() {
+  this.stopSpawningEvent = function() {
     stopSpawning = !stopSpawning;
   }
-  KeyboardJS.on("q", stopSpawningEvent);
   
   this.initDebugOptions();
+  this.bindKeys("left", "right", "up", "down", "space");  
+}
+
+robert_the_lifter.Game.prototype.bindKeys = function (turnLeft, turnRight, forward, backward, grab) {
+  KeyboardJS.on("q", this.stopSpawningEvent);
+  
+  // Remove previous bindings
+  if (typeof this.grabKey !== 'undefined') {
+    KeyboardJS.clear(this.grabKey);
+    KeyboardJS.clear(this.turnRightKey);
+    KeyboardJS.clear(this.turnLeftKey);
+    KeyboardJS.clear(this.backwardKey);
+    KeyboardJS.clear(this.forwardKey);
+  }
+  
+  this.grabKey = grab.toLowerCase();
+  this.turnRightKey = turnRight.toLowerCase();
+  this.turnLeftKey = turnLeft.toLowerCase();
+  this.backwardKey = backward.toLowerCase();
+  this.forwardKey = forward.toLowerCase();
+  
+  KeyboardJS.on(this.grabKey, this.grabEvent);
+  KeyboardJS.on(this.turnRightKey, this.robert.rightEvent, this.robert.rightEvent);
+  KeyboardJS.on(this.turnLeftKey, this.robert.leftEvent, this.robert.leftEvent);
+  KeyboardJS.on(this.backwardKey, this.robert.backwardEvent, this.robert.backwardEvent);
+  KeyboardJS.on(this.forwardKey, this.robert.forwardEvent, this.robert.forwardEvent);
 }
 
 /**
