@@ -10,7 +10,7 @@ robert_the_lifter.Piece = function(game, id) {
   
   this.blocks = [];
   this.state = robert_the_lifter.Piece.GETTING_PUSHED;
-  this.timeToNextPush = robert_the_lifter.Piece.DEFAULT_SPEED;
+  this.timeToNextPush = game.getPieceSpeed();
 }
 
 /**
@@ -266,7 +266,7 @@ robert_the_lifter.Piece.prototype.split = function () {
     }
   }
   
-  // If there are block int array2, that means we split.
+  // If there are block in array2, that means we split.
   if (array2.length > 0) {
     var newId = this.game.pieces.length;
     var newPiece = new robert_the_lifter.Piece(this.game, newId);
@@ -274,6 +274,8 @@ robert_the_lifter.Piece.prototype.split = function () {
     newPiece.state = this.state;
     this.game.pieces[newId] = newPiece;
     this.game.switchPieceState(newPiece, newPiece.id);
+    
+//    console.log("Splitting " + this.id + ". Creating " + newId);
     
     this.blocks = array1;
   }
@@ -288,7 +290,6 @@ robert_the_lifter.Piece.prototype.appendTo = function (layer) {
   }
 }
 
-robert_the_lifter.Piece.DEFAULT_SPEED = 1000;
 robert_the_lifter.Piece.GETTING_PUSHED = 1;
 robert_the_lifter.Piece.GRABBED = 2;
 robert_the_lifter.Piece.BLOCKED = 3;

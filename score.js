@@ -3,7 +3,7 @@ goog.provide('robert_the_lifter.Score');
 goog.require('lime.Sprite');
 
 robert_the_lifter.Score = function(game) {
-  this.setScore(10000);
+  this.setScore(0);
   
 }
 

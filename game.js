@@ -5,6 +5,7 @@
 goog.provide('robert_the_lifter.Game');
 
 goog.require('robert_the_lifter.Foreman');
+goog.require('robert_the_lifter.PauseMenu');
 
 robert_the_lifter.Game = function() {
   this.debug = true;
@@ -19,7 +20,6 @@ robert_the_lifter.Game = function() {
   
   this.tileWidth = 64;
   this.tileHeight = 64;
-  this.spawningSpeed = 8000;
   this.pieces = [];
   
   this.truckParkingHeight = this.tileHeight*2 + 10; // 10 pixels for wall.
@@ -54,7 +54,10 @@ robert_the_lifter.Game = function() {
 robert_the_lifter.Game.prototype.start = function() {
   this.robert = new robert_the_lifter.Robert(this);
   this.score = new robert_the_lifter.Score(this.factoryLayer);
+  this.factoryLayer.appendChild(this.score.lbl);
+  
   this.oil = new robert_the_lifter.Oil(this);
+  this.pauseMenu = new robert_the_lifter.PauseMenu(this);
   this.factoryLayer.appendChild(this.robert);
   this.switchPieceState(this.robert, this.robert.id);
   
@@ -62,12 +65,13 @@ robert_the_lifter.Game.prototype.start = function() {
   this.foreman = new robert_the_lifter.Foreman(this);
   
   // Register to keyboard event for Robert to grab a piece.
-  this.robertGrabPieceListener = goog.events.listen(this.robert, goog.events.EventType.KEYDOWN, function (ev) {
-    if (ev.event.keyCode == 32) { // 32 = spacebar.
-      if (!this.hasPiece) {
-        var x = this.x,
-            y = this.y,
-            rotation = this.getRotation();
+  var game = this;
+  this.grabEvent = function (ev) {
+    if (!game.isPaused) {
+      if (!game.robert.hasPiece) {
+        var x = game.robert.x,
+            y = game.robert.y,
+            rotation = game.robert.getRotation();
         switch(rotation) {
           case 180: //Pointing down !
             y += 1;
@@ -82,30 +86,29 @@ robert_the_lifter.Game.prototype.start = function() {
             x += 1;
             break;
         }
-        var pieceId = this.game.field[y][x];
+        var pieceId = game.field[y][x];
         if (pieceId != robert_the_lifter.Game.NO_PIECE) {
-          this.game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
-          this.game.robert.grabbedPiece = this.game.pieces[pieceId];
-          this.game.robert.hasPiece = true;
+          game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
+          game.robert.grabbedPiece = game.pieces[pieceId];
+          game.robert.hasPiece = true;
         }
-        
       } else {
-        this.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
-        this.grabbedPiece = null;
-        this.hasPiece = false;
+        game.robert.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
+        game.robert.grabbedPiece = null;
+        game.robert.hasPiece = false;
       }
     }
-  });
+  }
   
   // Start spawning pieces.
   var stopSpawning = false;
   this.timeToNextSpawning = 0;
   this.pieces = [];
   this.spawningPieceLoop = function(number) {
-    if (!robert_the_lifter.Director.isPaused && !stopSpawning) {
+    if (!this.isPaused && !stopSpawning) {
       this.timeToNextSpawning -= number;
       if (this.timeToNextSpawning <= 0) {
-        this.timeToNextSpawning += this.spawningSpeed;
+        this.timeToNextSpawning += this.getSpawningSpeed();
         this.addPiece();
       }
     }
@@ -113,11 +116,37 @@ robert_the_lifter.Game.prototype.start = function() {
   lime.scheduleManager.schedule(this.spawningPieceLoop, this);
   
   // Debug event to stop spawning pieces.
-  this.stopSpawningListener = goog.events.listen(robert_the_lifter.Director, goog.events.EventType.KEYDOWN, function (ev) {
-    if (ev.event.keyCode == 81) {
-      stopSpawning = !stopSpawning;
-    }
-  });
+  this.stopSpawningEvent = function() {
+    stopSpawning = !stopSpawning;
+  }
+  
+  this.initDebugOptions();
+  this.bindKeys("left", "right", "up", "down", "space");  
+}
+
+robert_the_lifter.Game.prototype.bindKeys = function (turnLeft, turnRight, forward, backward, grab) {
+  KeyboardJS.on("q", this.stopSpawningEvent);
+  
+  // Remove previous bindings
+  if (typeof this.grabKey !== 'undefined') {
+    KeyboardJS.clear(this.grabKey);
+    KeyboardJS.clear(this.turnRightKey);
+    KeyboardJS.clear(this.turnLeftKey);
+    KeyboardJS.clear(this.backwardKey);
+    KeyboardJS.clear(this.forwardKey);
+  }
+  
+  this.grabKey = grab.toLowerCase();
+  this.turnRightKey = turnRight.toLowerCase();
+  this.turnLeftKey = turnLeft.toLowerCase();
+  this.backwardKey = backward.toLowerCase();
+  this.forwardKey = forward.toLowerCase();
+  
+  KeyboardJS.on(this.grabKey, this.grabEvent);
+  KeyboardJS.on(this.turnRightKey, this.robert.rightEvent, this.robert.rightEvent);
+  KeyboardJS.on(this.turnLeftKey, this.robert.leftEvent, this.robert.leftEvent);
+  KeyboardJS.on(this.backwardKey, this.robert.backwardEvent, this.robert.backwardEvent);
+  KeyboardJS.on(this.forwardKey, this.robert.forwardEvent, this.robert.forwardEvent);
 }
 
 /**
@@ -125,8 +154,6 @@ robert_the_lifter.Game.prototype.start = function() {
  */
 robert_the_lifter.Game.prototype.stop = function() {
   lime.scheduleManager.unschedule(this.spawningPieceLoop, this);
-  goog.events.unlistenByKey(this.robertGrabPieceListener);
-  goog.events.unlistenByKey(this.stopSpawningListener);
   this.robert.stop();
   this.foreman.stop();
   robert_the_lifter.endGame();
@@ -138,12 +165,7 @@ robert_the_lifter.Game.prototype.stop = function() {
 robert_the_lifter.Game.prototype.addPiece = function() {
   var id = this.pieces.length;
   var piece = new robert_the_lifter.Piece(this, id);
-  
-  this.factoryLayer.removeChild(this.score.lbl);
-  var actual_score = this.score.getScore();
-  this.score.setScore(actual_score - 40);
-  this.factoryLayer.appendChild(this.score.lbl);
-  
+    
   var newPieceCoords = piece.getNewPieceCoordinates(this.piecesHistory, (id === 0));
   // If there is something where the new piece should be, the game ends.
   var gameStop = false;
@@ -266,6 +288,7 @@ robert_the_lifter.Game.prototype.switchState = function (x, y, newState) {
  * Check each line and clear the full ones.
  */
 robert_the_lifter.Game.prototype.checkAndClearLine = function() {
+  var piecesToSplit = [];
   for(var x = 0; x < this.factoryNbTileWidth; x ++) {
     var lineFull = true;
     
@@ -278,14 +301,13 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
     }
     
     if (lineFull) {
-      
+//      console.log("Line " + x + "full.");
       this.factoryLayer.removeChild(this.score.lbl);
       var actual_score = this.score.getScore();
       this.score.setScore(actual_score + 300);
       this.factoryLayer.appendChild(this.score.lbl);
 
       var squareRemaining = this.factoryNbTileHeight;
-      var piecesToSplit = [];
       for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
         for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
           var block = this.pieces[i].blocks[j];
@@ -293,7 +315,8 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
             squareRemaining--;
             this.switchState(block.x, block.y, robert_the_lifter.Game.NO_PIECE);
             
-            // Remove the crate form the game.
+            // Remove the crate from the game.
+//            console.log("Line " + x + ": " + squareRemaining + " more to go.");
             this.pieces[i].removeBlock(j);
             if (piecesToSplit.indexOf(this.pieces[i]) === -1) {
               piecesToSplit.push(this.pieces[i]);
@@ -301,12 +324,42 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
           }
         }
       }
-      
-      for (var k in piecesToSplit) {
-        piecesToSplit[k].split();
-      }
-      
     }
+  }
+  for (var k in piecesToSplit) {
+    piecesToSplit[k].split();
+  }
+}
+
+robert_the_lifter.Game.prototype.initDebugOptions = function() {
+  if (document.getElementById('debug_options')) {
+    document.getElementById('pieces_speed').value = robert_the_lifter.Game.DEFAULT_PIECE_SPEED;
+    document.getElementById('spawning_speed').value = robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED;
+    document.getElementById('lift_speed').value = robert_the_lifter.Game.DEFAULT_ROBERT_SPEED;
+  }
+}
+
+robert_the_lifter.Game.prototype.getRobertSpeed = function() {
+  if (document.getElementById('debug_options')) {
+    return parseInt(document.getElementById('lift_speed').value);
+  }else {
+    return robert_the_lifter.Game.DEFAULT_ROBERT_SPEED;
+  }
+}
+
+robert_the_lifter.Game.prototype.getPieceSpeed = function() {
+  if (document.getElementById('debug_options')) {
+    return parseInt(document.getElementById('pieces_speed').value);
+  }else {
+    return robert_the_lifter.Game.DEFAULT_PIECE_SPEED;
+  }
+}
+
+robert_the_lifter.Game.prototype.getSpawningSpeed = function() {
+  if (document.getElementById('debug_options')) {
+    return parseInt(document.getElementById('spawning_speed').value);
+  }else {
+    return robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED;
   }
 }
 
@@ -315,7 +368,9 @@ robert_the_lifter.Game.ROBERT = -2;
 robert_the_lifter.Game.GROUND = "GROUND";
 robert_the_lifter.Game.GRABBED_PIECE = "GRABBED_PIECE";
 
-
+robert_the_lifter.Game.DEFAULT_PIECE_SPEED = 1000;
+robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED = 8000;
+robert_the_lifter.Game.DEFAULT_ROBERT_SPEED = 250;
 
 
 

@@ -10,7 +10,7 @@ robert_the_lifter.Foreman = function(game) {
   
   // Constantly checking out pieces.
   this.checkPieces = function(number) {
-    if (!robert_the_lifter.Director.isPaused) {
+    if (!this.game.isPaused) {
       for (var i in game.pieces) {
         if (game.pieces[i].state !== robert_the_lifter.Piece.GRABBED) {
 
@@ -41,12 +41,12 @@ robert_the_lifter.Foreman = function(game) {
             game.pieces[i].timeToNextPush -= number;
             if (game.pieces[i].timeToNextPush <= 0) {
               game.push(game.pieces[i]);
-              game.pieces[i].timeToNextPush += robert_the_lifter.Piece.DEFAULT_SPEED;
+              game.pieces[i].timeToNextPush += game.getPieceSpeed();
             }
           } else {
             if (isBlocked) {
               game.pieces[i].state = robert_the_lifter.Piece.BLOCKED;
-              game.pieces[i].timeToNextPush = robert_the_lifter.Piece.DEFAULT_SPEED;
+              game.pieces[i].timeToNextPush = game.getPieceSpeed();
             } else {
               game.pieces[i].state = robert_the_lifter.Piece.GETTING_PUSHED;
             }

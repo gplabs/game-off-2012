@@ -11,6 +11,24 @@
   float:left;
 }
 
+/**
+OPTIONS STYLE
+**/
+div.hide {
+  display: none;
+  z-index: -1;
+}
+#options_wrapper {
+  position: absolute;
+  z-index: 1;
+  top: 320px;
+  left: 460px;
+}
+
+input.option {
+  width: 45px;
+}
+
 #debug {
   width: 720px;
   float:left;
@@ -33,3 +51,6 @@
   width:18px;
   float:left;
 }
+
+
+

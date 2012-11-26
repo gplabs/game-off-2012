@@ -145,7 +145,6 @@ robert_the_lifter.start = function() {
     
     this.gameScene.appendChild(layer);
   }
-//  game.stop();
 }
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
 goog.exportSymbol('robert_the_lifter.start', robert_the_lifter.start);

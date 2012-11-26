@@ -3,12 +3,40 @@
 <html>
 <head>
 	<title>Robert The Lifter</title>
+  <script type="text/javascript" src="keyboard.js"></script>
 	<script type="text/javascript" src="RtL.min.js"></script>
   <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 
 <body onload="robert_the_lifter.start()">
-  <div id='game'></div>
+  <div id='game'>
+    <div id="options_wrapper" class="hide">
+      <div id="options_left_key_wrapper">
+        <label for="options_left_key">Turn Left</label>
+        <input type="text" class="option" id="options_left_key"/>
+      </div>
+      
+      <div id="options_right_key_wrapper">
+        <label for="options_right_key">Turn Right</label>
+        <input type="text" class="option" id="options_right_key"/>
+      </div>
+      
+      <div id="options_forward_key_wrapper">
+        <label for="options_forward_key">Forward</label>
+        <input type="text" class="option" id="options_forward_key"/>
+      </div>
+      
+      <div id="options_backward_key_wrapper">
+        <label for="options_backward_key">Backward</label>
+        <input type="text" class="option" id="options_backward_key"/>
+      </div>
+      
+      <div id="options_grab_key_wrapper">
+        <label for="options_grab_key">Grab</label>
+        <input type="text" class="option" id="options_grab_key"/>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
