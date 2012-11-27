@@ -289,43 +289,64 @@ robert_the_lifter.Game.prototype.switchState = function (x, y, newState) {
  */
 robert_the_lifter.Game.prototype.checkAndClearLine = function() {
   var piecesToSplit = [];
+  this.linesProcessing = []; // Those are lines to ignore, because we are clearing them already.
+  var linesToClear = [];
+  
   for(var x = 0; x < this.factoryNbTileWidth; x ++) {
-    var lineFull = true;
-    
-    // If we find something that is not a blocked piece, the line isn't full.
-    for(var y = 0; y < this.factoryNbTileHeight && lineFull; y ++) {
-      var id = this.field[y][x];
-      if (id == robert_the_lifter.Game.ROBERT || id == robert_the_lifter.Game.NO_PIECE || (id > robert_the_lifter.Game.NO_PIECE && this.pieces[id].state != robert_the_lifter.Piece.BLOCKED)) {
-        lineFull = false;
+    if (this.linesProcessing.indexOf(x) == -1) {
+      var lineFull = true;
+
+      // If we find something that is not a blocked piece, the line isn't full.
+      for(var y = 0; y < this.factoryNbTileHeight && lineFull; y ++) {
+        var id = this.field[y][x];
+        if (id == robert_the_lifter.Game.ROBERT || id == robert_the_lifter.Game.NO_PIECE || (id > robert_the_lifter.Game.NO_PIECE && this.pieces[id].state != robert_the_lifter.Piece.BLOCKED)) {
+          lineFull = false;
+        }
+      }
+
+      if (lineFull) {
+        this.linesProcessing.push(x);
+        linesToClear.push(x);
+//        console.log("Line " + x + " is full.");
       }
     }
-    
-    if (lineFull) {
-//      console.log("Line " + x + "full.");
-      this.factoryLayer.removeChild(this.score.lbl);
-      var actual_score = this.score.getScore();
-      this.score.setScore(actual_score + 300);
-      this.factoryLayer.appendChild(this.score.lbl);
+  }
+  
+  if (linesToClear.length > 0) {
+    console.log(linesToClear.length + " lines are full (" + linesToClear.toString() + ")");
+  }
+  
+  for(var k in linesToClear) {
+    var xLine = linesToClear[k];
+    console.log("Clearing line " + xLine + ".");
+    this.factoryLayer.removeChild(this.score.lbl);
+    var actual_score = this.score.getScore();
+    this.score.setScore(actual_score + 300);
+    this.factoryLayer.appendChild(this.score.lbl);
 
-      var squareRemaining = this.factoryNbTileHeight;
-      for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
-        for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
-          var block = this.pieces[i].blocks[j];
-          if (block.x == x) {
-            squareRemaining--;
-            this.switchState(block.x, block.y, robert_the_lifter.Game.NO_PIECE);
-            
-            // Remove the crate from the game.
-//            console.log("Line " + x + ": " + squareRemaining + " more to go.");
-            this.pieces[i].removeBlock(j);
-            if (piecesToSplit.indexOf(this.pieces[i]) === -1) {
-              piecesToSplit.push(this.pieces[i]);
-            }
+    var squareRemaining = this.factoryNbTileHeight;
+    for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
+      for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
+        var block = this.pieces[i].blocks[j];
+        if (block.x == xLine) {
+          squareRemaining--;
+          this.switchState(block.x, block.y, robert_the_lifter.Game.NO_PIECE);
+
+          // Remove the crate from the game.
+          console.log("Line " + xLine + ": " + squareRemaining + " more to go.");
+          this.pieces[i].removeBlock(j);
+          if (piecesToSplit.indexOf(this.pieces[i]) === -1) {
+            piecesToSplit.push(this.pieces[i]);
           }
         }
       }
     }
+    
+    this.linesProcessing.splice(this.linesProcessing.indexOf(x), 1);
+    
+//    this.linesProcessing
   }
+  
   for (var k in piecesToSplit) {
     piecesToSplit[k].split();
   }
