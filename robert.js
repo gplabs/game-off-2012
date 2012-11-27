@@ -212,8 +212,11 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
       oldY = this.y;
   var actual_position = this.getPosition();
   
+  var outside = newX < 0 || newX >= this.game.factoryNbTileWidth ||
+                newY < 0 || newY >= this.game.factoryNbTileHeight;
+  
   // If robert has no piece, we move only him.
-  if (!this.hasPiece && !this.game.containsSomething(newX, newY)) {
+  if (!outside && !this.hasPiece && !this.game.containsSomething(newX, newY)) {
     this.setPosition(actual_position.x + (x*this.game.tileWidth), actual_position.y + (y*this.game.tileHeight));
     this.game.switchState(newX, newY, this.id);
     this.x = newX;
