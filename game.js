@@ -64,10 +64,14 @@ robert_the_lifter.Game.prototype.start = function() {
   // Init the foreman
   this.foreman = new robert_the_lifter.Foreman(this);
   
+  var lastGrabTime = 0;
+  
   // Register to keyboard event for Robert to grab a piece.
   var game = this;
   this.grabEvent = function (ev) {
-    if (!game.isPaused) {
+    var isTooFast = new Date().getTime() - lastGrabTime <= 100;
+    console.log("Robert wanna grab something ");
+    if (!isTooFast && !game.isPaused) {
       if (!game.robert.hasPiece) {
         var x = game.robert.x,
             y = game.robert.y,
@@ -91,13 +95,17 @@ robert_the_lifter.Game.prototype.start = function() {
           game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
           game.robert.grabbedPiece = game.pieces[pieceId];
           game.robert.hasPiece = true;
+          console.log("Robert just grabbed piece no " + pieceId);
         }
       } else {
+        console.log("Robert just released piece no " + game.robert.grabbedPiece.id);
         game.robert.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
         game.robert.grabbedPiece = null;
         game.robert.hasPiece = false;
       }
     }
+    
+    lastGrabTime = new Date().getTime();
   }
   
   // Start spawning pieces.
@@ -307,7 +315,6 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
       if (lineFull) {
         this.linesProcessing.push(x);
         linesToClear.push(x);
-//        console.log("Line " + x + " is full.");
       }
     }
   }
