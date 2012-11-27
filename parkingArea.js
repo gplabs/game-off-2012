@@ -21,7 +21,7 @@ robert_the_lifter.ParkingArea = function(game) {
   
   var nbTrucks = game.truckParkingWidth / game.tileWidth;
   for(var i = 0; i < nbTrucks; i ++) {
-    var truckNo = Math.floor(Math.random()*2);
+    var truckNo = Math.floor(Math.random()*4);
     var truckTile = new lime.fill.Frame('images/trucks.png', truckNo*this.truckWidth, 0, this.truckWidth, this.truckHeight);
     var truck = new lime.Sprite()
       .setAnchorPoint(0, 0)
