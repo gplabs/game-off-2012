@@ -78,7 +78,6 @@ robert_the_lifter.Robert = function(game) {
   this.forwardEvent = function(ev) {
     var keyDown = (!game.isPaused) && (ev.type == "keydown");
     if (keyDown && !upHold) {
-      game.oil.dropOil(game);
       game.robert.moveTo(game.forwardKey);
       nextUp = game.getRobertSpeed();
     }
@@ -88,7 +87,6 @@ robert_the_lifter.Robert = function(game) {
   this.backwardEvent = function(ev) {
     var keyDown = (!game.isPaused) && (ev.type == "keydown");
     if (keyDown && !downHold) {
-      game.oil.dropOil(game);
       game.robert.moveTo(game.backwardKey);
       nextDown = game.getRobertSpeed();
     }

@@ -56,7 +56,6 @@ robert_the_lifter.Game.prototype.start = function() {
   this.score = new robert_the_lifter.Score(this.factoryLayer);
   this.factoryLayer.appendChild(this.score.lbl);
   
-  this.oil = new robert_the_lifter.Oil(this);
   this.pauseMenu = new robert_the_lifter.PauseMenu(this);
   this.factoryLayer.appendChild(this.robert);
   this.switchPieceState(this.robert, this.robert.id);
