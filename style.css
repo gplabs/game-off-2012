@@ -1,3 +1,6 @@
+body {
+  background: green;
+}
 #highscore-name {
   position: relative;
   top: 430px;
