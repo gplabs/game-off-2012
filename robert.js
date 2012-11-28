@@ -224,7 +224,7 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
     this.game.switchState(oldX, oldY, robert_the_lifter.Game.NO_PIECE);
   }
   // Move robert and his grabbed piece.
-  else if (this.hasPiece) {
+  else if (!outside && this.hasPiece) {
     var canMove = true;
     for(var i = 0; i < this.grabbedPiece.blocks.length && canMove; i ++) {
       var blockX = this.grabbedPiece.blocks[i].x + x,
