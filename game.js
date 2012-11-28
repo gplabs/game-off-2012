@@ -326,11 +326,7 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
   for(var k in linesToClear) {
     var xLine = linesToClear[k];
     console.log("Clearing line " + xLine + ".");
-    this.factoryLayer.removeChild(this.score.lbl);
-    var actual_score = this.score.getScore();
-    this.score.setScore(actual_score + 300);
-    this.factoryLayer.appendChild(this.score.lbl);
-
+    
     var squareRemaining = this.factoryNbTileHeight;
     for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
       for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
@@ -356,6 +352,25 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
   
   for (var k in piecesToSplit) {
     piecesToSplit[k].split();
+  }
+  
+  switch(linesToClear.length) {
+    case 1:
+      var nbPoints = this.score.pointsPerLine;
+      this.score.addPointsAndDisplayScore(nbPoints, this.score, this.factoryLayer);
+      break;
+    case 2:
+      nbPoints = this.score.pointsPerLine*2 + this.score.pointsPerLine/2;
+      this.score.addPointsAndDisplayScore(nbPoints, this.score, this.factoryLayer);
+      break;
+    case 3:
+      nbPoints = this.score.pointsPerLine*3 + this.score.pointsPerLine;
+      this.score.addPointsAndDisplayScore(nbPoints, this.score, this.factoryLayer);
+      break;
+    case 4:
+      nbPoints = this.score.pointsPerLine*4 + this.score.pointsPerLine*2;
+      this.score.addPointsAndDisplayScore(nbPoints, this.score, this.factoryLayer);
+      break;
   }
 }
 
