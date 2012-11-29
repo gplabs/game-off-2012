@@ -7,8 +7,8 @@ robert_the_lifter.Robert = function(game) {
   this.id = robert_the_lifter.Game.ROBERT;
   this.game = game;
   
-  this.x = 0;
-  this.y = 0;
+  this.x = 12;
+  this.y = 5;
   this.setPosition(
     (this.x * game.tileWidth) + game.factoryX + (game.tileWidth/2), 
     (this.y * game.tileHeight) + game.factoryY + (game.tileHeight/2)

@@ -27,12 +27,24 @@ robert_the_lifter.start = function() {
   robert_the_lifter.Director.setDisplayFPS(false);
   // This will probably be the only scene of the game (beside a menu ?)
   this.gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
+  var wallTile = new lime.fill.Frame('images/wall.png', 0, 0, game.tileWidth, game.wallWidth);
+  var cornerWallTile = new lime.fill.Frame('images/wall.png', game.tileWidth, 0, game.wallWidth, game.wallWidth);
   
   // The upper parking layer
   var truckParkingLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
-  var truckParkingArea = new robert_the_lifter.ParkingArea(game, truckParkingLayer);
+  var truckParkingArea = new robert_the_lifter.ParkingArea(game, truckParkingLayer, wallTile, cornerWallTile);
   this.gameScene.appendChild(truckParkingLayer);
+  
+  // The upper wall
+  for(var k = 0; k < game.factoryNbTileWidth + game.rightAreaTileWidth; k ++) {
+    var wallSprite = new lime.Sprite()
+      .setAnchorPoint(0,0)
+      .setPosition((k)*game.tileWidth + game.truckParkingX, game.parkingHeight*game.tileHeight + game.truckParkingY)
+      .setSize(game.tileWidth, game.wallWidth)
+      .setFill(wallTile);
+    truckParkingLayer.appendChild(wallSprite);
+  }
   
   // The factory layer.
   var factoryLayer = new lime.Layer()
@@ -41,13 +53,41 @@ robert_the_lifter.start = function() {
   var factoryTile = new lime.fill.Frame('images/tiles.png', game.tileWidth, 0, game.tileWidth, game.tileHeight);
   for(var i = 0; i < game.factoryNbTileWidth; i ++) {
     for(var j = 0; j < game.factoryNbTileHeight; j ++) {
+      var y = (j)*game.tileHeight+game.factoryY;
+      // Add the wall part.
+      var wallSprite = new lime.Sprite()
+        .setAnchorPoint(0,0)
+        .setPosition(0, y + game.tileHeight) // add tileheight because of rotation.
+        .setRotation(90)
+        .setSize(game.tileWidth, game.wallWidth)
+        .setFill(wallTile);
+      factoryLayer.appendChild(wallSprite);
+      
       var factorySprite = new lime.Sprite()
         .setAnchorPoint(0,0)
-        .setPosition((i)*game.tileWidth, (j)*game.tileHeight+game.truckParkingHeight)
+        .setPosition((i)*game.tileWidth + game.factoryX, y)
         .setSize(game.tileWidth, game.tileHeight)
         .setFill(factoryTile);
       factoryLayer.appendChild(factorySprite);
     }
+  }
+  
+  var cornerSprite = new lime.Sprite()
+    .setAnchorPoint(0,0)
+    .setPosition(game.wallWidth, game.factoryY + game.factoryHeight+game.wallWidth)
+    .setRotation(180)
+    .setSize(game.wallWidth, game.wallWidth)
+    .setFill(cornerWallTile);
+  factoryLayer.appendChild(cornerSprite);
+  
+  // Bottom part of the wall.
+  for(var l = 0; l < game.factoryNbTileWidth + game.rightAreaTileWidth; l ++) {
+    var bottomWallSprite = new lime.Sprite()
+      .setAnchorPoint(0,0)
+      .setPosition((l)*game.tileWidth + game.wallWidth, game.factoryY + game.factoryHeight)
+      .setSize(game.tileWidth, game.wallWidth)
+      .setFill(wallTile);
+    factoryLayer.appendChild(bottomWallSprite);
   }
   
   game.factoryLayer = factoryLayer;
