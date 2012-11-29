@@ -8,6 +8,7 @@ goog.provide('robert_the_lifter.ParkingArea');
 
 robert_the_lifter.ParkingArea = function(game, layer) {
   var parkingTile = new lime.fill.Frame('images/tiles.png', 0, 0, game.tileWidth, game.tileHeight);
+  var wallTile = new lime.fill.Frame('images/wall.png', 0, 0, game.tileWidth, 10);
   
   this.truckWidth = game.tileWidth;
   this.truckHeight = game.tileHeight * 2;
@@ -21,6 +22,14 @@ robert_the_lifter.ParkingArea = function(game, layer) {
         .setFill(parkingTile);
       layer.appendChild(parkingSprite);
     }
+    
+    // Add the wall part.
+    var wallSprite = new lime.Sprite()
+        .setAnchorPoint(0,0)
+        .setPosition((i)*game.tileWidth, game.parkingHeight*game.tileHeight)
+        .setSize(game.tileWidth, 10)
+        .setFill(wallTile);
+    layer.appendChild(wallSprite);
     
     var truckNo = Math.floor(Math.random()*4);
     var truckTile = new lime.fill.Frame('images/trucks.png', truckNo*this.truckWidth, 0, this.truckWidth, this.truckHeight);
