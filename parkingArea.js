@@ -4,23 +4,24 @@
 
 goog.provide('robert_the_lifter.ParkingArea');
 
-goog.require('lime.Sprite');
+//goog.require('lime.Sprite');
 
-robert_the_lifter.ParkingArea = function(game) {
-  goog.base(this);
+robert_the_lifter.ParkingArea = function(game, layer) {
+  var parkingTile = new lime.fill.Frame('images/tiles.png', 0, 0, game.tileWidth, game.tileHeight);
   
   this.truckWidth = game.tileWidth;
-  this.truckHeight = game.tileWidth * 2;
+  this.truckHeight = game.tileHeight * 2;
   
-  
-  var parkingTiles = new lime.fill.Frame('images/ground.png', 0, 0, game.truckParkingWidth, game.truckParkingHeight);
-  this.setAnchorPoint(0,0)
-      .setSize(game.truckParkingWidth, game.truckParkingHeight)
-      .setPosition(game.truckParkingX, game.truckParkingY)
-      .setFill(parkingTiles);
-  
-  var nbTrucks = game.truckParkingWidth / game.tileWidth;
-  for(var i = 0; i < nbTrucks; i ++) {
+  for(var i = 0; i < game.parkingWidth; i ++) {
+    for(var j = 0; j < game.parkingHeight; j ++) {
+      var parkingSprite = new lime.Sprite()
+        .setAnchorPoint(0,0)
+        .setSize(game.tileWidth, game.tileHeight)
+        .setPosition((i)*game.tileWidth, (j)*game.tileHeight)
+        .setFill(parkingTile);
+      layer.appendChild(parkingSprite);
+    }
+    
     var truckNo = Math.floor(Math.random()*4);
     var truckTile = new lime.fill.Frame('images/trucks.png', truckNo*this.truckWidth, 0, this.truckWidth, this.truckHeight);
     var truck = new lime.Sprite()
@@ -29,8 +30,6 @@ robert_the_lifter.ParkingArea = function(game) {
       .setPosition(i*game.tileWidth, game.truckParkingY)
       .setFill(truckTile);
       
-    this.appendChild(truck);
+    layer.appendChild(truck);
   }
 }
-
-goog.inherits(robert_the_lifter.ParkingArea, lime.Sprite);

@@ -22,8 +22,11 @@ robert_the_lifter.Game = function() {
   this.tileHeight = 64;
   this.pieces = [];
   
-  this.truckParkingHeight = this.tileHeight*2 + 10; // 10 pixels for wall.
-  this.truckParkingWidth = this.tileWidth*20;
+  this.parkingWidth = 20;
+  this.parkingHeight = 2;
+  
+  this.truckParkingHeight = this.tileHeight*this.parkingHeight + 10; // 10 pixels for wall.
+  this.truckParkingWidth = this.tileWidth*this.parkingWidth;
   this.truckParkingX = 0;
   this.truckParkingY = 0;
   
