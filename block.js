@@ -9,7 +9,7 @@ robert_the_lifter.Block = function(x, y, game) {
   this.x = x;
   this.y = y;
   this.game = game;
-  this.chainFill = new lime.fill.Frame('images/chains.png', 0, 0, 21, this.game.tileHeight);
+  this.chainFill = new lime.fill.Frame('images/chains.png', 0, 0, 23, this.game.tileHeight);
   this.chains = [];
   
   // getting a random image from the boxes image.
