@@ -97,7 +97,6 @@ robert_the_lifter.Robert = function(game) {
   function moveEvent(number) {
     if (downHold) {
       if (nextDown <= 0) {
-        game.oil.dropOil(game);
         game.robert.moveTo(game.backwardKey);
         nextDown += game.getRobertSpeed();
       }
@@ -114,7 +113,6 @@ robert_the_lifter.Robert = function(game) {
 
     if (upHold) {
       if (nextUp <= 0) {
-        game.oil.dropOil(game);
         game.robert.moveTo(game.forwardKey);
         nextUp += game.getRobertSpeed();
       }
@@ -260,14 +258,14 @@ robert_the_lifter.Robert.prototype.rotate = function (rotation) {
   if (this.hasPiece) {
     // Rotation point. (origin)
     var xO = this.x,
-        yO = this.y;
+        yO = this.y,
+        r = -rotation / 180 * Math.PI;
 
     // Check each squares of the grabbed piece if they can rotate.
     var newPiece = [];
     for(var i = 0; i < this.grabbedPiece.blocks.length && canRotate; i++) {
       var x1 = this.grabbedPiece.blocks[i].x,
-          y1 = this.grabbedPiece.blocks[i].y,
-          r = -rotation / 180 * Math.PI;
+          y1 = this.grabbedPiece.blocks[i].y;
       
       var x2 = Math.round(Math.cos(r) * (x1-xO) - Math.sin(r) * (y1-yO) + xO),
           y2 = Math.round(Math.sin(r) * (x1-xO) + Math.cos(r) * (y1-yO) + yO);

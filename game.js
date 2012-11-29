@@ -345,8 +345,6 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
     }
     
     this.linesProcessing.splice(this.linesProcessing.indexOf(x), 1);
-    
-//    this.linesProcessing
   }
   
   for (var k in piecesToSplit) {

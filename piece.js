@@ -23,6 +23,8 @@ robert_the_lifter.Piece.prototype.initSpawningPiece = function(coords) {
     this.createBlock(coords[2].x, coords[2].y),
     this.createBlock(coords[3].x, coords[3].y)
   ];
+  
+  this.updateChains();
 }
 
 /**
@@ -73,6 +75,56 @@ robert_the_lifter.Piece.prototype.getNewPieceCoordinates = function (exceptions,
       return this.createZ(x, y);
       break;
   }
+}
+
+/**
+ * Add chains to the piece.
+ */
+robert_the_lifter.Piece.prototype.updateChains = function () {
+  // Delete existing chains
+  for (var j in this.blocks) {
+    this.blocks[j].removeChains();
+  }
+  
+  var blocksToCompare = this.blocks.slice(0);
+  this.chains = [];
+  for (var i in this.blocks) {
+    // Remove the first element so that the current block never compare to himself or previous blocks
+    blocksToCompare.splice(0, 1);
+    
+    for (var j in blocksToCompare) {
+      var height = this.game.tileHeight;
+      var chainFill = new lime.fill.Frame('images/chains.png', 0, 0, 21, this.game.tileHeight);
+      // If the comparing block is somewhere around the current one, we place chains accordingly.
+      if (this.blocks[i].x + 1 == blocksToCompare[j].x && this.blocks[i].y == blocksToCompare[j].y) {
+        // The block is right
+        this.blocks[i].addChains(0);
+      }
+      else if (this.blocks[i].x - 1 == blocksToCompare[j].x && this.blocks[i].y == blocksToCompare[j].y) {
+        // The block is left
+        this.blocks[i].addChains(180);
+      }
+      else if (this.blocks[i].x == blocksToCompare[j].x && this.blocks[i].y + 1 == blocksToCompare[j].y) {
+        // The block is down
+        this.blocks[i].addChains(270);
+      }
+      else if (this.blocks[i].x == blocksToCompare[j].x && this.blocks[i].y - 1 == blocksToCompare[j].y) {
+        // The block is up
+        this.blocks[i].addChains(90);
+      }
+      
+      function getChains(x, y, rotation, chainFill) {
+        return new lime.Sprite()
+          .setAnchorPoint(.5, .5)
+          .setPosition(x, y)
+          .setFill(chainFill)
+          .setRotation(rotation)
+          .setSize(21, height);
+      }
+    }
+  }
+  
+  console.log("Done creating chains for piece " + this.id);
 }
 
 /**
@@ -199,6 +251,13 @@ robert_the_lifter.Piece.prototype.move = function (x, y) {
   for (var i in this.blocks) {
     this.blocks[i].move(x, y);
   }
+  
+  // Move the chains
+  for (var j in this.chains) {
+    var pos = this.chains[j].getPosition();
+    pos.x += (x * this.game.tileWidth);
+    pos.y += (y * this.game.tileHeight);
+  }
 }
 
 /**
@@ -241,7 +300,7 @@ robert_the_lifter.Piece.prototype.reachedLeftLimit = function () {
  */
 robert_the_lifter.Piece.prototype.removeBlock = function (index) {
   var blockToDelete = this.blocks[index];
-  
+  blockToDelete.removeChains();
   // Remove the block.
   blockToDelete.remove();
   this.blocks.splice(index, 1);
@@ -280,12 +339,15 @@ robert_the_lifter.Piece.prototype.split = function () {
     newPiece.blocks = array2;
     newPiece.state = this.state;
     this.game.pieces[newId] = newPiece;
+    newPiece.updateChains();
     this.game.switchPieceState(newPiece, newPiece.id);
     
     console.log("Splitting " + this.id + ", Creating " + newId);
     
     this.blocks = array1;
   }
+  
+  this.updateChains();
 }
 
 /**
@@ -294,6 +356,11 @@ robert_the_lifter.Piece.prototype.split = function () {
 robert_the_lifter.Piece.prototype.appendTo = function (layer) {
   for (var i in this.blocks) {
     this.blocks[i].appendTo(layer);
+  }
+  
+  // After appending blocks, we must adjust chains index.
+  for (var j in this.blocks) {
+    this.blocks[j].updateChainsIndex();
   }
 }
 

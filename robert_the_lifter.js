@@ -13,7 +13,6 @@ goog.require('lime.animation.FadeTo');
 goog.require('lime.animation.ScaleTo');
 goog.require('lime.animation.MoveTo');
 goog.require('robert_the_lifter.Game');
-goog.require('robert_the_lifter.Oil');
 goog.require('robert_the_lifter.PauseMenu');
 goog.require('robert_the_lifter.Robert');
 goog.require('robert_the_lifter.Piece');
