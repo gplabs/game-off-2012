@@ -60,7 +60,7 @@ robert_the_lifter.Piece.prototype.getNewPieceCoordinates = function (exceptions,
       return this.createL(x, y);
       break;
     case robert_the_lifter.Piece.I:
-      return this.createI(x, y);
+      return this.createI(x-1, y); // yeah... make it appear a lil bit in the factory.
       break;
     case robert_the_lifter.Piece.T:
       return this.createT(x, y);
