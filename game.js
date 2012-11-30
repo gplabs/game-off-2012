@@ -78,7 +78,7 @@ robert_the_lifter.Game.prototype.start = function() {
   // Register to keyboard event for Robert to grab a piece.
   var game = this;
   this.grabEvent = function (ev) {
-    var isTooFast = new Date().getTime() - lastGrabTime <= 100;
+    var isTooFast = new Date().getTime() - lastGrabTime <= 200;
     console.log("Robert wanna grab something ");
     if (!isTooFast && !game.isPaused) {
       if (!game.robert.hasPiece) {
