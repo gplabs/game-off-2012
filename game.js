@@ -323,7 +323,19 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
       }
 
       if (lineFull) {
-          var line = new lime.audio.Audio("sounds/horn.ogg");
+          var random_sound = Math.floor(3*Math.random())
+          switch(random_sound) {
+            case 0:
+              var line = new lime.audio.Audio("sounds/horn.ogg");
+              break;
+            case 1:
+              var line = new lime.audio.Audio("sounds/horn_low.ogg");
+              break;
+            case 2:
+              var line = new lime.audio.Audio("sounds/horn_med.ogg");
+              break;
+          }
+          
           function playHonk() {
             if (line.isLoaded()) {
               if (!line.isPlaying()) {
