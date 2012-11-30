@@ -127,6 +127,7 @@ robert_the_lifter.Game.prototype.start = function() {
       if (this.timeToNextSpawning <= 0) {
         this.timeToNextSpawning += this.getSpawningSpeed();
         this.addPiece();
+        this.adjustAlwaysOnTop();
       }
     }
   }
@@ -411,6 +412,16 @@ robert_the_lifter.Game.prototype.getSpawningSpeed = function() {
   }else {
     return robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED;
   }
+}
+
+/**
+ * Call this function to put back things that are always on top.
+ * Must be called at each piece spawn to adjust index of some things.
+ */
+robert_the_lifter.Game.prototype.adjustAlwaysOnTop = function() {
+  var index = this.factoryLayer.getNumberOfChildren() + 1;
+  this.factoryLayer.setChildIndex(this.blackFog, index);
+  this.factoryLayer.setChildIndex(this.gradiantFog, index);
 }
 
 robert_the_lifter.Game.NO_PIECE = -1;

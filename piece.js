@@ -174,16 +174,16 @@ robert_the_lifter.Piece.prototype.createJ = function(x, y) {
   
 /**
  * The O
+ * .xx.
+ * .xx.
  * ....
- * .xx.
- * .xx.
  */
 robert_the_lifter.Piece.prototype.createO = function(x, y) {
   return [
+    {x:x + 1, y:y},
     {x:x + 1, y:y + 1},
-    {x:x + 1, y:y + 2},
-    {x:x + 2, y:y + 1},
-    {x:x + 2, y:y + 2}
+    {x:x + 2, y:y},
+    {x:x + 2, y:y + 1}
   ];
 }
   

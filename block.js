@@ -119,8 +119,6 @@ robert_the_lifter.Block.prototype.moveTo = function (x, y) {
   
   this.skid.setPosition(newX, newY);
   this.box.setPosition(newX, newY);
-  
-  this.updateChainsIndex();
 }
 
 /**
@@ -132,7 +130,6 @@ robert_the_lifter.Block.prototype.rotate = function (rotation) {
   for(var i in this.chains) {
     this.rotateChain(this.chains[i], this.chains[i].getRotation() + rotation);
   }
-  this.updateChainsIndex();
 }
 
 robert_the_lifter.Block.prototype.rotateChain = function(chains, rotation) {
