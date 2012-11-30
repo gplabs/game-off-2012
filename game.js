@@ -305,7 +305,7 @@ robert_the_lifter.Game.prototype.switchState = function (x, y, newState) {
 /**
  * Check each line and clear the full ones.
  */
-robert_the_lifter.Game.prototype.checkAndClearLine = function() {
+robert_the_lifter.Game.prototype.checkAndClearLine = function() {  
   var piecesToSplit = [];
   this.linesProcessing = []; // Those are lines to ignore, because we are clearing them already.
   var linesToClear = [];
@@ -323,11 +323,24 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
       }
 
       if (lineFull) {
-        this.linesProcessing.push(x);
-        linesToClear.push(x);
-      }
-    }
-  }
+          var line = new lime.audio.Audio("sounds/horn.ogg");
+          function playHonk() {
+            if (line.isLoaded()) {
+              if (!line.isPlaying()) {
+                 line.play();
+              }
+              else {
+                lime.playing_ = false;
+                lime.scheduleManager.unschedule(playHonk, this);
+              }
+            }
+          }
+          lime.scheduleManager.schedule(playHonk, this);
+                this.linesProcessing.push(x);
+                linesToClear.push(x);
+              }
+            }
+          }
   
   if (linesToClear.length > 0) {
     console.log(linesToClear.length + " lines are full (" + linesToClear.toString() + ")");
