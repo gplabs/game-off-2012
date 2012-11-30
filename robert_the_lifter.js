@@ -20,6 +20,11 @@ goog.require('robert_the_lifter.ParkingArea');
 goog.require('robert_the_lifter.Score');
 
 robert_the_lifter.start = function() {
+  // For chrome, images doesn't load on first hit. We show a warning message.
+  if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+    document.getElementById("chrome_warning").style.display = 'inline-block';
+  }
+    
   var game = new robert_the_lifter.Game();
 
   robert_the_lifter.Director = new lime.Director(document.getElementById('game'), game.width, game.height);

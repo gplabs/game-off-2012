@@ -14,6 +14,16 @@ body {
   float:left;
 }
 
+#chrome_warning{
+  margin: auto;
+  border: 3px solid darkRed;
+  background-color: white;
+  border-radius: 5px;
+  padding-left: 2px;
+  padding-right: 2px;
+  display:none;
+}
+
 /**
 OPTIONS STYLE
 **/
