@@ -4,7 +4,14 @@ goog.require('lime.Sprite');
 
 robert_the_lifter.Score = function(game) {
   this.setScore(0);
-  
+  this.pointsPerLine = 400;
+}
+
+robert_the_lifter.Score.prototype.addPointsAndDisplayScore = function(nbPoints, score, scene) {
+  scene.removeChild(score.lbl);
+  var actual_score = score.getScore();
+  score.setScore(actual_score + nbPoints);
+  scene.appendChild(score.lbl);
 }
 
 robert_the_lifter.Score.prototype.setScore = function(new_score) {
@@ -55,6 +62,5 @@ robert_the_lifter.Score.prototype.getHighscores = function() {
     var highscores = JSON.parse(localStorage.rtl_highscores);
     return highscores;
   }
-  
   return false;
 }

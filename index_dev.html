@@ -10,6 +10,9 @@
 </head>
 
 <body onload="robert_the_lifter.start()">
+  <span id="chrome_warning">
+    If the game does not properly load, please refresh your browser (F5).
+  </span>
   <div id="debug_options">
     <label for="pieces_speed">Pieces Speed : </label>
     <input type="number" id="pieces_speed"/> ms
@@ -47,6 +50,11 @@
       <div id="options_grab_key_wrapper">
         <label for="options_grab_key">Grab</label>
         <input type="text" class="option" id="options_grab_key"/>
+      </div>
+      
+      <div id="options_pause_key_wrapper">
+        <label for="options_pause_key">Pause</label>
+        <input type="text" class="option" id="options_pause_key"/>
       </div>
     </div>
   </div>

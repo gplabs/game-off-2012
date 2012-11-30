@@ -7,9 +7,9 @@ robert_the_lifter.PauseMenu = function(game) {
   goog.base(this);
   this.game = game;
   this.game.isPaused = false;
+  var extraPauseKey = "p";
   
   function pauseEvent() {
-
     game.isPaused = !game.isPaused;
 
     if (game.isPaused) {
@@ -21,7 +21,7 @@ robert_the_lifter.PauseMenu = function(game) {
       document.getElementById("options_forward_key").value = game.forwardKey;
       document.getElementById("options_backward_key").value = game.backwardKey;
       document.getElementById("options_grab_key").value = game.grabKey;
-      
+      document.getElementById("options_pause_key").value = extraPauseKey;
       
       this.listener = goog.events.listen(game.pauseMenu, goog.events.EventType.KEYDOWN, function (ev) {
         // F5 = Refresh.
@@ -40,6 +40,9 @@ robert_the_lifter.PauseMenu = function(game) {
         document.getElementById("options_backward_key").value,
         document.getElementById("options_grab_key").value
       );
+      KeyboardJS.clear(extraPauseKey);
+      extraPauseKey = document.getElementById("options_pause_key").value;
+      KeyboardJS.on(extraPauseKey, pauseEvent);
       
       robert_the_lifter.gameScene.removeChild(game.pauseMenu);
       document.getElementById("options_wrapper").className = "hide";
@@ -48,6 +51,7 @@ robert_the_lifter.PauseMenu = function(game) {
   }
   
   KeyboardJS.on("esc", pauseEvent);
+  KeyboardJS.on(extraPauseKey, pauseEvent);
 
   // blur
   var blur = new lime.Sprite()

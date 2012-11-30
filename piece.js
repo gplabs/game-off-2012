@@ -23,6 +23,8 @@ robert_the_lifter.Piece.prototype.initSpawningPiece = function(coords) {
     this.createBlock(coords[2].x, coords[2].y),
     this.createBlock(coords[3].x, coords[3].y)
   ];
+  
+  this.updateChains();
 }
 
 /**
@@ -58,7 +60,7 @@ robert_the_lifter.Piece.prototype.getNewPieceCoordinates = function (exceptions,
       return this.createL(x, y);
       break;
     case robert_the_lifter.Piece.I:
-      return this.createI(x, y);
+      return this.createI(x-1, y); // yeah... make it appear a lil bit in the factory.
       break;
     case robert_the_lifter.Piece.T:
       return this.createT(x, y);
@@ -73,6 +75,56 @@ robert_the_lifter.Piece.prototype.getNewPieceCoordinates = function (exceptions,
       return this.createZ(x, y);
       break;
   }
+}
+
+/**
+ * Add chains to the piece.
+ */
+robert_the_lifter.Piece.prototype.updateChains = function () {
+  // Delete existing chains
+  for (var j in this.blocks) {
+    this.blocks[j].removeChains();
+  }
+  
+  var blocksToCompare = this.blocks.slice(0);
+  this.chains = [];
+  for (var i in this.blocks) {
+    // Remove the first element so that the current block never compare to himself or previous blocks
+    blocksToCompare.splice(0, 1);
+    
+    for (var j in blocksToCompare) {
+      var height = this.game.tileHeight;
+      var chainFill = new lime.fill.Frame('images/chains.png', 0, 0, 21, this.game.tileHeight);
+      // If the comparing block is somewhere around the current one, we place chains accordingly.
+      if (this.blocks[i].x + 1 == blocksToCompare[j].x && this.blocks[i].y == blocksToCompare[j].y) {
+        // The block is right
+        this.blocks[i].addChains(0);
+      }
+      else if (this.blocks[i].x - 1 == blocksToCompare[j].x && this.blocks[i].y == blocksToCompare[j].y) {
+        // The block is left
+        this.blocks[i].addChains(180);
+      }
+      else if (this.blocks[i].x == blocksToCompare[j].x && this.blocks[i].y + 1 == blocksToCompare[j].y) {
+        // The block is down
+        this.blocks[i].addChains(270);
+      }
+      else if (this.blocks[i].x == blocksToCompare[j].x && this.blocks[i].y - 1 == blocksToCompare[j].y) {
+        // The block is up
+        this.blocks[i].addChains(90);
+      }
+      
+      function getChains(x, y, rotation, chainFill) {
+        return new lime.Sprite()
+          .setAnchorPoint(.5, .5)
+          .setPosition(x, y)
+          .setFill(chainFill)
+          .setRotation(rotation)
+          .setSize(21, height);
+      }
+    }
+  }
+  
+  console.log("Done creating chains for piece " + this.id);
 }
 
 /**
@@ -92,16 +144,16 @@ robert_the_lifter.Piece.prototype.createI = function(x, y) {
   
 /**
  * The L
- * ....
  * xxx.
  * x...
+ * ....
  */
 robert_the_lifter.Piece.prototype.createL = function(x, y) {
   return [
-    {x:x,     y:y + 1},
-    {x:x + 1, y:y + 1},
-    {x:x + 2, y:y + 1},
-    {x:x    , y:y + 2}
+    {x:x,     y:y},
+    {x:x + 1, y:y},
+    {x:x + 2, y:y},
+    {x:x    , y:y + 1}
   ];
 }
   
@@ -122,16 +174,16 @@ robert_the_lifter.Piece.prototype.createJ = function(x, y) {
   
 /**
  * The O
+ * .xx.
+ * .xx.
  * ....
- * .xx.
- * .xx.
  */
 robert_the_lifter.Piece.prototype.createO = function(x, y) {
   return [
+    {x:x + 1, y:y},
     {x:x + 1, y:y + 1},
-    {x:x + 1, y:y + 2},
-    {x:x + 2, y:y + 1},
-    {x:x + 2, y:y + 2}
+    {x:x + 2, y:y},
+    {x:x + 2, y:y + 1}
   ];
 }
   
@@ -199,6 +251,13 @@ robert_the_lifter.Piece.prototype.move = function (x, y) {
   for (var i in this.blocks) {
     this.blocks[i].move(x, y);
   }
+  
+  // Move the chains
+  for (var j in this.chains) {
+    var pos = this.chains[j].getPosition();
+    pos.x += (x * this.game.tileWidth);
+    pos.y += (y * this.game.tileHeight);
+  }
 }
 
 /**
@@ -241,7 +300,7 @@ robert_the_lifter.Piece.prototype.reachedLeftLimit = function () {
  */
 robert_the_lifter.Piece.prototype.removeBlock = function (index) {
   var blockToDelete = this.blocks[index];
-  
+  blockToDelete.removeChains();
   // Remove the block.
   blockToDelete.remove();
   this.blocks.splice(index, 1);
@@ -257,28 +316,38 @@ robert_the_lifter.Piece.prototype.split = function () {
   // as Soon as we find a block that is 2 blocks way from any block of the 
   // first array, we put it in the 2nd array. That means there will be a split.
   for(var i = 1; i < this.blocks.length; i++) {
-    for(var j in array1) {
-      if (this.blocks[i].x >= array1[j].x + 2 || this.blocks[i].x <= array1[j].x - 2) {
-        array2.push(this.blocks[i]);
-      } else {
-        array1.push(this.blocks[i]);
+    var putInArray1 = false;
+    
+    // If the block is beside anothe block in array1, this one belongs to array1 too
+    for (var j in array1) {
+      if (!putInArray1 && (array1[j].x == this.blocks[i].x || array1[j].x == this.blocks[i].x + 1 || array1[j].x == this.blocks[i].x - 1)) {
+        putInArray1 = true;
       }
+    }
+    
+    if (putInArray1) {
+      array1.push(this.blocks[i]);
+    } else {
+      array2.push(this.blocks[i]);
     }
   }
   
-  // If there are block in array2, that means we split.
-  if (array2.length > 0) {
+  // If there are block in array2 AND array1, that means we split.
+  if (array2.length > 0 && array1.length > 0) {
     var newId = this.game.pieces.length;
     var newPiece = new robert_the_lifter.Piece(this.game, newId);
     newPiece.blocks = array2;
     newPiece.state = this.state;
     this.game.pieces[newId] = newPiece;
+    newPiece.updateChains();
     this.game.switchPieceState(newPiece, newPiece.id);
     
-//    console.log("Splitting " + this.id + ". Creating " + newId);
+    console.log("Splitting " + this.id + ", Creating " + newId);
     
     this.blocks = array1;
   }
+  
+  this.updateChains();
 }
 
 /**
@@ -287,6 +356,11 @@ robert_the_lifter.Piece.prototype.split = function () {
 robert_the_lifter.Piece.prototype.appendTo = function (layer) {
   for (var i in this.blocks) {
     this.blocks[i].appendTo(layer);
+  }
+  
+  // After appending blocks, we must adjust chains index.
+  for (var j in this.blocks) {
+    this.blocks[j].updateChainsIndex();
   }
 }
 

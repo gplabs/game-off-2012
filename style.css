@@ -1,3 +1,6 @@
+body {
+  background-image: url("images/grass.png");
+}
 #highscore-name {
   position: relative;
   top: 430px;
@@ -9,6 +12,20 @@
   height: 906px;
   width: 1280px;
   float:left;
+}
+
+#chrome_warning{
+  margin: auto;
+  border: 3px solid darkRed;
+  background-color: white;
+  border-radius: 5px;
+  padding-left: 2px;
+  padding-right: 2px;
+  display:none;
+  position: absolute;
+  top: 460px;
+  left: 140px;
+  font-size: 30px;
 }
 
 /**

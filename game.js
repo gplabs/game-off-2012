@@ -22,19 +22,29 @@ robert_the_lifter.Game = function() {
   this.tileHeight = 64;
   this.pieces = [];
   
-  this.truckParkingHeight = this.tileHeight*2 + 10; // 10 pixels for wall.
-  this.truckParkingWidth = this.tileWidth*20;
-  this.truckParkingX = 0;
+  this.wallWidth = 10;
+  
+  // Constants for parking area.
+  this.parkingWidth = 20;
+  this.parkingHeight = 2;
+  this.truckParkingHeight = this.tileHeight*this.parkingHeight + this.wallWidth; // 10 pixels for wall.
+  this.truckParkingWidth = this.tileWidth*this.parkingWidth;
+  this.truckParkingX = this.wallWidth;
   this.truckParkingY = 0;
   
+  // Constants for factory area
   this.factoryNbTileWidth = 20;
   this.factoryNbTileHeight = 10;
-  
   this.factoryHeight = this.tileHeight*this.factoryNbTileHeight;
   this.factoryWidth = this.tileWidth*this.factoryNbTileWidth;
-  this.factoryX = 0;
+  this.factoryX = this.wallWidth;
   this.factoryY = this.truckParkingHeight;
   
+  //Constants for the hidden (to the right) area
+  this.rightAreaTileWidth = 3;
+  this.rightAreaTileHeight = this.factoryNbTileHeight;
+  
+  //Constants for the Office area
   this.officeAreaHeight = this.tileHeight*2;
   this.officeAreaWidth = this.tileWidth*20;
   
@@ -56,7 +66,6 @@ robert_the_lifter.Game.prototype.start = function() {
   this.score = new robert_the_lifter.Score(this.factoryLayer);
   this.factoryLayer.appendChild(this.score.lbl);
   
-  this.oil = new robert_the_lifter.Oil(this);
   this.pauseMenu = new robert_the_lifter.PauseMenu(this);
   this.factoryLayer.appendChild(this.robert);
   this.switchPieceState(this.robert, this.robert.id);
@@ -64,10 +73,14 @@ robert_the_lifter.Game.prototype.start = function() {
   // Init the foreman
   this.foreman = new robert_the_lifter.Foreman(this);
   
+  var lastGrabTime = 0;
+  
   // Register to keyboard event for Robert to grab a piece.
   var game = this;
   this.grabEvent = function (ev) {
-    if (!game.isPaused) {
+    var isTooFast = new Date().getTime() - lastGrabTime <= 200;
+    console.log("Robert wanna grab something ");
+    if (!isTooFast && !game.isPaused) {
       if (!game.robert.hasPiece) {
         var x = game.robert.x,
             y = game.robert.y,
@@ -91,13 +104,17 @@ robert_the_lifter.Game.prototype.start = function() {
           game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
           game.robert.grabbedPiece = game.pieces[pieceId];
           game.robert.hasPiece = true;
+          console.log("Robert just grabbed piece no " + pieceId);
         }
       } else {
+        console.log("Robert just released piece no " + game.robert.grabbedPiece.id);
         game.robert.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
         game.robert.grabbedPiece = null;
         game.robert.hasPiece = false;
       }
     }
+    
+    lastGrabTime = new Date().getTime();
   }
   
   // Start spawning pieces.
@@ -110,6 +127,7 @@ robert_the_lifter.Game.prototype.start = function() {
       if (this.timeToNextSpawning <= 0) {
         this.timeToNextSpawning += this.getSpawningSpeed();
         this.addPiece();
+        this.adjustAlwaysOnTop();
       }
     }
   }
@@ -289,45 +307,78 @@ robert_the_lifter.Game.prototype.switchState = function (x, y, newState) {
  */
 robert_the_lifter.Game.prototype.checkAndClearLine = function() {
   var piecesToSplit = [];
+  this.linesProcessing = []; // Those are lines to ignore, because we are clearing them already.
+  var linesToClear = [];
+  
   for(var x = 0; x < this.factoryNbTileWidth; x ++) {
-    var lineFull = true;
-    
-    // If we find something that is not a blocked piece, the line isn't full.
-    for(var y = 0; y < this.factoryNbTileHeight && lineFull; y ++) {
-      var id = this.field[y][x];
-      if (id == robert_the_lifter.Game.ROBERT || id == robert_the_lifter.Game.NO_PIECE || (id > robert_the_lifter.Game.NO_PIECE && this.pieces[id].state != robert_the_lifter.Piece.BLOCKED)) {
-        lineFull = false;
+    if (this.linesProcessing.indexOf(x) == -1) {
+      var lineFull = true;
+
+      // If we find something that is not a blocked piece, the line isn't full.
+      for(var y = 0; y < this.factoryNbTileHeight && lineFull; y ++) {
+        var id = this.field[y][x];
+        if (id == robert_the_lifter.Game.ROBERT || id == robert_the_lifter.Game.NO_PIECE || (id > robert_the_lifter.Game.NO_PIECE && this.pieces[id].state != robert_the_lifter.Piece.BLOCKED)) {
+          lineFull = false;
+        }
+      }
+
+      if (lineFull) {
+        this.linesProcessing.push(x);
+        linesToClear.push(x);
       }
     }
+  }
+  
+  if (linesToClear.length > 0) {
+    console.log(linesToClear.length + " lines are full (" + linesToClear.toString() + ")");
+  }
+  
+  for(var k in linesToClear) {
+    var xLine = linesToClear[k];
+    console.log("Clearing line " + xLine + ".");
     
-    if (lineFull) {
-//      console.log("Line " + x + "full.");
-      this.factoryLayer.removeChild(this.score.lbl);
-      var actual_score = this.score.getScore();
-      this.score.setScore(actual_score + 300);
-      this.factoryLayer.appendChild(this.score.lbl);
+    var squareRemaining = this.factoryNbTileHeight;
+    for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
+      for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
+        var block = this.pieces[i].blocks[j];
+        if (block.x == xLine) {
+          squareRemaining--;
+          this.switchState(block.x, block.y, robert_the_lifter.Game.NO_PIECE);
 
-      var squareRemaining = this.factoryNbTileHeight;
-      for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
-        for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
-          var block = this.pieces[i].blocks[j];
-          if (block.x == x) {
-            squareRemaining--;
-            this.switchState(block.x, block.y, robert_the_lifter.Game.NO_PIECE);
-            
-            // Remove the crate from the game.
-//            console.log("Line " + x + ": " + squareRemaining + " more to go.");
-            this.pieces[i].removeBlock(j);
-            if (piecesToSplit.indexOf(this.pieces[i]) === -1) {
-              piecesToSplit.push(this.pieces[i]);
-            }
+          // Remove the crate from the game.
+          console.log("Line " + xLine + ": " + squareRemaining + " more to go.");
+          this.pieces[i].removeBlock(j);
+          if (piecesToSplit.indexOf(this.pieces[i]) === -1) {
+            piecesToSplit.push(this.pieces[i]);
           }
         }
       }
     }
+    
+    this.linesProcessing.splice(this.linesProcessing.indexOf(x), 1);
   }
+  
   for (var k in piecesToSplit) {
     piecesToSplit[k].split();
+  }
+  
+  switch(linesToClear.length) {
+    case 1:
+      var nbPoints = this.score.pointsPerLine;
+      this.score.addPointsAndDisplayScore(nbPoints, this.score, this.factoryLayer);
+      break;
+    case 2:
+      nbPoints = this.score.pointsPerLine*2 + this.score.pointsPerLine/2;
+      this.score.addPointsAndDisplayScore(nbPoints, this.score, this.factoryLayer);
+      break;
+    case 3:
+      nbPoints = this.score.pointsPerLine*3 + this.score.pointsPerLine;
+      this.score.addPointsAndDisplayScore(nbPoints, this.score, this.factoryLayer);
+      break;
+    case 4:
+      nbPoints = this.score.pointsPerLine*4 + this.score.pointsPerLine*2;
+      this.score.addPointsAndDisplayScore(nbPoints, this.score, this.factoryLayer);
+      break;
   }
 }
 
@@ -361,6 +412,17 @@ robert_the_lifter.Game.prototype.getSpawningSpeed = function() {
   }else {
     return robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED;
   }
+}
+
+/**
+ * Call this function to put back things that are always on top.
+ * Must be called at each piece spawn to adjust index of some things.
+ */
+robert_the_lifter.Game.prototype.adjustAlwaysOnTop = function() {
+  var index = this.factoryLayer.getNumberOfChildren() + 1;
+  this.factoryLayer.setChildIndex(this.blackFog, index);
+  this.factoryLayer.setChildIndex(this.gradiantFog, index);
+  this.factoryLayer.setChildIndex(this.score.lbl, index);
 }
 
 robert_the_lifter.Game.NO_PIECE = -1;

@@ -7,8 +7,8 @@ robert_the_lifter.Robert = function(game) {
   this.id = robert_the_lifter.Game.ROBERT;
   this.game = game;
   
-  this.x = 0;
-  this.y = 0;
+  this.x = 12;
+  this.y = 5;
   this.setPosition(
     (this.x * game.tileWidth) + game.factoryX + (game.tileWidth/2), 
     (this.y * game.tileHeight) + game.factoryY + (game.tileHeight/2)
@@ -78,7 +78,6 @@ robert_the_lifter.Robert = function(game) {
   this.forwardEvent = function(ev) {
     var keyDown = (!game.isPaused) && (ev.type == "keydown");
     if (keyDown && !upHold) {
-      game.oil.dropOil(game);
       game.robert.moveTo(game.forwardKey);
       nextUp = game.getRobertSpeed();
     }
@@ -88,7 +87,6 @@ robert_the_lifter.Robert = function(game) {
   this.backwardEvent = function(ev) {
     var keyDown = (!game.isPaused) && (ev.type == "keydown");
     if (keyDown && !downHold) {
-      game.oil.dropOil(game);
       game.robert.moveTo(game.backwardKey);
       nextDown = game.getRobertSpeed();
     }
@@ -99,7 +97,6 @@ robert_the_lifter.Robert = function(game) {
   function moveEvent(number) {
     if (downHold) {
       if (nextDown <= 0) {
-        game.oil.dropOil(game);
         game.robert.moveTo(game.backwardKey);
         nextDown += game.getRobertSpeed();
       }
@@ -116,7 +113,6 @@ robert_the_lifter.Robert = function(game) {
 
     if (upHold) {
       if (nextUp <= 0) {
-        game.oil.dropOil(game);
         game.robert.moveTo(game.forwardKey);
         nextUp += game.getRobertSpeed();
       }
@@ -212,8 +208,11 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
       oldY = this.y;
   var actual_position = this.getPosition();
   
+  var outside = newX < 0 || newX >= this.game.factoryNbTileWidth ||
+                newY < 0 || newY >= this.game.factoryNbTileHeight;
+  
   // If robert has no piece, we move only him.
-  if (!this.hasPiece && !this.game.containsSomething(newX, newY)) {
+  if (!outside && !this.hasPiece && !this.game.containsSomething(newX, newY)) {
     this.setPosition(actual_position.x + (x*this.game.tileWidth), actual_position.y + (y*this.game.tileHeight));
     this.game.switchState(newX, newY, this.id);
     this.x = newX;
@@ -221,7 +220,7 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
     this.game.switchState(oldX, oldY, robert_the_lifter.Game.NO_PIECE);
   }
   // Move robert and his grabbed piece.
-  else if (this.hasPiece) {
+  else if (!outside && this.hasPiece) {
     var canMove = true;
     for(var i = 0; i < this.grabbedPiece.blocks.length && canMove; i ++) {
       var blockX = this.grabbedPiece.blocks[i].x + x,
@@ -259,14 +258,14 @@ robert_the_lifter.Robert.prototype.rotate = function (rotation) {
   if (this.hasPiece) {
     // Rotation point. (origin)
     var xO = this.x,
-        yO = this.y;
+        yO = this.y,
+        r = -rotation / 180 * Math.PI;
 
     // Check each squares of the grabbed piece if they can rotate.
     var newPiece = [];
     for(var i = 0; i < this.grabbedPiece.blocks.length && canRotate; i++) {
       var x1 = this.grabbedPiece.blocks[i].x,
-          y1 = this.grabbedPiece.blocks[i].y,
-          r = -rotation / 180 * Math.PI;
+          y1 = this.grabbedPiece.blocks[i].y;
       
       var x2 = Math.round(Math.cos(r) * (x1-xO) - Math.sin(r) * (y1-yO) + xO),
           y2 = Math.round(Math.sin(r) * (x1-xO) + Math.cos(r) * (y1-yO) + yO);
