@@ -422,6 +422,7 @@ robert_the_lifter.Game.prototype.adjustAlwaysOnTop = function() {
   var index = this.factoryLayer.getNumberOfChildren() + 1;
   this.factoryLayer.setChildIndex(this.blackFog, index);
   this.factoryLayer.setChildIndex(this.gradiantFog, index);
+  this.factoryLayer.setChildIndex(this.score.lbl, index);
 }
 
 robert_the_lifter.Game.NO_PIECE = -1;
