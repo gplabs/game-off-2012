@@ -5,7 +5,7 @@
 goog.provide('robert_the_lifter.ParkingArea');
 
 robert_the_lifter.ParkingArea = function(game, layer) {
-  var parkingTile = new lime.fill.Frame('images/sprites.png', game.tileWidth*4, game.tileHeight*4, game.tileWidth, game.tileHeight);
+  var parkingTile = new lime.fill.Frame('images/sprites.png', 0, game.tileHeight*4, game.tileWidth, game.tileHeight);
   
   
   this.truckWidth = game.tileWidth;

@@ -42,7 +42,7 @@ robert_the_lifter.start = function() {
   var factoryLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
   this.gameScene.appendChild(factoryLayer);
-  var factoryTile = new lime.fill.Frame('images/sprites.png', game.tileWidth*4, game.tileHeight*5, game.tileWidth, game.tileHeight);
+  var factoryTile = new lime.fill.Frame('images/sprites.png', game.tileWidth, game.tileHeight*4, game.tileWidth, game.tileHeight);
   
   for(var i = 0; i < game.factoryNbTileWidth + game.rightAreaTileWidth; i ++) {
     for(var j = 0; j < game.factoryNbTileHeight; j ++) {
@@ -242,7 +242,7 @@ robert_the_lifter.start = function() {
       .setFill("#000");
     factoryLayer.appendChild(game.blackFog);
     
-    var gradiantFogTile = new lime.fill.Frame('images/sprites.png', game.tileWidth*4, game.tileHeight*7, game.tileWidth, game.tileHeight);
+    var gradiantFogTile = new lime.fill.Frame('images/sprites.png', game.tileWidth*3, game.tileHeight*4, game.tileWidth, game.tileHeight);
     game.gradiantFog = new lime.Sprite()
       .setAnchorPoint(0,0)
       .setPosition(game.factoryWidth + game.factoryX, game.factoryY) // add tileheight because of rotation.
