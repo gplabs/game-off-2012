@@ -104,10 +104,10 @@ robert_the_lifter.Game.prototype.start = function() {
           game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
           game.robert.grabbedPiece = game.pieces[pieceId];
           game.robert.hasPiece = true;
-          console.log("Robert just grabbed piece no " + pieceId);
-        }
+          var fork = new robert_the_lifter.Audio("sounds/fork.ogg", false);
+         }
       } else {
-        console.log("Robert just released piece no " + game.robert.grabbedPiece.id);
+        var fork = new robert_the_lifter.Audio("sounds/fork.ogg", false);
         game.robert.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
         game.robert.grabbedPiece = null;
         game.robert.hasPiece = false;
@@ -326,28 +326,16 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
           var random_sound = Math.floor(3*Math.random())
           switch(random_sound) {
             case 0:
-              var line = new lime.audio.Audio("sounds/horn.ogg");
+              var honk = "sounds/horn.ogg";
               break;
             case 1:
-              var line = new lime.audio.Audio("sounds/horn_low.ogg");
+              var honk = "sounds/horn_low.ogg";
               break;
             case 2:
-              var line = new lime.audio.Audio("sounds/horn_med.ogg");
+              var honk = "sounds/horn_med.ogg";
               break;
           }
-          
-          function playHonk() {
-            if (line.isLoaded()) {
-              if (!line.isPlaying()) {
-                 line.play();
-              }
-              else {
-                lime.playing_ = false;
-                lime.scheduleManager.unschedule(playHonk, this);
-              }
-            }
-          }
-          lime.scheduleManager.schedule(playHonk, this);
+          var fork = new robert_the_lifter.Audio(honk, false);
                 this.linesProcessing.push(x);
                 linesToClear.push(x);
               }

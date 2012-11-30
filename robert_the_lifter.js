@@ -13,6 +13,7 @@ goog.require('lime.animation.Spawn');
 goog.require('lime.animation.FadeTo');
 goog.require('lime.animation.ScaleTo');
 goog.require('lime.animation.MoveTo');
+goog.require('robert_the_lifter.Audio');
 goog.require('robert_the_lifter.Game');
 goog.require('robert_the_lifter.PauseMenu');
 goog.require('robert_the_lifter.Robert');
@@ -21,26 +22,9 @@ goog.require('robert_the_lifter.ParkingArea');
 goog.require('robert_the_lifter.Score');
 
 robert_the_lifter.start = function() {
-   var music = new Array();
-  music.currentSong = 1;
-
-  for(var i=1; i <= 5; i++) {
-    music[i] = new lime.audio.Audio("music/" + i + ".mp3");
-  }
-  
-  function playMusic() {
-    if (music[music.currentSong].isLoaded()) {
-      if (!music[music.currentSong].isPlaying()) {
-         music[music.currentSong].play();
-      }
-      else {
-        music[music.currentSong].playing_ = false;
-       music.currentSong = music.currentSong <=5 ? 1 : music.currentSong + 1;
-      }
-    }
-  }
-  lime.scheduleManager.schedule(playMusic, this);
-  
+   
+   var music = new robert_the_lifter.Audio("music/music.ogg", true);
+          
   // For chrome, images doesn't load on first hit. We show a warning message.
   if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
     document.getElementById("chrome_warning").style.display = 'inline-block';
