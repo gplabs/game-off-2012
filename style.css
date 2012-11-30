@@ -22,6 +22,10 @@ body {
   padding-left: 2px;
   padding-right: 2px;
   display:none;
+  position: absolute;
+  top: 460px;
+  left: 140px;
+  font-size: 30px;
 }
 
 /**
