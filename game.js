@@ -329,28 +329,43 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
       }
 
       if (lineFull) {
-        robert_the_lifter.Game.DEFAULT_ROBERT_SPEED /= 1.1;
-        robert_the_lifter.Game.DEFAULT_PIECE_SPEED /= 1.1;
-        robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED /= 1.1;
-        var random_sound = Math.floor(3*Math.random())
-        switch(random_sound) {
-          case 0:
-            var honk = "sounds/horn.ogg";
-            break;
-          case 1:
-            var honk = "sounds/horn_low.ogg";
-            break;
-          case 2:
-            var honk = "sounds/horn_med.ogg";
-            break;
+        
+        if(robert_the_lifter.Game.nbLineOnCurrentLevel >= 9) {
+          if(robert_the_lifter.Game.DEFAULT_ROBERT_SPEED>=100 || robert_the_lifter.Game.DEFAULT_PIECE_SPEED>=400 || robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED>=3800) {
+            robert_the_lifter.Game.DEFAULT_ROBERT_SPEED -= 25;
+            robert_the_lifter.Game.DEFAULT_PIECE_SPEED -= 100;
+            robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED -= 700;
+          }
+          robert_the_lifter.Game.nbLineOnCurrentLevel = 0;
         }
-        if (game.sfx) {
+        else {
+          robert_the_lifter.Game.nbLineOnCurrentLevel++;
+        }
+		
+		if (game.sfx) {
           new robert_the_lifter.Audio(honk, false);
         }
-        this.linesProcessing.push(x);
-        linesToClear.push(x);
-      }
-    }
+
+          var random_sound = Math.floor(3*Math.random())
+          switch(random_sound) {
+            case 0:
+              var honk = "sounds/horn.ogg";
+              break;
+            case 1:
+              var honk = "sounds/horn_low.ogg";
+              break;
+            case 2:
+              var honk = "sounds/horn_med.ogg";
+              break;
+          }
+          var fork = new robert_the_lifter.Audio(honk, false);
+                this.linesProcessing.push(x);
+                linesToClear.push(x);
+              }
+            }
+          }
+  
+  if (linesToClear.length > 0) {
   }
   
   for(var k in linesToClear) {
@@ -467,10 +482,8 @@ robert_the_lifter.Game.GRABBED_PIECE = "GRABBED_PIECE";
 robert_the_lifter.Game.DEFAULT_PIECE_SPEED = 1000;
 robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED = 8000;
 robert_the_lifter.Game.DEFAULT_ROBERT_SPEED = 250;
-
-
-
-
+robert_the_lifter.Game.nbLineOnCurrentLevel = 0;
+  
 robert_the_lifter.Game.prototype.printField = function() {
   if (document.getElementById('debug') && this.debug) {
     var output = "";
