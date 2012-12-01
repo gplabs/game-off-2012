@@ -3,4 +3,4 @@ Your job is to fill up trucks so you can ship your company stuff and get some mo
 
 This game was made using Limejs and keyboardjs
 
-<img src="http://i.imgur.com/lxZrD.png" style="border:0;">
+<img src="http://i.imgur.com/Cd1Hx.png" style="border:0;">
