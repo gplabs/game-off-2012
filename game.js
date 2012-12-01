@@ -65,18 +65,7 @@ robert_the_lifter.Game = function() {
 }
 
 robert_the_lifter.Game.prototype.start = function() {
-  this.robert = new robert_the_lifter.Robert(this);
-  this.bindKeys("left", "right", "up", "down", "space");
-  this.score = new robert_the_lifter.Score(this.factoryLayer);
-  this.factoryLayer.appendChild(this.score.lbl);
   
-  this.pauseMenu = new robert_the_lifter.PauseMenu(this);
-  this.pauseMenu.loadOptions(); // Load options that the user may have previously saved.
-  this.factoryLayer.appendChild(this.robert);
-  this.switchPieceState(this.robert, this.robert.id);
-  
-  // Init the foreman
-  this.foreman = new robert_the_lifter.Foreman(this);
   
   var lastGrabTime = 0;
   
@@ -140,6 +129,19 @@ robert_the_lifter.Game.prototype.start = function() {
     }
   }
   lime.scheduleManager.schedule(this.spawningPieceLoop, this);
+  
+  this.robert = new robert_the_lifter.Robert(this);
+  this.bindKeys("left", "right", "up", "down", "space");
+  this.score = new robert_the_lifter.Score(this.factoryLayer);
+  this.factoryLayer.appendChild(this.score.lbl);
+  
+  this.pauseMenu = new robert_the_lifter.PauseMenu(this);
+  this.pauseMenu.loadOptions(); // Load options that the user may have previously saved.
+  this.factoryLayer.appendChild(this.robert);
+  this.switchPieceState(this.robert, this.robert.id);
+  
+  // Init the foreman
+  this.foreman = new robert_the_lifter.Foreman(this);
   
   // Debug event to stop spawning pieces.
   this.stopSpawningEvent = function() {
@@ -366,8 +368,6 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
             }
           }
   
-  if (linesToClear.length > 0) {
-  }
   
   for(var k in linesToClear) {
     var xLine = linesToClear[k];
