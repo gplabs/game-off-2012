@@ -79,7 +79,6 @@ robert_the_lifter.Game.prototype.start = function() {
   var game = this;
   this.grabEvent = function (ev) {
     var isTooFast = new Date().getTime() - lastGrabTime <= 200;
-    console.log("Robert wanna grab something ");
     if (!isTooFast && !game.isPaused) {
       if (!game.robert.hasPiece) {
         var x = game.robert.x,
@@ -142,9 +141,7 @@ robert_the_lifter.Game.prototype.start = function() {
   this.bindKeys("left", "right", "up", "down", "space");  
 }
 
-robert_the_lifter.Game.prototype.bindKeys = function (turnLeft, turnRight, forward, backward, grab) {
-  KeyboardJS.on("q", this.stopSpawningEvent);
-  
+robert_the_lifter.Game.prototype.bindKeys = function (turnLeft, turnRight, forward, backward, grab) {  
   // Remove previous bindings
   if (typeof this.grabKey !== 'undefined') {
     KeyboardJS.clear(this.grabKey);
@@ -343,13 +340,10 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
           }
   
   if (linesToClear.length > 0) {
-    console.log(linesToClear.length + " lines are full (" + linesToClear.toString() + ")");
   }
   
   for(var k in linesToClear) {
     var xLine = linesToClear[k];
-    console.log("Clearing line " + xLine + ".");
-    
     var squareRemaining = this.factoryNbTileHeight;
     for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
       for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
@@ -359,7 +353,6 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
           this.switchState(block.x, block.y, robert_the_lifter.Game.NO_PIECE);
 
           // Remove the crate from the game.
-          console.log("Line " + xLine + ": " + squareRemaining + " more to go.");
           this.pieces[i].removeBlock(j);
           if (piecesToSplit.indexOf(this.pieces[i]) === -1) {
             piecesToSplit.push(this.pieces[i]);
@@ -367,7 +360,6 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
         }
       }
     }
-    
     this.linesProcessing.splice(this.linesProcessing.indexOf(x), 1);
   }
   
