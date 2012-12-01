@@ -22,8 +22,9 @@ goog.require('robert_the_lifter.ParkingArea');
 goog.require('robert_the_lifter.Score');
 
 robert_the_lifter.start = function() {
-   
-   var music = new robert_the_lifter.Audio("music/music.ogg", true);
+  // load menu images.
+  new lime.fill.Frame('images/pause_menu.png', 0, 0, 446, 226);
+  new lime.fill.Frame('images/options_menu.png', 0, 0, 446, 305);
           
   // For chrome, images doesn't load on first hit. We show a warning message.
   if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
@@ -31,6 +32,8 @@ robert_the_lifter.start = function() {
   }
     
   var game = new robert_the_lifter.Game();
+
+  game.music = new robert_the_lifter.Audio("music/music.ogg", true);
 
   robert_the_lifter.Director = new lime.Director(document.getElementById('game'), game.width, game.height);
   robert_the_lifter.Director.isPaused = false;
