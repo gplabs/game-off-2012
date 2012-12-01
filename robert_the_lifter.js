@@ -25,6 +25,8 @@ robert_the_lifter.start = function() {
   // load menu images.
   new lime.fill.Frame('images/pause_menu.png', 0, 0, 446, 226);
   new lime.fill.Frame('images/options_menu.png', 0, 0, 446, 305);
+  new lime.fill.Frame('images/credits_menu.png', 0, 0, 661, 900);
+  
           
   // For chrome, images doesn't load on first hit. We show a warning message.
   if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {

@@ -69,6 +69,7 @@ robert_the_lifter.PauseMenu.prototype.initPauseMenu = function() {
       if (e.event.offsetY <= 360) {
         this.initOptionsMenu();
       } else if (e.event.offsetY <= 435) {
+        this.showCredits();
         console.log("Credits");
       } else {
         this.unpause();
@@ -128,7 +129,35 @@ robert_the_lifter.PauseMenu.prototype.initOptionsMenu = function() {
       }
     }
   }
-  goog.events.listen(this.game.pauseMenu,['mousedown','touchstart'], this.currentMenuEvent);
+  goog.events.listen(this.game.pauseMenu, ['mousedown','touchstart'], this.currentMenuEvent);
+}
+
+robert_the_lifter.PauseMenu.prototype.hideCredits = function() {
+  this.removeChild(this.creditSprite);
+  goog.events.unlisten(this.game.pauseMenu, ['mousedown','touchstart'], this.clickToCloseCreditEvent);
+}
+
+robert_the_lifter.PauseMenu.prototype.showCredits = function() {
+  this.removeCurrentMenu();
+  var width = 661,
+      height = 900;
+  var x = (this.game.factoryWidth / 2) - (width/2);
+  
+  var creditTile = new lime.fill.Frame('images/credits_menu.png', 0, 0, width, height);
+  this.creditSprite = new lime.Sprite()
+        .setAnchorPoint(0,0)
+        .setPosition(x, 0)
+        .setFill(creditTile);
+  this.appendChild(this.creditSprite);
+  
+  var layer = this;
+  
+  this.clickToCloseCreditEvent = function() {
+    layer.hideCredits();
+    layer.initPauseMenu();
+  }
+  
+  goog.events.listen(this.creditSprite, ['mousedown','touchstart'], this.clickToCloseCreditEvent);
 }
 
 robert_the_lifter.PauseMenu.prototype.showKeyBindingMenu = function() {
@@ -200,6 +229,7 @@ robert_the_lifter.PauseMenu.prototype.removeCurrentMenu = function() {
     this.removeChild(this.sfxStatus);
   }
   
+  this.hideCredits(); 
   this.hideKeyBindingMenu();
   goog.events.unlisten(this.game.pauseMenu,['mousedown','touchstart'], this.currentMenuEvent);
 }
