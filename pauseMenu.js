@@ -123,7 +123,6 @@ robert_the_lifter.PauseMenu.prototype.initOptionsMenu = function() {
           this.hideKeyBindingMenu();
         }
         
-        console.log("Keys");
       } else {
         this.initPauseMenu();
       }
@@ -136,13 +135,23 @@ robert_the_lifter.PauseMenu.prototype.showKeyBindingMenu = function() {
   this.bindingVisible = true;
   
   document.getElementById("options_wrapper").className = "";
-
   document.getElementById("options_left_key").value = this.game.turnLeftKey;
   document.getElementById("options_right_key").value = this.game.turnRightKey;
   document.getElementById("options_forward_key").value = this.game.forwardKey;
   document.getElementById("options_backward_key").value = this.game.backwardKey;
   document.getElementById("options_grab_key").value = this.game.grabKey;
   document.getElementById("options_pause_key").value = this.extraPauseKey;
+  
+  // Something prevent the fields from taking focus onClick, so we force it.
+  document.getElementById("options_left_key").onclick=repairFocus;
+  document.getElementById("options_right_key").onclick=repairFocus;
+  document.getElementById("options_forward_key").onclick=repairFocus;
+  document.getElementById("options_backward_key").onclick=repairFocus;
+  document.getElementById("options_grab_key").onclick=repairFocus;
+  document.getElementById("options_pause_key").onclick=repairFocus;
+  function repairFocus() {
+    this.focus();
+  }
   
   this.keyBindingEvent = function(ev) {
     // F5 = Refresh.
