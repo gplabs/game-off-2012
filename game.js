@@ -66,10 +66,12 @@ robert_the_lifter.Game = function() {
 
 robert_the_lifter.Game.prototype.start = function() {
   this.robert = new robert_the_lifter.Robert(this);
+  this.bindKeys("left", "right", "up", "down", "space");
   this.score = new robert_the_lifter.Score(this.factoryLayer);
   this.factoryLayer.appendChild(this.score.lbl);
   
   this.pauseMenu = new robert_the_lifter.PauseMenu(this);
+  this.pauseMenu.loadOptions(); // Load options that the user may have previously saved.
   this.factoryLayer.appendChild(this.robert);
   this.switchPieceState(this.robert, this.robert.id);
   
@@ -145,7 +147,6 @@ robert_the_lifter.Game.prototype.start = function() {
   }
   
   this.initDebugOptions();
-  this.bindKeys("left", "right", "up", "down", "space");  
 }
 
 robert_the_lifter.Game.prototype.bindKeys = function (turnLeft, turnRight, forward, backward, grab) {
