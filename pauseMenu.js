@@ -36,15 +36,6 @@ robert_the_lifter.PauseMenu = function(game) {
       .setSize(game.width, game.height)
       .setFill(255,255,255,.5);
   frame.appendChild(frame.blur);
-  
-  
-//  var optionsWindow = new lime.Sprite()
-//    .setPosition((game.factoryWidth / 2) - (windowWidth/2), optionsY+label.measureText().height)
-//    .setSize(windowHeight, windowWidth)
-//    .setAnchorPoint(0, 0)
-//    .setFill("#FFF");
-//  this.appendChild(optionsWindow);
-  
 }
 
 goog.inherits(robert_the_lifter.PauseMenu, lime.Layer);
@@ -62,7 +53,6 @@ robert_the_lifter.PauseMenu.prototype.initPauseMenu = function() {
   this.appendChild(this.currentMenu);
   
   this.currentMenuEvent = function(e) {
-    console.log("Pause Menu clicked");
     if(e.event.offsetX >= x && e.event.offsetX <= (x + width) &&
        e.event.offsetY >= this.optionsY && e.event.offsetY <= (this.optionsY + height)
        ) {
@@ -70,7 +60,6 @@ robert_the_lifter.PauseMenu.prototype.initPauseMenu = function() {
         this.initOptionsMenu();
       } else if (e.event.offsetY <= 435) {
         this.showCredits();
-        console.log("Credits");
       } else {
         this.unpause();
       }
@@ -253,5 +242,38 @@ robert_the_lifter.PauseMenu.prototype.getStatus = function(status, x, y) {
 robert_the_lifter.PauseMenu.prototype.unpause = function() {
   this.removeCurrentMenu();
   this.game.isPaused = false;
+  this.saveOptions();
   robert_the_lifter.gameScene.removeChild(this.game.pauseMenu);
+}
+
+robert_the_lifter.PauseMenu.prototype.saveOptions = function() {
+  if (typeof Storage !== "undefined") {
+    var options = [
+      this.game.turnLeftKey,
+      this.game.turnRightKey,
+      this.game.forwardKey,
+      this.game.backwardKey,
+      this.game.grabKey,
+      this.extraPauseKey,
+      this.game.musicSound,
+      this.game.sfx
+    ];
+    
+    localStorage.rtl_options = JSON.stringify(options);
+  }
+}
+
+robert_the_lifter.PauseMenu.prototype.loadOptions = function() {
+  if (typeof Storage !== "undefined" && typeof localStorage.rtl_options !== "undefined") {
+    var options = JSON.parse(localStorage.rtl_options);
+      
+    this.game.turnLeftKey = options[0];
+    this.game.turnRightKey = options[1];
+    this.game.forwardKey = options[2];
+    this.game.backwardKey = options[3];
+    this.game.grabKey = options[4];
+    this.extraPauseKey = options[5];
+    this.game.musicSound = options[6];
+    this.game.sfx  = options[7];
+  }
 }

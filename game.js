@@ -65,16 +65,7 @@ robert_the_lifter.Game = function() {
 }
 
 robert_the_lifter.Game.prototype.start = function() {
-  this.robert = new robert_the_lifter.Robert(this);
-  this.score = new robert_the_lifter.Score(this.factoryLayer);
-  this.factoryLayer.appendChild(this.score.lbl);
   
-  this.pauseMenu = new robert_the_lifter.PauseMenu(this);
-  this.factoryLayer.appendChild(this.robert);
-  this.switchPieceState(this.robert, this.robert.id);
-  
-  // Init the foreman
-  this.foreman = new robert_the_lifter.Foreman(this);
   
   var lastGrabTime = 0;
   
@@ -139,13 +130,25 @@ robert_the_lifter.Game.prototype.start = function() {
   }
   lime.scheduleManager.schedule(this.spawningPieceLoop, this);
   
+  this.robert = new robert_the_lifter.Robert(this);
+  this.bindKeys("left", "right", "up", "down", "space");
+  this.score = new robert_the_lifter.Score(this.factoryLayer);
+  this.factoryLayer.appendChild(this.score.lbl);
+  
+  this.pauseMenu = new robert_the_lifter.PauseMenu(this);
+  this.pauseMenu.loadOptions(); // Load options that the user may have previously saved.
+  this.factoryLayer.appendChild(this.robert);
+  this.switchPieceState(this.robert, this.robert.id);
+  
+  // Init the foreman
+  this.foreman = new robert_the_lifter.Foreman(this);
+  
   // Debug event to stop spawning pieces.
   this.stopSpawningEvent = function() {
     stopSpawning = !stopSpawning;
   }
   
   this.initDebugOptions();
-  this.bindKeys("left", "right", "up", "down", "space");  
 }
 
 robert_the_lifter.Game.prototype.bindKeys = function (turnLeft, turnRight, forward, backward, grab) {
@@ -329,29 +332,42 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
       }
 
       if (lineFull) {
-        robert_the_lifter.Game.DEFAULT_ROBERT_SPEED /= 1.1;
-        robert_the_lifter.Game.DEFAULT_PIECE_SPEED /= 1.1;
-        robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED /= 1.1;
-        var random_sound = Math.floor(3*Math.random())
-        switch(random_sound) {
-          case 0:
-            var honk = "sounds/horn.ogg";
-            break;
-          case 1:
-            var honk = "sounds/horn_low.ogg";
-            break;
-          case 2:
-            var honk = "sounds/horn_med.ogg";
-            break;
+        
+        if(robert_the_lifter.Game.nbLineOnCurrentLevel >= 9) {
+          if(robert_the_lifter.Game.DEFAULT_ROBERT_SPEED>=100 || robert_the_lifter.Game.DEFAULT_PIECE_SPEED>=400 || robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED>=3800) {
+            robert_the_lifter.Game.DEFAULT_ROBERT_SPEED -= 25;
+            robert_the_lifter.Game.DEFAULT_PIECE_SPEED -= 100;
+            robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED -= 700;
+          }
+          robert_the_lifter.Game.nbLineOnCurrentLevel = 0;
         }
-        if (game.sfx) {
+        else {
+          robert_the_lifter.Game.nbLineOnCurrentLevel++;
+        }
+		
+		if (game.sfx) {
           new robert_the_lifter.Audio(honk, false);
         }
-        this.linesProcessing.push(x);
-        linesToClear.push(x);
-      }
-    }
-  }
+
+          var random_sound = Math.floor(3*Math.random())
+          switch(random_sound) {
+            case 0:
+              var honk = "sounds/horn.ogg";
+              break;
+            case 1:
+              var honk = "sounds/horn_low.ogg";
+              break;
+            case 2:
+              var honk = "sounds/horn_med.ogg";
+              break;
+          }
+          var fork = new robert_the_lifter.Audio(honk, false);
+                this.linesProcessing.push(x);
+                linesToClear.push(x);
+              }
+            }
+          }
+  
   
   for(var k in linesToClear) {
     var xLine = linesToClear[k];
@@ -467,10 +483,8 @@ robert_the_lifter.Game.GRABBED_PIECE = "GRABBED_PIECE";
 robert_the_lifter.Game.DEFAULT_PIECE_SPEED = 1000;
 robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED = 8000;
 robert_the_lifter.Game.DEFAULT_ROBERT_SPEED = 250;
-
-
-
-
+robert_the_lifter.Game.nbLineOnCurrentLevel = 0;
+  
 robert_the_lifter.Game.prototype.printField = function() {
   if (document.getElementById('debug') && this.debug) {
     var output = "";
