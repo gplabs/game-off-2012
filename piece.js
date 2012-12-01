@@ -123,8 +123,6 @@ robert_the_lifter.Piece.prototype.updateChains = function () {
       }
     }
   }
-  
-  console.log("Done creating chains for piece " + this.id);
 }
 
 /**
@@ -340,13 +338,9 @@ robert_the_lifter.Piece.prototype.split = function () {
     newPiece.state = this.state;
     this.game.pieces[newId] = newPiece;
     newPiece.updateChains();
-    this.game.switchPieceState(newPiece, newPiece.id);
-    
-    console.log("Splitting " + this.id + ", Creating " + newId);
-    
+    this.game.switchPieceState(newPiece, newPiece.id);    
     this.blocks = array1;
   }
-  
   this.updateChains();
 }
 

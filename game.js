@@ -10,6 +10,9 @@ goog.require('robert_the_lifter.PauseMenu');
 robert_the_lifter.Game = function() {
   this.debug = true;
   
+  this.musicSound = true;
+  this.sfx = true;
+  
   // Initialize the pieces history with some default values.
   this.piecesHistory = [
     robert_the_lifter.Piece.S,
@@ -79,7 +82,6 @@ robert_the_lifter.Game.prototype.start = function() {
   var game = this;
   this.grabEvent = function (ev) {
     var isTooFast = new Date().getTime() - lastGrabTime <= 200;
-    console.log("Robert wanna grab something ");
     if (!isTooFast && !game.isPaused) {
       if (!game.robert.hasPiece) {
         var x = game.robert.x,
@@ -104,10 +106,14 @@ robert_the_lifter.Game.prototype.start = function() {
           game.pieces[pieceId].state = robert_the_lifter.Piece.GRABBED;
           game.robert.grabbedPiece = game.pieces[pieceId];
           game.robert.hasPiece = true;
-          console.log("Robert just grabbed piece no " + pieceId);
-        }
+          if (game.sfx) {
+            new robert_the_lifter.Audio("sounds/fork.ogg", false);
+          }
+         }
       } else {
-        console.log("Robert just released piece no " + game.robert.grabbedPiece.id);
+        if (game.sfx) {
+          new robert_the_lifter.Audio("sounds/fork.ogg", false);
+        }
         game.robert.grabbedPiece.state = robert_the_lifter.Piece.GETTING_PUSHED;
         game.robert.grabbedPiece = null;
         game.robert.hasPiece = false;
@@ -143,28 +149,28 @@ robert_the_lifter.Game.prototype.start = function() {
 }
 
 robert_the_lifter.Game.prototype.bindKeys = function (turnLeft, turnRight, forward, backward, grab) {
-  KeyboardJS.on("q", this.stopSpawningEvent);
-  
-  // Remove previous bindings
-  if (typeof this.grabKey !== 'undefined') {
-    KeyboardJS.clear(this.grabKey);
-    KeyboardJS.clear(this.turnRightKey);
-    KeyboardJS.clear(this.turnLeftKey);
-    KeyboardJS.clear(this.backwardKey);
-    KeyboardJS.clear(this.forwardKey);
-  }
-  
-  this.grabKey = grab.toLowerCase();
-  this.turnRightKey = turnRight.toLowerCase();
-  this.turnLeftKey = turnLeft.toLowerCase();
-  this.backwardKey = backward.toLowerCase();
-  this.forwardKey = forward.toLowerCase();
-  
-  KeyboardJS.on(this.grabKey, this.grabEvent);
-  KeyboardJS.on(this.turnRightKey, this.robert.rightEvent, this.robert.rightEvent);
-  KeyboardJS.on(this.turnLeftKey, this.robert.leftEvent, this.robert.leftEvent);
-  KeyboardJS.on(this.backwardKey, this.robert.backwardEvent, this.robert.backwardEvent);
-  KeyboardJS.on(this.forwardKey, this.robert.forwardEvent, this.robert.forwardEvent);
+  if (turnLeft != "" && turnRight != "" && forward != "" && backward != "" && grab != "") {
+    // Remove previous bindings
+    if (typeof this.grabKey !== 'undefined') {
+      KeyboardJS.clear(this.grabKey);
+      KeyboardJS.clear(this.turnRightKey);
+      KeyboardJS.clear(this.turnLeftKey);
+      KeyboardJS.clear(this.backwardKey);
+      KeyboardJS.clear(this.forwardKey);
+    }
+
+    this.grabKey = grab.toLowerCase();
+    this.turnRightKey = turnRight.toLowerCase();
+    this.turnLeftKey = turnLeft.toLowerCase();
+    this.backwardKey = backward.toLowerCase();
+    this.forwardKey = forward.toLowerCase();
+
+    KeyboardJS.on(this.grabKey, this.grabEvent);
+    KeyboardJS.on(this.turnRightKey, this.robert.rightEvent, this.robert.rightEvent);
+    KeyboardJS.on(this.turnLeftKey, this.robert.leftEvent, this.robert.leftEvent);
+    KeyboardJS.on(this.backwardKey, this.robert.backwardEvent, this.robert.backwardEvent);
+    KeyboardJS.on(this.forwardKey, this.robert.forwardEvent, this.robert.forwardEvent);
+  }  
 }
 
 /**
@@ -323,33 +329,32 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
       }
 
       if (lineFull) {
-          var line = new lime.audio.Audio("sounds/horn.ogg");
-          function playHonk() {
-            if (line.isLoaded()) {
-              if (!line.isPlaying()) {
-                 line.play();
-              }
-              else {
-                lime.playing_ = false;
-                lime.scheduleManager.unschedule(playHonk, this);
-              }
-            }
-          }
-          lime.scheduleManager.schedule(playHonk, this);
-                this.linesProcessing.push(x);
-                linesToClear.push(x);
-              }
-            }
-          }
-  
-  if (linesToClear.length > 0) {
-    console.log(linesToClear.length + " lines are full (" + linesToClear.toString() + ")");
+        robert_the_lifter.Game.DEFAULT_ROBERT_SPEED /= 1.1;
+        robert_the_lifter.Game.DEFAULT_PIECE_SPEED /= 1.1;
+        robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED /= 1.1;
+        var random_sound = Math.floor(3*Math.random())
+        switch(random_sound) {
+          case 0:
+            var honk = "sounds/horn.ogg";
+            break;
+          case 1:
+            var honk = "sounds/horn_low.ogg";
+            break;
+          case 2:
+            var honk = "sounds/horn_med.ogg";
+            break;
+        }
+        if (game.sfx) {
+          new robert_the_lifter.Audio(honk, false);
+        }
+        this.linesProcessing.push(x);
+        linesToClear.push(x);
+      }
+    }
   }
   
   for(var k in linesToClear) {
     var xLine = linesToClear[k];
-    console.log("Clearing line " + xLine + ".");
-    
     var squareRemaining = this.factoryNbTileHeight;
     for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
       for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
@@ -359,7 +364,6 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
           this.switchState(block.x, block.y, robert_the_lifter.Game.NO_PIECE);
 
           // Remove the crate from the game.
-          console.log("Line " + xLine + ": " + squareRemaining + " more to go.");
           this.pieces[i].removeBlock(j);
           if (piecesToSplit.indexOf(this.pieces[i]) === -1) {
             piecesToSplit.push(this.pieces[i]);
@@ -367,7 +371,6 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
         }
       }
     }
-    
     this.linesProcessing.splice(this.linesProcessing.indexOf(x), 1);
   }
   
@@ -424,6 +427,24 @@ robert_the_lifter.Game.prototype.getSpawningSpeed = function() {
     return parseInt(document.getElementById('spawning_speed').value);
   }else {
     return robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED;
+  }
+}
+
+robert_the_lifter.Game.prototype.switchMusicSound = function() {
+  if (this.musicSound) {
+    this.musicSound = false;
+    this.music.stopMusic();
+  } else {
+    this.musicSound = true;
+    this.music.startMusic();
+  }
+}
+
+robert_the_lifter.Game.prototype.switchSFXSound = function() {
+  if (this.sfx) {
+    this.sfx = false;
+  } else {
+    this.sfx = true;
   }
 }
 

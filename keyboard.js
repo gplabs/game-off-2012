@@ -349,7 +349,6 @@
 
 		function on(eventName   ) {
 			var callbacks, cI;
-			console.log(eventName);
 			if(typeof eventName !== 'string') { throw new Error('Cannot bind callback. The event name must be a string.'); }
 			if(eventName !== 'keyup' && eventName !== 'keydown') { throw new Error('Cannot bind callback. The event name must be a "keyup" or "keydown".'); }
 			callbacks = Array.prototype.slice.apply(arguments, [1]);

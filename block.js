@@ -13,8 +13,8 @@ robert_the_lifter.Block = function(x, y, game) {
   this.chains = [];
   
   // getting a random image from the boxes image.
-  var boxX = this.game.tileWidth * Math.floor((Math.random()*4));
-  var boxesFrame = new lime.fill.Frame('images/boxes.png', boxX, 0, this.game.tileWidth, this.game.tileHeight);
+  var boxX = this.game.tileWidth * Math.floor((Math.random()*6));
+  var boxesFrame = new lime.fill.Frame('images/sprites.png', boxX, 0, this.game.tileWidth, this.game.tileHeight);
   
   this.box = new lime.Sprite()
     .setSize(this.game.tileWidth, this.game.tileHeight)
@@ -23,7 +23,7 @@ robert_the_lifter.Block = function(x, y, game) {
 
   // Getting a random image from the skids.
   var imageX = this.game.tileWidth * Math.floor((Math.random()*4));
-  var frame = new lime.fill.Frame('images/skids.png', imageX, 0, this.game.tileWidth, this.game.tileHeight);
+  var frame = new lime.fill.Frame('images/sprites.png', imageX, this.game.tileHeight, this.game.tileWidth, this.game.tileHeight);
   
   this.skid = new lime.Sprite()
     .setSize(this.game.tileWidth, this.game.tileHeight)

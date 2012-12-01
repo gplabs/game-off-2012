@@ -38,8 +38,8 @@ div.hide {
 #options_wrapper {
   position: absolute;
   z-index: 1;
-  top: 320px;
-  left: 460px;
+  top: 430px;
+  left: 725px;
 }
 
 input.option {
