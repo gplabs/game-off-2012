@@ -320,6 +320,9 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
       }
 
       if (lineFull) {
+        robert_the_lifter.Game.DEFAULT_ROBERT_SPEED /= 1.1;
+        robert_the_lifter.Game.DEFAULT_PIECE_SPEED /= 1.1;
+        robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED /= 1.1;
           var random_sound = Math.floor(3*Math.random())
           switch(random_sound) {
             case 0:
