@@ -20,20 +20,20 @@ goog.require('robert_the_lifter.Robert');
 goog.require('robert_the_lifter.Piece');
 goog.require('robert_the_lifter.ParkingArea');
 goog.require('robert_the_lifter.Score');
+goog.require('robert_the_lifter.Media');
+goog.require('robert_the_lifter.Constants');
 
-robert_the_lifter.start = function() {
-  // load menu images.
-  new lime.fill.Frame('images/pause_menu.png', 0, 0, 446, 226);
-  new lime.fill.Frame('images/options_menu.png', 0, 0, 446, 305);
-  new lime.fill.Frame('images/credits_menu.png', 0, 0, 661, 900);
-  
-          
+robert_the_lifter.start = function() {        
   // For chrome, images doesn't load on first hit. We show a warning message.
   if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
     document.getElementById("chrome_warning").style.display = 'inline-block';
   }
-    
-  var game = new robert_the_lifter.Game();
+  
+  var constants = new robert_the_lifter.Constants();
+  var media = new robert_the_lifter.Media(constants);
+  
+  var game = new robert_the_lifter.Game(constants);
+  game.Media = media;
 
   game.music = new robert_the_lifter.Audio("music/music.ogg", true);
 
@@ -42,36 +42,128 @@ robert_the_lifter.start = function() {
   robert_the_lifter.Director.setDisplayFPS(false);
   // This will probably be the only scene of the game (beside a menu ?)
   this.gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
+  
   // The upper parking layer
-  var truckParkingLayer = new lime.Layer()
-    .setAnchorPoint(0, 0);
-  var truckParkingArea = new robert_the_lifter.ParkingArea(game, truckParkingLayer);
+  var truckParkingLayer = new robert_the_lifter.ParkingArea(game);
   this.gameScene.appendChild(truckParkingLayer);
   
   // The factory layer.
   var factoryLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
   this.gameScene.appendChild(factoryLayer);
-  var factoryTile = new lime.fill.Frame('images/sprites.png', game.tileWidth, game.tileHeight*4, game.tileWidth, game.tileHeight);
+//  var factoryTile = new lime.fill.Frame('images/sprites.png', constants.TileWidth, constants.TileHeight*4, constants.TileWidth, constants.TileHeight);
   
-  for(var i = 0; i < game.factoryNbTileWidth + game.rightAreaTileWidth; i ++) {
-    for(var j = 0; j < game.factoryNbTileHeight; j ++) {
-      var y = (j)*game.tileHeight+game.factoryY;
+  // Building the factory working area.
+  for(var i = 0; i < game.Constants.FactoryNbTileWidth + game.Constants.RightAreaTileWidth; i ++) {
+    for(var j = 0; j < game.Constants.FactoryNbTileHeight; j ++) {
+      var y = (j)*constants.TileHeight + game.Constants.FactoryY;
       var factorySprite = new lime.Sprite()
         .setAnchorPoint(0,0)
-        .setPosition((i)*game.tileWidth + game.factoryX, y)
-        .setSize(game.tileWidth, game.tileHeight)
-        .setFill(factoryTile);
+        .setPosition((i) * constants.TileWidth + game.Constants.FactoryX, y)
+        .setSize(constants.TileWidth, constants.TileHeight)
+        .setFill(media.FactoryTile);
       factoryLayer.appendChild(factorySprite);
     }
   }
   
   game.factoryLayer = factoryLayer;
   
-  // start game loops.
-  game.start();
-  // set current scene active
-  robert_the_lifter.Director.replaceScene(this.gameScene);
+  // Build the walls
+  this.buildWalls = function() {
+    var wallTile = new lime.fill.Frame('images/wall.png', 0, 0, constants.TileWidth, game.Constants.WallWidth);
+    var cornerWallTile = new lime.fill.Frame('images/wall.png', constants.TileWidth, 0, game.Constants.WallWidth, game.Constants.WallWidth);
+    var rightWallX = (game.Constants.FactoryNbTileWidth + game.Constants.RightAreaTileWidth)*constants.TileWidth + game.Constants.WallWidth;
+    // Add upper right corner.
+    var upRightCornerSprite = new lime.Sprite()
+      .setAnchorPoint(0,0)
+      .setPosition(rightWallX, game.Constants.FactoryY - game.Constants.WallWidth)
+      .setSize(game.Constants.WallWidth, game.Constants.WallWidth)
+      .setFill(cornerWallTile);
+    factoryLayer.appendChild(upRightCornerSprite);
+    
+    // Add upper left corner
+    var upLeftCornerSprite = new lime.Sprite()
+      .setAnchorPoint(0,0)
+      .setPosition(0, game.Constants.ParkingHeight * constants.TileHeight + game.Constants.TruckParkingY + game.Constants.WallWidth)
+      .setRotation(90)
+      .setSize(game.Constants.WallWidth, game.Constants.WallWidth)
+      .setFill(cornerWallTile);
+    factoryLayer.appendChild(upLeftCornerSprite);
+    
+    // Add bottom right corner.
+    var downRightCornerSprite = new lime.Sprite()
+      .setAnchorPoint(0,0)
+      .setPosition(rightWallX + game.Constants.WallWidth, game.Constants.FactoryHeight + game.Constants.FactoryY)
+      .setRotation(270)
+      .setSize(game.Constants.WallWidth, game.Constants.WallWidth)
+      .setFill(cornerWallTile);
+    factoryLayer.appendChild(downRightCornerSprite);
+    
+    // Add bottom left corner
+    var downLeftCornerSprite = new lime.Sprite()
+      .setAnchorPoint(0,0)
+      .setPosition(game.Constants.WallWidth, game.Constants.FactoryY + game.Constants.FactoryHeight+game.Constants.WallWidth)
+      .setRotation(180)
+      .setSize(game.Constants.WallWidth, game.Constants.WallWidth)
+      .setFill(cornerWallTile);
+    factoryLayer.appendChild(downLeftCornerSprite);
+    
+    for(var i = 0; i < game.Constants.FactoryNbTileWidth + game.Constants.RightAreaTileWidth; i ++) {
+      var horizontalWallsX = (i)*constants.TileWidth + game.Constants.TruckParkingX;
+      // Bottom part of the wall.
+      var bottomWallSprite = new lime.Sprite()
+        .setAnchorPoint(0,0)
+        .setPosition(horizontalWallsX, game.Constants.FactoryY + game.Constants.FactoryHeight)
+        .setSize(constants.TileWidth, game.Constants.WallWidth)
+        .setFill(wallTile);
+      factoryLayer.appendChild(bottomWallSprite);
+      
+      // The upper wall
+      var upperWallSprite = new lime.Sprite()
+        .setAnchorPoint(0,0)
+        .setPosition(horizontalWallsX, game.Constants.ParkingHeight*constants.TileHeight + game.Constants.TruckParkingY)
+        .setSize(constants.TileWidth, game.Constants.WallWidth)
+        .setFill(wallTile);
+      truckParkingLayer.appendChild(upperWallSprite);
+    }
+    
+    for(var j = 0; j < game.Constants.FactoryNbTileHeight; j ++) {
+      var y = (j)*constants.TileHeight+game.Constants.FactoryY;
+      // Add right wall part.
+      var rightWallSprite = new lime.Sprite()
+        .setAnchorPoint(0,0)
+        .setPosition(rightWallX, y + constants.TileHeight)
+        .setRotation(90)
+        .setSize(constants.TileWidth, game.Constants.WallWidth)
+        .setFill(wallTile);
+      factoryLayer.appendChild(rightWallSprite);
+       
+      // Add the left wall part.
+      var leftWallSprite = new lime.Sprite()
+        .setAnchorPoint(0,0)
+        .setPosition(0, y + constants.TileHeight) // add tileheight because of rotation.
+        .setRotation(90)
+        .setSize(constants.TileWidth, game.Constants.WallWidth)
+        .setFill(wallTile);
+      factoryLayer.appendChild(leftWallSprite);
+    }
+    
+    game.blackFog = new lime.Sprite()
+      .setAnchorPoint(0,0)
+      .setPosition(game.Constants.FactoryWidth + game.Constants.FactoryX + constants.TileWidth, game.Constants.FactoryY)
+      .setSize(constants.TileWidth*2, constants.TileHeight*game.Constants.FactoryNbTileHeight)
+      .setFill("#000");
+    factoryLayer.appendChild(game.blackFog);
+    
+    var gradiantFogTile = new lime.fill.Frame('images/sprites.png', constants.TileWidth*3, constants.TileHeight*4, constants.TileWidth, constants.TileHeight);
+    game.gradiantFog = new lime.Sprite()
+      .setAnchorPoint(0,0)
+      .setPosition(game.Constants.FactoryWidth + game.Constants.FactoryX, game.Constants.FactoryY) // add tileheight because of rotation.
+      .setSize(constants.TileWidth, constants.TileHeight*game.Constants.FactoryNbTileHeight)
+      .setFill(gradiantFogTile);
+    factoryLayer.appendChild(game.gradiantFog);
+  }
+  this.buildWalls();
   
   /**
    * End game behavior.
@@ -90,17 +182,17 @@ robert_the_lifter.start = function() {
     
     // Game Over.
     var gameOver = new lime.Label("Game Over")
-      .setPosition(game.factoryWidth / 2, 300)
+      .setPosition(game.Constants.FactoryWidth / 2, 300)
       .setFontSize(50);
     layer.appendChild(gameOver);
     
     // Let the player input his name.
     var labelCurrentScore = new lime.Label("Your score : " + game.score.getScore())
-      .setPosition(game.factoryWidth / 2, 350)
+      .setPosition(game.Constants.FactoryWidth / 2, 350)
       .setFontSize(30);
     layer.appendChild(labelCurrentScore);
     var labelInstruction = new lime.Label("Type your name and press 'enter'")
-      .setPosition(game.factoryWidth / 2, 400)
+      .setPosition(game.Constants.FactoryWidth / 2, 400)
       .setFontSize(20);
     layer.appendChild(labelInstruction);
     
@@ -165,102 +257,10 @@ robert_the_lifter.start = function() {
     this.gameScene.appendChild(layer);
   }
   
-  // Build the walls
-  this.buildWalls = function() {
-    var wallTile = new lime.fill.Frame('images/wall.png', 0, 0, game.tileWidth, game.wallWidth);
-    var cornerWallTile = new lime.fill.Frame('images/wall.png', game.tileWidth, 0, game.wallWidth, game.wallWidth);
-    var rightWallX = (game.factoryNbTileWidth + game.rightAreaTileWidth)*game.tileWidth + game.wallWidth;
-    // Add upper right corner.
-    var upRightCornerSprite = new lime.Sprite()
-      .setAnchorPoint(0,0)
-      .setPosition(rightWallX, game.factoryY - game.wallWidth)
-      .setSize(game.wallWidth, game.wallWidth)
-      .setFill(cornerWallTile);
-    factoryLayer.appendChild(upRightCornerSprite);
-    
-    // Add upper left corner
-    var upLeftCornerSprite = new lime.Sprite()
-      .setAnchorPoint(0,0)
-      .setPosition(0, game.parkingHeight*game.tileHeight + game.truckParkingY+game.wallWidth)
-      .setRotation(90)
-      .setSize(game.wallWidth, game.wallWidth)
-      .setFill(cornerWallTile);
-    factoryLayer.appendChild(upLeftCornerSprite);
-    
-    // Add bottom right corner.
-    var downRightCornerSprite = new lime.Sprite()
-      .setAnchorPoint(0,0)
-      .setPosition(rightWallX + game.wallWidth, game.factoryHeight + game.factoryY)
-      .setRotation(270)
-      .setSize(game.wallWidth, game.wallWidth)
-      .setFill(cornerWallTile);
-    factoryLayer.appendChild(downRightCornerSprite);
-    
-    // Add bottom left corner
-    var downLeftCornerSprite = new lime.Sprite()
-      .setAnchorPoint(0,0)
-      .setPosition(game.wallWidth, game.factoryY + game.factoryHeight+game.wallWidth)
-      .setRotation(180)
-      .setSize(game.wallWidth, game.wallWidth)
-      .setFill(cornerWallTile);
-    factoryLayer.appendChild(downLeftCornerSprite);
-    
-    for(var i = 0; i < game.factoryNbTileWidth + game.rightAreaTileWidth; i ++) {
-      var horizontalWallsX = (i)*game.tileWidth + game.truckParkingX;
-      // Bottom part of the wall.
-      var bottomWallSprite = new lime.Sprite()
-        .setAnchorPoint(0,0)
-        .setPosition(horizontalWallsX, game.factoryY + game.factoryHeight)
-        .setSize(game.tileWidth, game.wallWidth)
-        .setFill(wallTile);
-      factoryLayer.appendChild(bottomWallSprite);
-      
-      // The upper wall
-      var upperWallSprite = new lime.Sprite()
-        .setAnchorPoint(0,0)
-        .setPosition(horizontalWallsX, game.parkingHeight*game.tileHeight + game.truckParkingY)
-        .setSize(game.tileWidth, game.wallWidth)
-        .setFill(wallTile);
-      truckParkingLayer.appendChild(upperWallSprite);
-    }
-    
-    for(var j = 0; j < game.factoryNbTileHeight; j ++) {
-      var y = (j)*game.tileHeight+game.factoryY;
-      // Add right wall part.
-      var rightWallSprite = new lime.Sprite()
-        .setAnchorPoint(0,0)
-        .setPosition(rightWallX, y + game.tileHeight)
-        .setRotation(90)
-        .setSize(game.tileWidth, game.wallWidth)
-        .setFill(wallTile);
-      factoryLayer.appendChild(rightWallSprite);
-       
-      // Add the left wall part.
-      var leftWallSprite = new lime.Sprite()
-        .setAnchorPoint(0,0)
-        .setPosition(0, y + game.tileHeight) // add tileheight because of rotation.
-        .setRotation(90)
-        .setSize(game.tileWidth, game.wallWidth)
-        .setFill(wallTile);
-      factoryLayer.appendChild(leftWallSprite);
-    }
-    
-    game.blackFog = new lime.Sprite()
-      .setAnchorPoint(0,0)
-      .setPosition(game.factoryWidth + game.factoryX + game.tileWidth, game.factoryY)
-      .setSize(game.tileWidth*2, game.tileHeight*game.factoryNbTileHeight)
-      .setFill("#000");
-    factoryLayer.appendChild(game.blackFog);
-    
-    var gradiantFogTile = new lime.fill.Frame('images/sprites.png', game.tileWidth*3, game.tileHeight*4, game.tileWidth, game.tileHeight);
-    game.gradiantFog = new lime.Sprite()
-      .setAnchorPoint(0,0)
-      .setPosition(game.factoryWidth + game.factoryX, game.factoryY) // add tileheight because of rotation.
-      .setSize(game.tileWidth, game.tileHeight*game.factoryNbTileHeight)
-      .setFill(gradiantFogTile);
-    factoryLayer.appendChild(game.gradiantFog);
-  }
-  this.buildWalls();
+  // start game loops.
+  game.start();
+  // set current scene active
+  robert_the_lifter.Director.replaceScene(this.gameScene);
 }
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
 goog.exportSymbol('robert_the_lifter.start', robert_the_lifter.start);

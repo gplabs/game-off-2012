@@ -45,11 +45,11 @@ robert_the_lifter.PauseMenu.prototype.initPauseMenu = function() {
   var height = 226,
       width = 446;
   var x = (this.game.factoryWidth / 2) - (width/2);
-  var menuTile = new lime.fill.Frame('images/pause_menu.png', 0, 0, width, height);
+//  var menuTile = new lime.fill.Frame('images/pause_menu.png', 0, 0, width, height);
   this.currentMenu = new lime.Sprite()
         .setAnchorPoint(0,0)
         .setPosition(x, this.optionsY)
-        .setFill(menuTile);
+        .setFill(this.game.Media.PauseMenu);
   this.appendChild(this.currentMenu);
   
   this.currentMenuEvent = function(e) {
@@ -79,11 +79,11 @@ robert_the_lifter.PauseMenu.prototype.initOptionsMenu = function() {
       musicStatusY = this.optionsY + 10,
       sfxStatusY = this.optionsY + 90;
   
-  var menuTile = new lime.fill.Frame('images/options_menu.png', 0, 0, width, height);
+//  var menuTile = new lime.fill.Frame('images/options_menu.png', 0, 0, width, height);
   this.currentMenu = new lime.Sprite()
         .setAnchorPoint(0,0)
         .setPosition(x, this.optionsY)
-        .setFill(menuTile);
+        .setFill(this.game.Media.OptionsMenu);
   this.appendChild(this.currentMenu);
   
   this.musicStatus = this.getStatus(this.game.musicSound, statusX, musicStatusY);
@@ -132,11 +132,11 @@ robert_the_lifter.PauseMenu.prototype.showCredits = function() {
       height = 900;
   var x = (this.game.factoryWidth / 2) - (width/2);
   
-  var creditTile = new lime.fill.Frame('images/credits_menu.png', 0, 0, width, height);
+//  var creditTile = new lime.fill.Frame('images/credits_menu.png', 0, 0, width, height);
   this.creditSprite = new lime.Sprite()
         .setAnchorPoint(0,0)
         .setPosition(x, 0)
-        .setFill(creditTile);
+        .setFill(this.game.Media.CreditsMenu);
   this.appendChild(this.creditSprite);
   
   var layer = this;

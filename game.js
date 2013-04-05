@@ -7,11 +7,11 @@ goog.provide('robert_the_lifter.Game');
 goog.require('robert_the_lifter.Foreman');
 goog.require('robert_the_lifter.PauseMenu');
 
-robert_the_lifter.Game = function() {
+robert_the_lifter.Game = function(constants) {
   this.debug = true;
-  
   this.musicSound = true;
   this.sfx = true;
+  this.Constants = constants;
   
   // Initialize the pieces history with some default values.
   this.piecesHistory = [
@@ -21,44 +21,41 @@ robert_the_lifter.Game = function() {
     robert_the_lifter.Piece.Z
   ]
   
-  this.tileWidth = 64;
-  this.tileHeight = 64;
   this.pieces = [];
+//  this.wallWidth = 10;
   
-  this.wallWidth = 10;
+//  // Constants for parking area.
+//  this.parkingWidth = 20;
+//  this.parkingHeight = 2;
+//  this.truckParkingHeight = constants.TileHeight*this.parkingHeight + this.wallWidth; // 10 pixels for wall.
+//  this.truckParkingWidth = constants.TileWidth*this.parkingWidth;
+//  this.truckParkingX = this.wallWidth;
+//  this.truckParkingY = 0;
+//  
+//  // Constants for factory area
+//  this.factoryNbTileWidth = 20;
+//  this.factoryNbTileHeight = 10;
+//  this.factoryHeight = constants.TileHeight*this.factoryNbTileHeight;
+//  this.factoryWidth = constants.TileWidth*this.factoryNbTileWidth;
+//  this.factoryX = this.wallWidth;
+//  this.factoryY = this.truckParkingHeight;
+//  
+//  //Constants for the hidden (to the right) area
+//  this.rightAreaTileWidth = 3;
+//  this.rightAreaTileHeight = this.factoryNbTileHeight;
+//  
+//  //Constants for the Office area
+//  this.officeAreaHeight = constants.TileHeight*2;
+//  this.officeAreaWidth = constants.TileWidth*20;
   
-  // Constants for parking area.
-  this.parkingWidth = 20;
-  this.parkingHeight = 2;
-  this.truckParkingHeight = this.tileHeight*this.parkingHeight + this.wallWidth; // 10 pixels for wall.
-  this.truckParkingWidth = this.tileWidth*this.parkingWidth;
-  this.truckParkingX = this.wallWidth;
-  this.truckParkingY = 0;
-  
-  // Constants for factory area
-  this.factoryNbTileWidth = 20;
-  this.factoryNbTileHeight = 10;
-  this.factoryHeight = this.tileHeight*this.factoryNbTileHeight;
-  this.factoryWidth = this.tileWidth*this.factoryNbTileWidth;
-  this.factoryX = this.wallWidth;
-  this.factoryY = this.truckParkingHeight;
-  
-  //Constants for the hidden (to the right) area
-  this.rightAreaTileWidth = 3;
-  this.rightAreaTileHeight = this.factoryNbTileHeight;
-  
-  //Constants for the Office area
-  this.officeAreaHeight = this.tileHeight*2;
-  this.officeAreaWidth = this.tileWidth*20;
-  
-  this.height = this.truckParkingHeight + this.factoryHeight + this.officeAreaHeight;
-  this.width = this.tileWidth * 24;
+  this.height = constants.TruckParkingHeight + constants.FactoryHeight + constants.OfficeAreaHeight + constants.WallWidth;
+  this.width = constants.TileWidth * 24;
   
   // fill the entire field with -1s
   this.field = [];
-  for(var i = 0; i <= this.factoryNbTileHeight - 1; i++) {
+  for(var i = 0; i <= constants.FactoryNbTileHeight - 1; i++) {
     this.field[i] = [];
-    for(var j = 0; j <= this.factoryNbTileWidth - 1; j++) {
+    for(var j = 0; j <= constants.FactoryNbTileWidth - 1; j++) {
       this.field[i][j] = robert_the_lifter.Game.NO_PIECE;
     }
   }
@@ -263,8 +260,8 @@ robert_the_lifter.Game.prototype.whatBlocksPiece = function(piece) {
  * Check if the coords are inside the field.
  */
 robert_the_lifter.Game.prototype.isInside = function(x, y) {
-  return x >= 0 && x < this.factoryNbTileWidth &&
-         y >= 0 && y < this.factoryNbTileHeight;
+  return x >= 0 && x < this.Constants.FactoryNbTileWidth &&
+         y >= 0 && y < this.Constants.FactoryNbTileHeight;
 }
 
 /**
@@ -319,12 +316,12 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
   this.linesProcessing = []; // Those are lines to ignore, because we are clearing them already.
   var linesToClear = [];
   
-  for(var x = 0; x < this.factoryNbTileWidth; x ++) {
+  for(var x = 0; x < this.Constants.FactoryNbTileWidth; x ++) {
     if (this.linesProcessing.indexOf(x) == -1) {
       var lineFull = true;
 
       // If we find something that is not a blocked piece, the line isn't full.
-      for(var y = 0; y < this.factoryNbTileHeight && lineFull; y ++) {
+      for(var y = 0; y < this.Constants.FactoryNbTileHeight && lineFull; y ++) {
         var id = this.field[y][x];
         if (id == robert_the_lifter.Game.ROBERT || id == robert_the_lifter.Game.NO_PIECE || (id > robert_the_lifter.Game.NO_PIECE && this.pieces[id].state != robert_the_lifter.Piece.BLOCKED)) {
           lineFull = false;
@@ -371,7 +368,7 @@ robert_the_lifter.Game.prototype.checkAndClearLine = function() {
   
   for(var k in linesToClear) {
     var xLine = linesToClear[k];
-    var squareRemaining = this.factoryNbTileHeight;
+    var squareRemaining = this.Constants.FactoryNbTileHeight;
     for(var i = 0; i < this.pieces.length && squareRemaining > 0; i ++) {
       for(var j = this.pieces[i].blocks.length - 1; j >= 0  && squareRemaining > 0; j --) {
         var block = this.pieces[i].blocks[j];
@@ -441,7 +438,7 @@ robert_the_lifter.Game.prototype.getPieceSpeed = function() {
 robert_the_lifter.Game.prototype.getSpawningSpeed = function() {
   if (document.getElementById('debug_options')) {
     return parseInt(document.getElementById('spawning_speed').value);
-  }else {
+  } else {
     return robert_the_lifter.Game.DEFAULT_SPAWNING_SPEED;
   }
 }
