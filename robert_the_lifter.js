@@ -23,23 +23,16 @@ goog.require('robert_the_lifter.Score');
 goog.require('robert_the_lifter.Media');
 goog.require('robert_the_lifter.Constants');
 
-robert_the_lifter.start = function() {        
-  // For chrome, images doesn't load on first hit. We show a warning message.
-  if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
-    document.getElementById("chrome_warning").style.display = 'inline-block';
-  }
-  
+robert_the_lifter.start = function() {
   var constants = new robert_the_lifter.Constants();
-  var media = new robert_the_lifter.Media(constants);
+  var media = new robert_the_lifter.Media(constants, robert_the_lifter.startGame);
   
   var game = new robert_the_lifter.Game(constants);
+  this.gameObject = game;
   game.Media = media;
 
   game.music = new robert_the_lifter.Audio("music/music.ogg", true);
 
-  robert_the_lifter.Director = new lime.Director(document.getElementById('game'), game.width, game.height);
-  robert_the_lifter.Director.isPaused = false;
-  robert_the_lifter.Director.setDisplayFPS(false);
   // This will probably be the only scene of the game (beside a menu ?)
   this.gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
   
@@ -214,18 +207,16 @@ robert_the_lifter.start = function() {
     
     this.gameScene.appendChild(layer);
   }
-  
-  // start game loops.
-  game.start();
-  // set current scene active
-  robert_the_lifter.Director.replaceScene(this.gameScene);
 }
 
-//robert_the_lifter.startGame = function() {
-//  // start game loops.
-//  robert_the_lifter.gameObject.start();
-//  
-//}
+robert_the_lifter.startGame = function() {
+  // start game loops.
+  robert_the_lifter.gameObject.start();
+  robert_the_lifter.Director = new lime.Director(document.getElementById('game'), robert_the_lifter.gameObject.width, robert_the_lifter.gameObject.height);
+  robert_the_lifter.Director.isPaused = false;
+  robert_the_lifter.Director.setDisplayFPS(false);
+  robert_the_lifter.Director.replaceScene(robert_the_lifter.gameScene);
+}
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
 goog.exportSymbol('robert_the_lifter.start', robert_the_lifter.start);
 

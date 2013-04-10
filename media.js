@@ -4,7 +4,7 @@ goog.require('goog.net.ImageLoader');
 /**
  * Initialization of all media. (Preloading)
  */
-robert_the_lifter.Media = function(constants) {
+robert_the_lifter.Media = function(constants, start) {
   var sprites = 'images/sprites.png';
   
   this.PauseMenu = new lime.fill.Frame('images/pause_menu.png', 0, 0, 446, 226);
@@ -20,26 +20,6 @@ robert_the_lifter.Media = function(constants) {
   this.FactoryTile = new lime.fill.Frame(sprites, constants.TileWidth, constants.TileHeight*4, constants.TileWidth, constants.TileHeight);
   this.ParkingTile = new lime.fill.Frame(sprites, 0, constants.TileHeight * 4, constants.TileWidth, constants.TileHeight);
   this.GradiantFogTile = new lime.fill.Frame(sprites, constants.TileWidth * 3, constants.TileHeight * 4, constants.TileWidth, constants.TileHeight);
-  
-//  var factoryTile = this.FactoryTile;
-//  var isLoaded = function(){
-//    if (factoryTile.isLoaded()){
-//      console.log("LOADED! :o");
-//      clearInterval(interval);
-//      start();
-//    } else {
-//      console.log("still not loaded...");
-//    }
-//  }
-//  
-//  var interval = setInterval(isLoaded, 1);
-  
-  
-  
-//  console.log("loaded yet?");
-//  while ( !this.FactoryTile.isLoaded()) {
-//    console.log("still not loaded...");
-//  }
   
   this.RobertFrame = new lime.fill.Frame(sprites, constants.TileWidth*4, constants.TileHeight*2, constants.TileWidth + 0, constants.TileHeight + 64);
   
@@ -69,11 +49,15 @@ robert_the_lifter.Media = function(constants) {
   
   this.Constants = constants;
   
-//  var i = 0;
-//  while ( i < 1000000000 ) {
-//    i ++;
-//  }
-//  console.log("ready");
+  // Wait for images to be loaded before starting the game.
+  var factoryTile = this.FactoryTile;
+  var isLoaded = function(){
+    if (factoryTile.isLoaded()){
+      clearInterval(interval);
+      start();
+    }
+  }
+  var interval = setInterval(isLoaded, 1);
 }
 
 /**
