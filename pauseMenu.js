@@ -44,7 +44,7 @@ robert_the_lifter.PauseMenu.prototype.initPauseMenu = function() {
   this.removeCurrentMenu();
   var height = 226,
       width = 446;
-  var x = (this.game.factoryWidth / 2) - (width/2);
+  var x = (this.game.Constants.FactoryWidth / 2) - (width/2);
 //  var menuTile = new lime.fill.Frame('images/pause_menu.png', 0, 0, width, height);
   this.currentMenu = new lime.Sprite()
         .setAnchorPoint(0,0)
@@ -73,7 +73,7 @@ robert_the_lifter.PauseMenu.prototype.initOptionsMenu = function() {
   var width = 446,
       height = 305;
   
-  var x = (this.game.factoryWidth / 2) - (width/2);
+  var x = (this.game.Constants.FactoryWidth / 2) - (width/2);
   
   var statusX = x + 225,
       musicStatusY = this.optionsY + 10,
@@ -130,7 +130,7 @@ robert_the_lifter.PauseMenu.prototype.showCredits = function() {
   this.removeCurrentMenu();
   var width = 661,
       height = 900;
-  var x = (this.game.factoryWidth / 2) - (width/2);
+  var x = (this.game.Constants.FactoryWidth / 2) - (width/2);
   
 //  var creditTile = new lime.fill.Frame('images/credits_menu.png', 0, 0, width, height);
   this.creditSprite = new lime.Sprite()
