@@ -22,31 +22,6 @@ robert_the_lifter.Game = function(constants) {
   ]
   
   this.pieces = [];
-//  this.wallWidth = 10;
-  
-//  // Constants for parking area.
-//  this.parkingWidth = 20;
-//  this.parkingHeight = 2;
-//  this.truckParkingHeight = constants.TileHeight*this.parkingHeight + this.wallWidth; // 10 pixels for wall.
-//  this.truckParkingWidth = constants.TileWidth*this.parkingWidth;
-//  this.truckParkingX = this.wallWidth;
-//  this.truckParkingY = 0;
-//  
-//  // Constants for factory area
-//  this.factoryNbTileWidth = 20;
-//  this.factoryNbTileHeight = 10;
-//  this.factoryHeight = constants.TileHeight*this.factoryNbTileHeight;
-//  this.factoryWidth = constants.TileWidth*this.factoryNbTileWidth;
-//  this.factoryX = this.wallWidth;
-//  this.factoryY = this.truckParkingHeight;
-//  
-//  //Constants for the hidden (to the right) area
-//  this.rightAreaTileWidth = 3;
-//  this.rightAreaTileHeight = this.factoryNbTileHeight;
-//  
-//  //Constants for the Office area
-//  this.officeAreaHeight = constants.TileHeight*2;
-//  this.officeAreaWidth = constants.TileWidth*20;
   
   this.height = constants.TruckParkingHeight + constants.FactoryHeight + constants.OfficeAreaHeight + constants.WallWidth;
   this.width = constants.TileWidth * 24;

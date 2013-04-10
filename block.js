@@ -9,30 +9,11 @@ robert_the_lifter.Block = function(x, y, game) {
   this.x = x;
   this.y = y;
   this.game = game;
-  this.chainFill = new lime.fill.Frame('images/chains.png', 0, 0, 23, this.game.Constants.TileHeight);
   this.chains = [];
   
-  // getting a random image from the boxes image.
-//  var boxX = this.game.tileWidth * Math.floor((Math.random()*6));
-//  var boxesFrame = new lime.fill.Frame('images/sprites.png', boxX, 0, this.game.tileWidth, this.game.tileHeight);
-  
-//  this.box = new lime.Sprite()
-//    .setSize(this.game.tileWidth, this.game.tileHeight)
-//    .setFill(this.game.Media.BoxImage())
-//    .setAnchorPoint(this.anchor, this.anchor);
-
   this.box = game.Media.GetBoxSprite();
   this.skid = game.Media.GetSkidSprite();
 
-  // Getting a random image from the skids.
-//  var imageX = this.game.tileWidth * Math.floor((Math.random()*4));
-//  var frame = new lime.fill.Frame('images/sprites.png', imageX, this.game.tileHeight, this.game.tileWidth, this.game.tileHeight);
-//  
-//  this.skid = new lime.Sprite()
-//    .setSize(this.game.tileWidth, this.game.tileHeight)
-//    .setFill(frame)
-//    .setAnchorPoint(this.anchor, this.anchor);
-    
   // Place the block.
   this.moveTo(x, y);
 }
@@ -48,7 +29,7 @@ robert_the_lifter.Block = function(x, y, game) {
 robert_the_lifter.Block.prototype.addChains = function(rotation) {
   var chains = new lime.Sprite()
     .setAnchorPoint(.5, .5)
-    .setFill(this.chainFill)
+    .setFill(this.game.Media.ChainFrame)
     .setSize(21, this.game.Constants.TileHeight);
   this.rotateChain(chains, rotation);
   this.chains.push(chains);

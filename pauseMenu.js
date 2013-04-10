@@ -45,7 +45,6 @@ robert_the_lifter.PauseMenu.prototype.initPauseMenu = function() {
   var height = 226,
       width = 446;
   var x = (this.game.Constants.FactoryWidth / 2) - (width/2);
-//  var menuTile = new lime.fill.Frame('images/pause_menu.png', 0, 0, width, height);
   this.currentMenu = new lime.Sprite()
         .setAnchorPoint(0,0)
         .setPosition(x, this.optionsY)
@@ -78,18 +77,17 @@ robert_the_lifter.PauseMenu.prototype.initOptionsMenu = function() {
   var statusX = x + 225,
       musicStatusY = this.optionsY + 10,
       sfxStatusY = this.optionsY + 90;
-  
-//  var menuTile = new lime.fill.Frame('images/options_menu.png', 0, 0, width, height);
+
   this.currentMenu = new lime.Sprite()
         .setAnchorPoint(0,0)
         .setPosition(x, this.optionsY)
         .setFill(this.game.Media.OptionsMenu);
   this.appendChild(this.currentMenu);
   
-  this.musicStatus = this.getStatus(this.game.musicSound, statusX, musicStatusY);
+  this.musicStatus = this.game.Media.GetStatusSprite(this.game.musicSound, statusX, musicStatusY);
   this.appendChild(this.musicStatus);
   
-  this.sfxStatus = this.getStatus(this.game.sfx, statusX, sfxStatusY);
+  this.sfxStatus = this.game.Media.GetStatusSprite(this.game.sfx, statusX, sfxStatusY);
   this.appendChild(this.sfxStatus);
   
   this.currentMenuEvent = function(e) {
@@ -99,12 +97,12 @@ robert_the_lifter.PauseMenu.prototype.initOptionsMenu = function() {
       if (e.event.offsetY <= 360) {
         this.game.switchMusicSound();
         this.removeChild(this.musicStatus);
-        this.musicStatus = this.getStatus(this.game.musicSound, statusX, musicStatusY);
+        this.musicStatus = this.game.Media.GetStatusSprite(this.game.musicSound, statusX, musicStatusY);
         this.appendChild(this.musicStatus);
       } else if (e.event.offsetY <= 440) {
         this.game.switchSFXSound();
         this.removeChild(this.sfxStatus);
-        this.sfxStatus = this.getStatus(this.game.sfx, statusX, sfxStatusY);
+        this.sfxStatus = this.game.Media.GetStatusSprite(this.game.sfx, statusX, sfxStatusY);
         this.appendChild(this.sfxStatus);
       } else if(e.event.offsetY <= 515){
         if (!this.bindingVisible) {
@@ -132,7 +130,6 @@ robert_the_lifter.PauseMenu.prototype.showCredits = function() {
       height = 900;
   var x = (this.game.Constants.FactoryWidth / 2) - (width/2);
   
-//  var creditTile = new lime.fill.Frame('images/credits_menu.png', 0, 0, width, height);
   this.creditSprite = new lime.Sprite()
         .setAnchorPoint(0,0)
         .setPosition(x, 0)
@@ -221,22 +218,6 @@ robert_the_lifter.PauseMenu.prototype.removeCurrentMenu = function() {
   this.hideCredits(); 
   this.hideKeyBindingMenu();
   goog.events.unlisten(this.game.pauseMenu,['mousedown','touchstart'], this.currentMenuEvent);
-}
-
-/**
- * Get a sprite of the on/off image.
- */
-robert_the_lifter.PauseMenu.prototype.getStatus = function(status, x, y) {
-  var file = "images/off_status.png";
-  if (status) {
-    file = "images/on_status.png";
-  }
-  var statusFrame = new lime.fill.Frame(file, 0, 0, 167, 37);
-  var statusSprite = new lime.Sprite()
-        .setAnchorPoint(0,0)
-        .setPosition(x, y)
-        .setFill(statusFrame);
-  return statusSprite;
 }
 
 robert_the_lifter.PauseMenu.prototype.unpause = function() {

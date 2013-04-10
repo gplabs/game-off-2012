@@ -93,8 +93,6 @@ robert_the_lifter.Piece.prototype.updateChains = function () {
     blocksToCompare.splice(0, 1);
     
     for (var j in blocksToCompare) {
-      var height = this.game.Constants.TileHeight;
-      var chainFill = new lime.fill.Frame('images/chains.png', 0, 0, 21, this.game.Constants.TileHeight);
       // If the comparing block is somewhere around the current one, we place chains accordingly.
       if (this.blocks[i].x + 1 == blocksToCompare[j].x && this.blocks[i].y == blocksToCompare[j].y) {
         // The block is right
@@ -111,15 +109,6 @@ robert_the_lifter.Piece.prototype.updateChains = function () {
       else if (this.blocks[i].x == blocksToCompare[j].x && this.blocks[i].y - 1 == blocksToCompare[j].y) {
         // The block is up
         this.blocks[i].addChains(90);
-      }
-      
-      function getChains(x, y, rotation, chainFill) {
-        return new lime.Sprite()
-          .setAnchorPoint(.5, .5)
-          .setPosition(x, y)
-          .setFill(chainFill)
-          .setRotation(rotation)
-          .setSize(21, height);
       }
     }
   }
