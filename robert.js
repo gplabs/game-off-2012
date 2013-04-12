@@ -10,25 +10,25 @@ robert_the_lifter.Robert = function(game) {
   this.x = 12;
   this.y = 5;
   this.setPosition(
-    (this.x * game.tileWidth) + game.factoryX + (game.tileWidth/2), 
-    (this.y * game.tileHeight) + game.factoryY + (game.tileHeight/2)
+    (this.x * game.Constants.TileWidth) + game.Constants.FactoryX + (game.Constants.TileWidth/2), 
+    (this.y * game.Constants.TileHeight) + game.Constants.FactoryY + (game.Constants.TileHeight/2)
   );
   this.game.switchState(this.x, this.y, this.id);
   
   this.forks_x = 0;
-  this.forks_y = 64;
+  this.forks_y = game.Constants.TileWidth;
   
   this.setAnchorPoint(0.5, 0.75);
 
-  this.img = new lime.fill.Frame('images/sprites.png', game.tileWidth*4, game.tileHeight*2, game.tileWidth + this.forks_x, game.tileHeight + this.forks_y);
-  this.setSize(game.tileWidth + this.forks_x, game.tileHeight + this.forks_y).setFill(this.img);
+  this.setSize(game.Constants.TileWidth + this.forks_x, game.Constants.TileHeight + this.forks_y)
+      .setFill(game.Media.RobertFrame);
   this.setRotation(0);
   
   // Set moving limits.
-  this.rightLimit = game.factoryX + game.factoryWidth - this.getSize().width;
-  this.upLimit = game.factoryY;
-  this.leftLimit = game.factoryX;
-  this.downLimit = game.factoryY + game.factoryHeight - this.getSize().height;
+  this.rightLimit = game.Constants.FactoryX + game.Constants.FactoryWidth - this.getSize().width;
+  this.upLimit = game.Constants.FactoryY;
+  this.leftLimit = game.Constants.FactoryX;
+  this.downLimit = game.Constants.FactoryY + game.Constants.FactoryHeight - this.getSize().height;
   
   this.hasPiece = false;
   
@@ -138,7 +138,7 @@ robert_the_lifter.Robert.prototype.stop = function (){
 }
 
 robert_the_lifter.Robert.prototype.moveTo = function (keyCode) {
-  var movement_value = this.game.tileWidth;
+  var movement_value = this.game.Constants.TileWidth;
   var rotation = this.getRotation();
   if (rotation <= 0) {
     rotation = 360;
@@ -208,12 +208,12 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
       oldY = this.y;
   var actual_position = this.getPosition();
   
-  var outside = newX < 0 || newX >= this.game.factoryNbTileWidth ||
-                newY < 0 || newY >= this.game.factoryNbTileHeight;
+  var outside = newX < 0 || newX >= this.game.Constants.FactoryNbTileWidth ||
+                newY < 0 || newY >= this.game.Constants.FactoryNbTileHeight;
   
   // If robert has no piece, we move only him.
   if (!outside && !this.hasPiece && !this.game.containsSomething(newX, newY)) {
-    this.setPosition(actual_position.x + (x*this.game.tileWidth), actual_position.y + (y*this.game.tileHeight));
+    this.setPosition(actual_position.x + (x*this.game.Constants.TileWidth), actual_position.y + (y*this.game.Constants.TileHeight));
     this.game.switchState(newX, newY, this.id);
     this.x = newX;
     this.y = newY;
@@ -232,7 +232,7 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
     if (canMove && !this.game.containsAnotherPiece(newX, newY, this.grabbedPiece.id)) {
       this.grabbedPiece.move(x, y);
       
-      this.setPosition(actual_position.x + (x*this.game.tileWidth), actual_position.y + (y*this.game.tileHeight));
+      this.setPosition(actual_position.x + (x*this.game.Constants.TileWidth), actual_position.y + (y*this.game.Constants.TileHeight));
       this.game.switchState(newX, newY, this.id);
       
       this.x = newX;

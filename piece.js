@@ -93,8 +93,6 @@ robert_the_lifter.Piece.prototype.updateChains = function () {
     blocksToCompare.splice(0, 1);
     
     for (var j in blocksToCompare) {
-      var height = this.game.tileHeight;
-      var chainFill = new lime.fill.Frame('images/chains.png', 0, 0, 21, this.game.tileHeight);
       // If the comparing block is somewhere around the current one, we place chains accordingly.
       if (this.blocks[i].x + 1 == blocksToCompare[j].x && this.blocks[i].y == blocksToCompare[j].y) {
         // The block is right
@@ -111,15 +109,6 @@ robert_the_lifter.Piece.prototype.updateChains = function () {
       else if (this.blocks[i].x == blocksToCompare[j].x && this.blocks[i].y - 1 == blocksToCompare[j].y) {
         // The block is up
         this.blocks[i].addChains(90);
-      }
-      
-      function getChains(x, y, rotation, chainFill) {
-        return new lime.Sprite()
-          .setAnchorPoint(.5, .5)
-          .setPosition(x, y)
-          .setFill(chainFill)
-          .setRotation(rotation)
-          .setSize(21, height);
       }
     }
   }
@@ -253,8 +242,8 @@ robert_the_lifter.Piece.prototype.move = function (x, y) {
   // Move the chains
   for (var j in this.chains) {
     var pos = this.chains[j].getPosition();
-    pos.x += (x * this.game.tileWidth);
-    pos.y += (y * this.game.tileHeight);
+    pos.x += (x * this.game.Constants.TileWidth);
+    pos.y += (y * this.game.Constants.TileHeight);
   }
 }
 
@@ -285,7 +274,7 @@ robert_the_lifter.Piece.prototype.reachedLeftLimit = function () {
   for (var i = 0; i < this.blocks.length && !hasReached; i ++) {
     var pos = this.blocks[i].getPosition();
     var size = this.blocks[i].getSize();
-    if (pos.x - (size.width * this.anchor) <= this.game.factoryX) {
+    if (pos.x - (size.width * this.anchor) <= this.game.Constants.FactoryX) {
       hasReached = true;
     }
   }

@@ -9,27 +9,11 @@ robert_the_lifter.Block = function(x, y, game) {
   this.x = x;
   this.y = y;
   this.game = game;
-  this.chainFill = new lime.fill.Frame('images/chains.png', 0, 0, 23, this.game.tileHeight);
   this.chains = [];
   
-  // getting a random image from the boxes image.
-  var boxX = this.game.tileWidth * Math.floor((Math.random()*6));
-  var boxesFrame = new lime.fill.Frame('images/sprites.png', boxX, 0, this.game.tileWidth, this.game.tileHeight);
-  
-  this.box = new lime.Sprite()
-    .setSize(this.game.tileWidth, this.game.tileHeight)
-    .setFill(boxesFrame)
-    .setAnchorPoint(this.anchor, this.anchor);
+  this.box = game.Media.GetBoxSprite();
+  this.skid = game.Media.GetSkidSprite();
 
-  // Getting a random image from the skids.
-  var imageX = this.game.tileWidth * Math.floor((Math.random()*4));
-  var frame = new lime.fill.Frame('images/sprites.png', imageX, this.game.tileHeight, this.game.tileWidth, this.game.tileHeight);
-  
-  this.skid = new lime.Sprite()
-    .setSize(this.game.tileWidth, this.game.tileHeight)
-    .setFill(frame)
-    .setAnchorPoint(this.anchor, this.anchor);
-    
   // Place the block.
   this.moveTo(x, y);
 }
@@ -43,10 +27,7 @@ robert_the_lifter.Block = function(x, y, game) {
  * 270: down
  */
 robert_the_lifter.Block.prototype.addChains = function(rotation) {
-  var chains = new lime.Sprite()
-    .setAnchorPoint(.5, .5)
-    .setFill(this.chainFill)
-    .setSize(21, this.game.tileHeight);
+  var chains = this.game.Media.GetChainSprite();
   this.rotateChain(chains, rotation);
   this.chains.push(chains);
   
@@ -102,8 +83,8 @@ robert_the_lifter.Block.prototype.move = function (x, y) {
   
   for (var i in this.chains) {
     var chainsPos = this.chains[i].getPosition();
-    chainsPos.x += x*this.game.tileWidth;
-    chainsPos.y += y*this.game.tileHeight;
+    chainsPos.x += x*this.game.Constants.TileWidth;
+    chainsPos.y += y*this.game.Constants.TileHeight;
   }
 }
 
@@ -111,8 +92,8 @@ robert_the_lifter.Block.prototype.move = function (x, y) {
  * Move the block to given coords(x, y)
  */
 robert_the_lifter.Block.prototype.moveTo = function (x, y) {
-  var newX = (x * this.game.tileWidth) + this.game.factoryX + (this.anchor*this.game.tileWidth),
-      newY = (y * this.game.tileHeight) + this.game.factoryY + (this.anchor*this.game.tileHeight);
+  var newX = (x * this.game.Constants.TileWidth) + this.game.Constants.FactoryX + (this.anchor*this.game.Constants.TileWidth),
+      newY = (y * this.game.Constants.TileHeight) + this.game.Constants.FactoryY + (this.anchor*this.game.Constants.TileHeight);
       
   this.x = x;
   this.y = y;
@@ -143,20 +124,20 @@ robert_the_lifter.Block.prototype.rotateChain = function(chains, rotation) {
   
   switch(rotation) {
     case 0:
-      chainX = pos.x + (this.game.tileWidth * this.anchor);
+      chainX = pos.x + (this.game.Constants.TileWidth * this.anchor);
       chainY = pos.y;
       break;
     case 90:
       chainX = pos.x;
-      chainY = pos.y - (this.game.tileHeight * this.anchor);
+      chainY = pos.y - (this.game.Constants.TileHeight * this.anchor);
       break;
     case 180:
-      chainX = pos.x - (this.game.tileWidth * this.anchor);
+      chainX = pos.x - (this.game.Constants.TileWidth * this.anchor);
       chainY = pos.y;
       break
     case 270:
       chainX = pos.x;
-      chainY = pos.y + (this.game.tileHeight * this.anchor);
+      chainY = pos.y + (this.game.Constants.TileHeight * this.anchor);
       break;
   }
   
