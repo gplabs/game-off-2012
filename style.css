@@ -9,6 +9,8 @@ body {
 }
 
 #game {
+  width: 1120px;
+  height: 592px;
   float:left;
 }
 
@@ -22,8 +24,8 @@ div.hide {
 #options_wrapper {
   position: absolute;
   z-index: 1;
-  top: 430px;
-  left: 725px;
+  top: 225px;
+  left: 647.25px;
 }
 
 input.option {

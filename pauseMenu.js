@@ -76,8 +76,8 @@ robert_the_lifter.PauseMenu.prototype.initOptionsMenu = function() {
       sfxStatusY = this.optionsY + (90*this.game.Constants.ratio);
 
   this.currentMenu = this.game.Media.GetOptionsMenuSprite(x, this.optionsY);
-  document.getElementById("options_wrapper").style.top = (this.optionsY).toString() + 'px';
-  document.getElementById("options_wrapper").style.left = (x + this.game.Media.optionsMenuWidth * this.game.Constants.ratio).toString() + 'px';
+//  document.getElementById("options_wrapper").style.top = (this.optionsY).toString() + 'px';
+//  document.getElementById("options_wrapper").style.left = (x + this.game.Media.optionsMenuWidth * this.game.Constants.ratio).toString() + 'px';
   this.appendChild(this.currentMenu);
 
   this.musicStatus = this.game.Media.GetStatusSprite(this.game.musicSound, statusX, musicStatusY);

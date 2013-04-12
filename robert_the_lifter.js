@@ -27,9 +27,9 @@ robert_the_lifter.start = function() {
   var constants = new robert_the_lifter.Constants();
   var media = new robert_the_lifter.Media(constants, robert_the_lifter.startGame);
 
-  var gameElement = document.getElementById("game");
-  gameElement.style.width = constants.GameWidth.toString() + 'px';
-  gameElement.style.height = constants.GameHeight.toString() + 'px';
+//  var gameElement = document.getElementById("game");
+//  gameElement.style.width = constants.GameWidth.toString() + 'px';
+//  gameElement.style.height = constants.GameHeight.toString() + 'px';
 
   var game = new robert_the_lifter.Game(constants);
   this.gameObject = game;
