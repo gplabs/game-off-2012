@@ -6,32 +6,32 @@ robert_the_lifter.Robert = function(game) {
   goog.base(this);
   this.id = robert_the_lifter.Game.ROBERT;
   this.game = game;
-  
+
   this.x = 12;
   this.y = 5;
   this.setPosition(
-    (this.x * game.Constants.TileWidth) + game.Constants.FactoryX + (game.Constants.TileWidth/2), 
+    (this.x * game.Constants.TileWidth) + game.Constants.FactoryX + (game.Constants.TileWidth/2),
     (this.y * game.Constants.TileHeight) + game.Constants.FactoryY + (game.Constants.TileHeight/2)
   );
   this.game.switchState(this.x, this.y, this.id);
-  
+
   this.forks_x = 0;
   this.forks_y = game.Constants.TileWidth;
-  
+
   this.setAnchorPoint(0.5, 0.75);
 
   this.setSize(game.Constants.TileWidth + this.forks_x, game.Constants.TileHeight + this.forks_y)
       .setFill(game.Media.RobertFrame);
   this.setRotation(0);
-  
+
   // Set moving limits.
   this.rightLimit = game.Constants.FactoryX + game.Constants.FactoryWidth - this.getSize().width;
   this.upLimit = game.Constants.FactoryY;
   this.leftLimit = game.Constants.FactoryX;
   this.downLimit = game.Constants.FactoryY + game.Constants.FactoryHeight - this.getSize().height;
-  
+
   this.hasPiece = false;
-  
+
   // Prevent the browser from scrolling on arrow key pressed.
   window.addEventListener("keydown",
     function(e){
@@ -42,7 +42,7 @@ robert_the_lifter.Robert = function(game) {
       }
     },
   false);
- 
+
   // If the keys are being hold down.
   var upHold = false,
       rightHold = false,
@@ -50,10 +50,10 @@ robert_the_lifter.Robert = function(game) {
       leftHold = false,
   // When the key is hold down, this is the time before the next movement.
       nextUp = game.getRobertSpeed(),
-      nextRight = game.getRobertSpeed(),
+      nextRight = robert_the_lifter.Game.DEFAULT_ROBERT_SPEED,
       nextDown = game.getRobertSpeed(),
-      nextLeft = game.getRobertSpeed();
-  
+      nextLeft = robert_the_lifter.Game.DEFAULT_ROBERT_SPEED;
+
   /**
    * Function for each arrow event, keydown AND keyup.
    */
@@ -61,20 +61,20 @@ robert_the_lifter.Robert = function(game) {
     var keyDown = (!game.isPaused) && (ev.type == "keydown");
     if (keyDown && !leftHold) {
       game.robert.rotate(90);
-      nextLeft = game.getRobertSpeed();
+      nextLeft = robert_the_lifter.Game.DEFAULT_ROBERT_SPEED;
     }
     leftHold = keyDown;
   }
-  
+
   this.rightEvent = function (ev) {
     var keyDown = (!game.isPaused) && (ev.type == "keydown");
     if (keyDown && !rightHold) {
       game.robert.rotate(-90);
-      nextRight = game.getRobertSpeed();
+      nextRight = robert_the_lifter.Game.DEFAULT_ROBERT_SPEED;
     }
     rightHold = keyDown;
   }
-  
+
   this.forwardEvent = function(ev) {
     var keyDown = (!game.isPaused) && (ev.type == "keydown");
     if (keyDown && !upHold) {
@@ -83,7 +83,7 @@ robert_the_lifter.Robert = function(game) {
     }
     upHold = keyDown;
   }
-  
+
   this.backwardEvent = function(ev) {
     var keyDown = (!game.isPaused) && (ev.type == "keydown");
     if (keyDown && !downHold) {
@@ -106,7 +106,7 @@ robert_the_lifter.Robert = function(game) {
     if (rightHold) {
       if (nextRight <= 0) {
         game.robert.rotate(-90);
-        nextRight += game.getRobertSpeed();
+        nextRight += robert_the_lifter.Game.DEFAULT_ROBERT_SPEED;
       }
       nextRight -= number;
     }
@@ -122,7 +122,7 @@ robert_the_lifter.Robert = function(game) {
     if (leftHold) {
       if (nextLeft <= 0) {
         game.robert.rotate(90);
-        nextLeft += game.getRobertSpeed();
+        nextLeft += robert_the_lifter.Game.DEFAULT_ROBERT_SPEED;
       }
       nextLeft -= number;
     }
@@ -144,9 +144,9 @@ robert_the_lifter.Robert.prototype.moveTo = function (keyCode) {
     rotation = 360;
   }
   rotation /= 90;
-  
+
   this.canUseKey = false;
-  switch(rotation) {  
+  switch(rotation) {
     case 1: // left.
       if (keyCode == this.game.forwardKey) { // Moving forward
         this.moveLeft(movement_value);
@@ -172,7 +172,7 @@ robert_the_lifter.Robert.prototype.moveTo = function (keyCode) {
       else { // Moving backward
         this.moveLeft(movement_value);
       }
-      break;   
+      break;
 
     case 4: // Up.
       if (keyCode == this.game.forwardKey) { // Moving forward
@@ -181,7 +181,7 @@ robert_the_lifter.Robert.prototype.moveTo = function (keyCode) {
       else { // Moving backward
         this.moveDown(movement_value);
       }
-      break;  
+      break;
   }
 }
 
@@ -207,10 +207,10 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
       oldX = this.x,
       oldY = this.y;
   var actual_position = this.getPosition();
-  
+
   var outside = newX < 0 || newX >= this.game.Constants.FactoryNbTileWidth ||
                 newY < 0 || newY >= this.game.Constants.FactoryNbTileHeight;
-  
+
   // If robert has no piece, we move only him.
   if (!outside && !this.hasPiece && !this.game.containsSomething(newX, newY)) {
     this.setPosition(actual_position.x + (x*this.game.Constants.TileWidth), actual_position.y + (y*this.game.Constants.TileHeight));
@@ -225,16 +225,16 @@ robert_the_lifter.Robert.prototype.move = function(x, y) {
     for(var i = 0; i < this.grabbedPiece.blocks.length && canMove; i ++) {
       var blockX = this.grabbedPiece.blocks[i].x + x,
           blockY = this.grabbedPiece.blocks[i].y + y;
-      
+
       canMove = this.game.isInside(blockX, blockY) && !this.game.containsAnotherPiece(blockX, blockY, this.grabbedPiece.id);
     }
-    
+
     if (canMove && !this.game.containsAnotherPiece(newX, newY, this.grabbedPiece.id)) {
       this.grabbedPiece.move(x, y);
-      
+
       this.setPosition(actual_position.x + (x*this.game.Constants.TileWidth), actual_position.y + (y*this.game.Constants.TileHeight));
       this.game.switchState(newX, newY, this.id);
-      
+
       this.x = newX;
       this.y = newY;
       // If the old position is still robert, we make it NO_PIECE.
@@ -254,7 +254,7 @@ robert_the_lifter.Robert.prototype.rotate = function (rotation) {
     actual_rotation = 360;
   }
   var canRotate = true;
-  
+
   if (this.hasPiece) {
     // Rotation point. (origin)
     var xO = this.x,
@@ -266,10 +266,10 @@ robert_the_lifter.Robert.prototype.rotate = function (rotation) {
     for(var i = 0; i < this.grabbedPiece.blocks.length && canRotate; i++) {
       var x1 = this.grabbedPiece.blocks[i].x,
           y1 = this.grabbedPiece.blocks[i].y;
-      
+
       var x2 = Math.round(Math.cos(r) * (x1-xO) - Math.sin(r) * (y1-yO) + xO),
           y2 = Math.round(Math.sin(r) * (x1-xO) + Math.cos(r) * (y1-yO) + yO);
-          
+
       if (this.game.isInside(x2, y2) && !this.game.containsAnotherPiece(x2, y2, this.grabbedPiece.id)) {
         newPiece[i] = new Array(x2, y2);
       } else {
@@ -277,7 +277,7 @@ robert_the_lifter.Robert.prototype.rotate = function (rotation) {
       }
     }
   }
-  
+
   // Make the rotation.
   if (canRotate) {
     this.setRotation(actual_rotation + rotation);
