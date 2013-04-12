@@ -16,7 +16,7 @@ robert_the_lifter.Robert = function(game) {
   this.game.switchState(this.x, this.y, this.id);
   
   this.forks_x = 0;
-  this.forks_y = 64;
+  this.forks_y = game.Constants.TileWidth;
   
   this.setAnchorPoint(0.5, 0.75);
 

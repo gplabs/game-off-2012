@@ -23,9 +23,6 @@ robert_the_lifter.Game = function(constants) {
   
   this.pieces = [];
   
-  this.height = constants.TruckParkingHeight + constants.FactoryHeight + constants.OfficeAreaHeight + constants.WallWidth;
-  this.width = constants.TileWidth * 24;
-  
   // fill the entire field with -1s
   this.field = [];
   for(var i = 0; i <= constants.FactoryNbTileHeight - 1; i++) {

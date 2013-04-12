@@ -5,50 +5,62 @@ goog.require('goog.net.ImageLoader');
  * Initialization of all media. (Preloading)
  */
 robert_the_lifter.Media = function(constants, start) {
+  this.imageTileSize = 64;
+
   var sprites = 'images/sprites.png';
-  
-  this.PauseMenu = new lime.fill.Frame('images/pause_menu.png', 0, 0, 446, 226);
-  this.OptionsMenu = new lime.fill.Frame('images/options_menu.png', 0, 0, 446, 305);
-  this.CreditsMenu = new lime.fill.Frame('images/credits_menu.png', 0, 0, 661, 900);
-  this.MenuStatusOn = new lime.fill.Frame('images/on_status.png', 0, 0, 167, 37);
-  this.MenuStatusOff = new lime.fill.Frame('images/off_status.png', 0, 0, 167, 37);
-  
-  this.ChainFrame = new lime.fill.Frame('images/chains.png', 0, 0, 23, constants.TileHeight);
-  
-  this.WallTile = new lime.fill.Frame('images/wall.png', 0, 0, constants.TileWidth, constants.WallWidth);
-  this.CornerWallTile = new lime.fill.Frame('images/wall.png', constants.TileWidth, 0, constants.WallWidth, constants.WallWidth);
-  this.FactoryTile = new lime.fill.Frame(sprites, constants.TileWidth, constants.TileHeight*4, constants.TileWidth, constants.TileHeight);
-  this.ParkingTile = new lime.fill.Frame(sprites, 0, constants.TileHeight * 4, constants.TileWidth, constants.TileHeight);
-  this.GradiantFogTile = new lime.fill.Frame(sprites, constants.TileWidth * 3, constants.TileHeight * 4, constants.TileWidth, constants.TileHeight);
-  
-  this.RobertFrame = new lime.fill.Frame(sprites, constants.TileWidth*4, constants.TileHeight*2, constants.TileWidth + 0, constants.TileHeight + 64);
-  
+
+  this.pauseMenuWidth = 446;
+  this.pauseMenuHeight = 226;
+  this.optionsMenuWidth = 446;
+  this.optionsMenuHeight = 305;
+  this.creditsMenuWidth = 661;
+  this.creditsMenuHeight = 900;
+  this.menuStatusWidth = 167;
+  this.menuStatusHeight = 37;
+
+  this.PauseMenu = new lime.fill.Frame('images/pause_menu.png', 0, 0, this.pauseMenuWidth, this.pauseMenuHeight);
+  this.OptionsMenu = new lime.fill.Frame('images/options_menu.png', 0, 0, this.optionsMenuWidth, this.optionsMenuHeight);
+  this.CreditsMenu = new lime.fill.Frame('images/credits_menu.png', 0, 0, this.creditsMenuWidth, this.creditsMenuHeight);
+  this.MenuStatusOn = new lime.fill.Frame('images/on_status.png', 0, 0, this.menuStatusWidth, this.menuStatusHeight);
+  this.MenuStatusOff = new lime.fill.Frame('images/off_status.png', 0, 0, this.menuStatusWidth, this.menuStatusHeight);
+
+  this.chainWidth = 23;
+  this.ChainFrame = new lime.fill.Frame('images/chains.png', 0, 0, this.chainWidth, this.imageTileSize);
+
+  this.WallTile = new lime.fill.Frame('images/wall.png', 0, 0, this.imageTileSize, constants.DefaultWallWidth);
+  this.CornerWallTile = new lime.fill.Frame('images/wall.png', this.imageTileSize, 0, constants.DefaultWallWidth, constants.DefaultWallWidth);
+  this.FactoryTile = new lime.fill.Frame(sprites, this.imageTileSize, this.imageTileSize*4, this.imageTileSize, this.imageTileSize);
+  this.ParkingTile = new lime.fill.Frame(sprites, 0, this.imageTileSize * 4, this.imageTileSize, this.imageTileSize);
+  this.GradiantFogTile = new lime.fill.Frame(sprites, this.imageTileSize * 3, this.imageTileSize * 4, this.imageTileSize, this.imageTileSize);
+
+  this.RobertFrame = new lime.fill.Frame(sprites, this.imageTileSize*4, this.imageTileSize*2, this.imageTileSize, this.imageTileSize*2);
+
   // Initialization of 6 box variations.
   this.Boxes = [];
   var boxX = 0;
   for (var boxId = 0; boxId < 6; boxId++) {
-    boxX = constants.TileWidth * boxId;
-    this.Boxes.push(new lime.fill.Frame(sprites, boxX, 0, constants.TileWidth, constants.TileHeight));
+    boxX = this.imageTileSize * boxId;
+    this.Boxes.push(new lime.fill.Frame(sprites, boxX, 0, this.imageTileSize, this.imageTileSize));
   }
-  
+
   // Initialization of 4 skids variations.
   this.Skids = [];
   var skidX = 0;
   for (var skidId = 0; skidId < 4; skidId++) {
-    skidX = constants.TileWidth * skidId;
-    this.Skids.push(new lime.fill.Frame(sprites, skidX, constants.TileHeight, constants.TileWidth, constants.TileHeight));
+    skidX = this.imageTileSize * skidId;
+    this.Skids.push(new lime.fill.Frame(sprites, skidX, this.imageTileSize, this.imageTileSize, this.imageTileSize));
   }
-  
+
   // Initialization of 4 Trucks variations.
   this.Trucks = [];
   var truckX = 0;
   for (var truckId = 0; truckId < 4; truckId++) {
-    truckX = constants.TileWidth * truckId;
-    this.Trucks.push(new lime.fill.Frame(sprites, truckX, constants.TileHeight*2, constants.TileWidth, constants.TileHeight*2));
+    truckX = this.imageTileSize * truckId;
+    this.Trucks.push(new lime.fill.Frame(sprites, truckX, this.imageTileSize*2, this.imageTileSize, this.imageTileSize*2));
   }
-  
+
   this.Constants = constants;
-  
+
   // Wait for images to be loaded before starting the game.
   var factoryTile = this.FactoryTile;
   var isLoaded = function(){
@@ -65,7 +77,7 @@ robert_the_lifter.Media = function(constants, start) {
  */
 robert_the_lifter.Media.prototype.GetRobertSprite = function() {
   var skidIndex = Math.floor((Math.random()*this.Skids.length));
-  
+
   return new lime.Sprite()
     .setSize(this.Constants.TileWidth, this.Constants.TileHeight)
     .setFill(this.Skids[skidIndex])
@@ -77,7 +89,7 @@ robert_the_lifter.Media.prototype.GetRobertSprite = function() {
  */
 robert_the_lifter.Media.prototype.GetBoxSprite = function() {
   var boxIndex = Math.floor((Math.random()*this.Boxes.length));
-  
+
   return new lime.Sprite()
     .setSize(this.Constants.TileWidth, this.Constants.TileHeight)
     .setFill(this.Boxes[boxIndex])
@@ -89,7 +101,7 @@ robert_the_lifter.Media.prototype.GetBoxSprite = function() {
  */
 robert_the_lifter.Media.prototype.GetSkidSprite = function() {
   var skidIndex = Math.floor((Math.random()*this.Skids.length));
-  
+
   return new lime.Sprite()
     .setSize(this.Constants.TileWidth, this.Constants.TileHeight)
     .setFill(this.Skids[skidIndex])
@@ -101,7 +113,7 @@ robert_the_lifter.Media.prototype.GetSkidSprite = function() {
  */
 robert_the_lifter.Media.prototype.GetTruckSprite = function(x, y) {
   var truckIndex = Math.floor((Math.random()*this.Trucks.length));
-  
+
   return new lime.Sprite()
     .setSize(this.Constants.TileWidth, this.Constants.TileHeight * 2)
     .setFill(this.Trucks[truckIndex])
@@ -125,12 +137,13 @@ robert_the_lifter.Media.prototype.GetParkingSprite = function(x, y) {
  */
 robert_the_lifter.Media.prototype.GetStatusSprite = function(status, x, y) {
   var fill = status ? this.MenuStatusOn : this.MenuStatusOff
-  
+
   var statusSprite = new lime.Sprite()
     .setAnchorPoint(0,0)
     .setPosition(x, y)
-    .setFill(fill);
-        
+    .setFill(fill)
+    .setSize(this.menuStatusWidth * this.Constants.ratio, this.menuStatusHeight * this.Constants.ratio);
+
   return statusSprite;
 }
 
@@ -166,4 +179,49 @@ robert_the_lifter.Media.prototype.GetGradiantFogSprite = function(x, y) {
     .setPosition(x, y)
     .setSize(this.Constants.TileWidth, this.Constants.TileHeight * this.Constants.FactoryNbTileHeight)
     .setFill(this.GradiantFogTile);
+}
+
+/**
+ * Get a sprite for the pause menu.
+ */
+robert_the_lifter.Media.prototype.GetPauseMenuSprite = function(x, y) {
+  return new lime.Sprite()
+    .setAnchorPoint(0,0)
+    .setPosition(x, y)
+    .setFill(this.PauseMenu)
+    .setSize(this.pauseMenuWidth * this.Constants.ratio, this.pauseMenuHeight * this.Constants.ratio);
+}
+
+/**
+ * Get a sprite for the chains!
+ */
+robert_the_lifter.Media.prototype.GetChainSprite = function() {
+  return new lime.Sprite()
+    .setAnchorPoint(.5, .5)
+    .setFill(this.ChainFrame)
+    .setSize(this.chainWidth * this.Constants.ratio, this.Constants.TileHeight);
+}
+
+/**
+ * Get a sprite for the chains!
+ */
+robert_the_lifter.Media.prototype.GetOptionsMenuSprite = function(x, y) {
+  return new lime.Sprite()
+    .setAnchorPoint(0,0)
+    .setPosition(x, y)
+    .setFill(this.OptionsMenu)
+    .setSize(this.optionsMenuWidth * this.Constants.ratio, this.optionsMenuHeight * this.Constants.ratio);
+}
+
+/**
+ * Get a sprite for the credits!
+ */
+robert_the_lifter.Media.prototype.GetCreditsSprite = function() {
+  var x = (this.Constants.FactoryWidth / 2) - ((this.creditsMenuWidth * this.Constants.ratio) / 2);
+  var creditsRatio = (this.Constants.GameHeight / this.creditsMenuHeight);
+  return new lime.Sprite()
+    .setAnchorPoint(0,0)
+    .setPosition(x, 0)
+    .setFill(this.CreditsMenu)
+    .setSize(this.creditsMenuWidth*creditsRatio, this.creditsMenuHeight * creditsRatio);//this.creditsMenuHeight*this.Constants.ratio);
 }

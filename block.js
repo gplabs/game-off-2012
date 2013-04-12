@@ -27,10 +27,7 @@ robert_the_lifter.Block = function(x, y, game) {
  * 270: down
  */
 robert_the_lifter.Block.prototype.addChains = function(rotation) {
-  var chains = new lime.Sprite()
-    .setAnchorPoint(.5, .5)
-    .setFill(this.game.Media.ChainFrame)
-    .setSize(21, this.game.Constants.TileHeight);
+  var chains = this.game.Media.GetChainSprite();
   this.rotateChain(chains, rotation);
   this.chains.push(chains);
   

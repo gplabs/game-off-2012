@@ -26,25 +26,30 @@ goog.require('robert_the_lifter.Constants');
 robert_the_lifter.start = function() {
   var constants = new robert_the_lifter.Constants();
   var media = new robert_the_lifter.Media(constants, robert_the_lifter.startGame);
-  
+
+  var gameElement = document.getElementById("game");
+  gameElement.style.width = constants.GameWidth.toString() + 'px';
+  gameElement.style.height = constants.GameHeight.toString() + 'px';
+
   var game = new robert_the_lifter.Game(constants);
   this.gameObject = game;
+  this.Constants = constants;
   game.Media = media;
 
   game.music = new robert_the_lifter.Audio("music/music.ogg", true);
 
   // This will probably be the only scene of the game (beside a menu ?)
   this.gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
-  
+
   // The upper parking layer
   var truckParkingLayer = new robert_the_lifter.ParkingArea(game);
   this.gameScene.appendChild(truckParkingLayer);
-  
+
   // The factory layer.
   var factoryLayer = new lime.Layer()
     .setAnchorPoint(0, 0);
   this.gameScene.appendChild(factoryLayer);
-  
+
   // Building the factory working area.
   for(var i = 0; i < constants.FactoryNbTileWidth + constants.RightAreaTileWidth; i ++) {
     for(var j = 0; j < constants.FactoryNbTileHeight; j ++) {
@@ -57,65 +62,65 @@ robert_the_lifter.start = function() {
       factoryLayer.appendChild(factorySprite);
     }
   }
-  
+
   game.factoryLayer = factoryLayer;
-  
+
   // Build the walls
   this.buildWalls = function() {
     var rightWallX = (constants.FactoryNbTileWidth + constants.RightAreaTileWidth)*constants.TileWidth + constants.WallWidth;
     // Add upper right corner.
     var upRightCornerSprite = game.Media.GetWallCornerSprite(rightWallX, constants.FactoryY - constants.WallWidth, 0);
     factoryLayer.appendChild(upRightCornerSprite);
-    
+
     // Add upper left corner
     var upLeftCornerSprite = game.Media.GetWallCornerSprite(0, constants.ParkingHeight * constants.TileHeight + constants.TruckParkingY + constants.WallWidth, 90);
     factoryLayer.appendChild(upLeftCornerSprite);
-    
+
     // Add bottom right corner.
     var downRightCornerSprite = game.Media.GetWallCornerSprite(rightWallX + constants.WallWidth, constants.FactoryHeight + constants.FactoryY, 270);
     factoryLayer.appendChild(downRightCornerSprite);
-    
+
     // Add bottom left corner
     var downLeftCornerSprite = game.Media.GetWallCornerSprite(constants.WallWidth, constants.FactoryY + constants.FactoryHeight+constants.WallWidth, 180);
     factoryLayer.appendChild(downLeftCornerSprite);
-    
+
     for(var i = 0; i < constants.FactoryNbTileWidth + constants.RightAreaTileWidth; i ++) {
       var horizontalWallsX = (i)*constants.TileWidth + constants.TruckParkingX;
       // Bottom part of the wall.
       var bottomWallSprite = game.Media.GetWallSprite(horizontalWallsX, constants.FactoryY + constants.FactoryHeight);
       factoryLayer.appendChild(bottomWallSprite);
-      
+
       // The upper wall
       var upperWallSprite = game.Media.GetWallSprite(horizontalWallsX, constants.ParkingHeight*constants.TileHeight + constants.TruckParkingY);
       truckParkingLayer.appendChild(upperWallSprite);
     }
-    
+
     for(var j = 0; j < constants.FactoryNbTileHeight; j ++) {
       var y = (j)*constants.TileHeight+constants.FactoryY;
       // Add right wall part.
       var rightWallSprite = game.Media.GetWallSprite(rightWallX, y + constants.TileHeight)
         .setRotation(90);
       factoryLayer.appendChild(rightWallSprite);
-       
+
       // Add the left wall part.
       var leftWallSprite = game.Media.GetWallSprite(0, y + constants.TileHeight)// add tileheight because of rotation.
         .setRotation(90);
       factoryLayer.appendChild(leftWallSprite);
     }
-    
+
     game.blackFog = new lime.Sprite()
       .setAnchorPoint(0,0)
       .setPosition(constants.FactoryWidth + constants.FactoryX + constants.TileWidth, constants.FactoryY)
       .setSize(constants.TileWidth*2, constants.TileHeight*constants.FactoryNbTileHeight)
       .setFill("#000");
     factoryLayer.appendChild(game.blackFog);
-    
+
     // add tileheight because of rotation.
     game.gradiantFog = game.Media.GetGradiantFogSprite(constants.FactoryWidth + constants.FactoryX, constants.FactoryY);
     factoryLayer.appendChild(game.gradiantFog);
   }
   this.buildWalls();
-  
+
   /**
    * End game behavior.
    */
@@ -127,16 +132,16 @@ robert_the_lifter.start = function() {
     var area = new lime.Sprite()
       .setAnchorPoint(0,0)
       .setPosition(0, 0)
-      .setSize(game.width, game.height)
+      .setSize(constants.GameWidth, constants.GameHeight)
       .setFill(255,255,255,.5);
     layer.appendChild(area);
-    
+
     // Game Over.
     var gameOver = new lime.Label("Game Over")
       .setPosition(constants.FactoryWidth / 2, 300)
       .setFontSize(50);
     layer.appendChild(gameOver);
-    
+
     // Let the player input his name.
     var labelCurrentScore = new lime.Label("Your score : " + game.score.getScore())
       .setPosition(constants.FactoryWidth / 2, 350)
@@ -146,7 +151,7 @@ robert_the_lifter.start = function() {
       .setPosition(constants.FactoryWidth / 2, 400)
       .setFontSize(20);
     layer.appendChild(labelInstruction);
-    
+
     var input = document.createElement('input');
     input.type = "text";
     input.id = "highscore-name";
@@ -156,16 +161,16 @@ robert_the_lifter.start = function() {
         game.score.logNewScore(input.value);
         showHighscores();
       }
-      
+
     }
     document.getElementById('game').appendChild(input);
-    
+
     function showHighscores() {
       // remove input + labels.
       layer.removeChild(labelInstruction);
       layer.removeChild(labelCurrentScore);
       input.parentNode.removeChild(input);
-      
+
       var highscores = game.score.getHighscores();
       if (!highscores) {
         var label = new lime.Label("Your browser does not support HTML5 Local Storage.")
@@ -204,7 +209,7 @@ robert_the_lifter.start = function() {
         }
       }
     }
-    
+
     this.gameScene.appendChild(layer);
   }
 }
@@ -212,7 +217,7 @@ robert_the_lifter.start = function() {
 robert_the_lifter.startGame = function() {
   // start game loops.
   robert_the_lifter.gameObject.start();
-  robert_the_lifter.Director = new lime.Director(document.getElementById('game'), robert_the_lifter.gameObject.width, robert_the_lifter.gameObject.height);
+  robert_the_lifter.Director = new lime.Director(document.getElementById('game'), robert_the_lifter.Constants.GameWidth, robert_the_lifter.Constants.GameHeight);
   robert_the_lifter.Director.isPaused = false;
   robert_the_lifter.Director.setDisplayFPS(false);
   robert_the_lifter.Director.replaceScene(robert_the_lifter.gameScene);
