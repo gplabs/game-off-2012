@@ -34,8 +34,6 @@ robert_the_lifter.Game = function(constants) {
 }
 
 robert_the_lifter.Game.prototype.start = function() {
-
-
   var lastGrabTime = 0;
 
   // Register to keyboard event for Robert to grab a piece.
@@ -101,7 +99,7 @@ robert_the_lifter.Game.prototype.start = function() {
 
   this.robert = new robert_the_lifter.Robert(this);
   this.bindKeys("left", "right", "up", "down", "space");
-  this.score = new robert_the_lifter.Score(this.factoryLayer);
+  this.score = new robert_the_lifter.Score(this);
   this.factoryLayer.appendChild(this.score.lbl);
 
   this.pauseMenu = new robert_the_lifter.PauseMenu(this);
