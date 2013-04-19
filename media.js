@@ -17,7 +17,10 @@ robert_the_lifter.Media = function(constants, start) {
   this.creditsMenuHeight = 900;
   this.menuStatusWidth = 167;
   this.menuStatusHeight = 37;
+  this.mainMenuWidth = 1492;
+  this.mainMenuHeight = 788;
 
+  this.MainMenu = new lime.fill.Frame('images/main_menu.png', 0, 0, this.mainMenuWidth, this.mainMenuHeight);
   this.PauseMenu = new lime.fill.Frame('images/pause_menu.png', 0, 0, this.pauseMenuWidth, this.pauseMenuHeight);
   this.OptionsMenu = new lime.fill.Frame('images/options_menu.png', 0, 0, this.optionsMenuWidth, this.optionsMenuHeight);
   this.CreditsMenu = new lime.fill.Frame('images/credits_menu.png', 0, 0, this.creditsMenuWidth, this.creditsMenuHeight);
@@ -60,7 +63,6 @@ robert_the_lifter.Media = function(constants, start) {
   }
 
   this.Constants = constants;
-
   // Wait for images to be loaded before starting the game.
   var factoryTile = this.FactoryTile;
   var isLoaded = function(){
@@ -73,15 +75,14 @@ robert_the_lifter.Media = function(constants, start) {
 }
 
 /**
- * Generate the sprite for Robert.
+ * Generate the sprite for Main Menu.
  */
-robert_the_lifter.Media.prototype.GetRobertSprite = function() {
-  var skidIndex = Math.floor((Math.random()*this.Skids.length));
-
+robert_the_lifter.Media.prototype.GetMainMenuSprite = function() {
   return new lime.Sprite()
-    .setSize(this.Constants.TileWidth, this.Constants.TileHeight)
-    .setFill(this.Skids[skidIndex])
-    .setAnchorPoint(0.5, 0.5);
+    .setSize(this.mainMenuWidth * this.Constants.ratio, this.mainMenuHeight * this.Constants.ratio)
+    .setFill(this.MainMenu)
+    .setAnchorPoint(0,0)
+    .setPosition(0,0);
 }
 
 /**

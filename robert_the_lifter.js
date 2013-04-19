@@ -25,11 +25,16 @@ goog.require('robert_the_lifter.Constants');
 
 robert_the_lifter.start = function() {
   var constants = new robert_the_lifter.Constants();
-  var media = new robert_the_lifter.Media(constants, robert_the_lifter.startGame);
+  var media = new robert_the_lifter.Media(constants, robert_the_lifter.startMenu);
 
 //  var gameElement = document.getElementById("game");
 //  gameElement.style.width = constants.GameWidth.toString() + 'px';
 //  gameElement.style.height = constants.GameHeight.toString() + 'px';
+
+  this.mainMenuScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
+  this.mainMenuLayer = new lime.Layer();
+  this.mainMenuLayer.appendChild(media.GetMainMenuSprite());
+  this.mainMenuScene.appendChild(this.mainMenuLayer);
 
   var game = new robert_the_lifter.Game(constants);
   this.gameObject = game;
@@ -38,8 +43,7 @@ robert_the_lifter.start = function() {
 
   game.music = new robert_the_lifter.Audio("music/music.ogg", true);
 
-  // This will probably be the only scene of the game (beside a menu ?)
-  this.gameScene = new lime.Scene().setRenderer(lime.Renderer.CANVAS);
+  this.gameScene = new lime.Scene().setRenderer();
 
   // The upper parking layer
   var truckParkingLayer = new robert_the_lifter.ParkingArea(game);
@@ -214,13 +218,35 @@ robert_the_lifter.start = function() {
   }
 }
 
-robert_the_lifter.startGame = function() {
-  // start game loops.
-  robert_the_lifter.gameObject.start();
+robert_the_lifter.startMenu = function() {
   robert_the_lifter.Director = new lime.Director(document.getElementById('game'), robert_the_lifter.Constants.GameWidth, robert_the_lifter.Constants.GameHeight);
   robert_the_lifter.Director.isPaused = false;
   robert_the_lifter.Director.setDisplayFPS(false);
+
+  robert_the_lifter.Director.replaceScene(robert_the_lifter.mainMenuScene);
+
+  var playButtonX = 522 * robert_the_lifter.Constants.ratio,
+      playButtonY = 409 * robert_the_lifter.Constants.ratio,
+      playButtonWidth = 415 * robert_the_lifter.Constants.ratio,
+      playButtonHeight = 154 * robert_the_lifter.Constants.ratio;
+  robert_the_lifter.mainMenuEvent = function(e) {
+    if(e.event.offsetX >= playButtonX && e.event.offsetX <= (playButtonX + playButtonWidth) &&
+       e.event.offsetY >= playButtonY && e.event.offsetY <= (playButtonY + playButtonHeight)
+       ) {
+      goog.events.unlisten(robert_the_lifter.mainMenuLayer,['mousedown','touchstart'], robert_the_lifter.mainMenuEvent);
+      robert_the_lifter.startGame();
+    }
+  }
+  goog.events.listen(robert_the_lifter.mainMenuLayer, ['mousedown','touchstart'], robert_the_lifter.mainMenuEvent);
+}
+
+robert_the_lifter.startGame = function() {
+  // start game loop.
   robert_the_lifter.Director.replaceScene(robert_the_lifter.gameScene);
+  robert_the_lifter.gameObject.start();
+  robert_the_lifter.gameScene.children_[0].setDirty(255);
+  robert_the_lifter.gameScene.children_[1].setDirty(255);
+  robert_the_lifter.gameScene.setRenderer(lime.Renderer.CANVAS);
 }
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
 goog.exportSymbol('robert_the_lifter.start', robert_the_lifter.start);
